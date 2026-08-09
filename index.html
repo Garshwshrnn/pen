@@ -1083,7 +1083,7 @@ const RANK_ORDER = {
 
 
 /* =========================================================
-   BLIND DATA check this in the future
+   BLIND DATA 
 ========================================================= */
 const BLINDS = [
   {
@@ -1105,6 +1105,17 @@ const BLINDS = [
   }
 ];
 
+const BASE_CHIP = [
+  100, 
+  300,800,2000,
+  5000, 11000,20000,
+  35000,50000, 110000,
+  560000,7200000,300000000, 
+  47000000000,29000000000000, 77000000000000000, 
+  860000000000000000000
+]
+  //with ante as the index
+  //Untracked Endless Mode not included
 
 /* =========================================================
    JOKER DEFINITIONS
@@ -1376,7 +1387,7 @@ const gameState = {
 ========================================================= */
 
 function formatNumber(number) {
-
+  
   if (!Number.isFinite(number)) {
     return "∞";
   }
@@ -2898,7 +2909,6 @@ function playSelectedHand() {
     return;
   }
 
-
   renderGame();
 }
 
@@ -3120,20 +3130,24 @@ function calculateTargetScore() {
   const blind =
     getCurrentBlind();
 
-
   /*
     Target scales with ante and blind.
   */
+  let calculateBlind = false;//simplified placeholder
+  if(calculateBlind){
+    const base =
+      300 *
+      Math.pow(2.25, gameState.ante - 1);
 
-  const base =
-    300 *
-    Math.pow(2.25, gameState.ante - 1);
 
+    return Math.floor(
+      base *
+      blind.multiplier
+    );
+  };
 
-  return Math.floor(
-    base *
-    blind.multiplier
-  );
+  return blind.multiplier * BASE_CHIP[gameState.ante];
+  //does not consider if gameState.ante is negative
 }
 
 
@@ -4495,9 +4509,9 @@ document
 
 
       nextRound();
-      console.log("ante: "+gameState.ante);
+      /*console.log("ante: "+gameState.ante);
       console.log("round: "+gameState.roundNumber);
-      console.log("blindindex: "+gameState.blindIndex);
+      console.log("blindindex: "+gameState.blindIndex);*/
     }
   );
 
