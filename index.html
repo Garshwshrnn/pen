@@ -4503,7 +4503,10 @@ document
       if (gameState.runLost) {
 
         startGame();
-
+        closeOverlay(
+          "roundOverlay"
+        );
+        
         return;
       }
 
