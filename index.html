@@ -991,885 +991,3668 @@
 
     </div>
 </body>
-  
-  <style id="dashboardBlindStyle">
-          #blind{
-            background-color: lightcyan;
-          }
-          #blind>*{
-            width: 100%;
-            font-size: 20px;
-          }
-          p#blindTitle{
-            background-color: lightblue;
-            height: 55px;
-            font-size: 25px;
-          }
-          #blind>*:nth-child(2n){
-            padding-top: 2px;
-            height: 30px;
-          }
-          #blindReq{
-            height: 50px;
-            font-size: 15px; /*turn into js*/
-            word-wrap: break-word;
-            text-wrap: wrap;
-          }
-          #blindReward{
-            height: 30px;
-          }
-  </style>
-  <style id="dashboardScoreStyle">
-        div#scre{
-          width: 40%;
-        }
-          div#scre>*{
-            width: 100%;
-          }
-          #scre>*:nth-child(1){
-            height: 25%;
-            background-color: slategray;
-            display:flex;
-            flex-direction: row;
-            align-items: center;
-          }
-            #scre>*:nth-child(1)>*{
-              word-wrap: break-word;
-              text-wrap: wrap;
-            }
-            #scre>*:nth-child(1)>*:nth-child(1){
-              font-size: 12px;
-              width: 40%;
-            }
-            #roundScore{
-              width: 60%;
-              font-size: 12px; /*turn into js*/
-            }
-          #scre>*:nth-child(2){
-            height: 55%;
-            background-color: lightgray;
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-          }
-          #scre>*:nth-child(2)>p{
-            width: 100%;
-          }
-          #scre>*:nth-child(2)>p>span{
-            width: 30%;
-            font-size: 18px;
-          }
-          div#scre>*:nth-child(3){
-            height: 32px;
-            font-size: 33px;
-            background-color: white;
-            padding: 10px 0;
-            display: flex;
-            flex-direction: row;
-            align-items: center; 
-          }
-            #scre>*:nth-child(3)>*{
-              height: 100%;
-              display: flex;
-              align-items: center; 
-              justify-content: center;
-            }
-            #scre>*:nth-child(3)>div:nth-child(2n-1){
-              width: 45%;
-              background-blend-mode: multiply; 
-              font-size: 10px; /*turn into js*/
-            }
-            #scre>*:nth-child(3)>p:nth-child(2){
-              width: 10%;
-            }
-            div#chips{
-              background-color: lightblue;
-              /*background-image: linear-gradient(to bottom, lightblue, blue);*/
-            }
-            div#mult{
-              background-color: lightpink;
-              /*background-image: linear-gradient(to bottom, lightpink, red);*/
-            }
-  </style>
-  <style id="dashboardRoundInfoStyle">
-      div#roundInfo{
-      }
-      div#roundInfo>div{
-        width: 100%;
-        height: calc(100%/3);
-        display: flex;
-        flex-direction: row;
-      }
-        div#roundInfo>div>div{
-          width: 50%;
-          height: 100%;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-        }
-          div#roundInfo>div>div>*{
-            width: 100%;
-            height: 40%;
-            padding: 12% 0;
-          }
-          div#roundInfo>div>div>*:nth-child(1){
-            font-size: clamp(11px,50%,14px);
-            height: 25%;
-            padding-top: 17%;
-            padding-bottom: 12%;
-            text-align: center;
-          }
-          div#roundInfo>div>div>*:nth-child(2){
-            background-color: cyan;
-            font-size: 21px;
-            text-align: center;
-          }
-          div#roundInfo>div:nth-child(3)>div:nth-child(2)>*{
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-          }
-          div#roundInfo>div:nth-child(3)>div:nth-child(1)>*:nth-child(2){
-            display: block;
-            height:40%;
-            padding: 7% 0;
-            margin:0;
-            font-size: 5.5px;
-          }
-        #roundInfo>div:nth-child(2){
-          display:flex;
-          align-items: center;
-          background-color: red;
-        }
-        #roundInfo>div:nth-child(2)>*{
-          height: 26px;
-        }
-  </style>
-  <style id="buttonBarStyle">
-    #buttonBar{
-      background-color: lightcoral;
-      justify-content: space-around;
-      height: 8.75vh;
-      align-items: center;
-    }
-      #buttonBar>*{
-        width: 30vw;
-        height: 7.25vh;
-        
-        font-size: 16px;
-      }
-      #buttonBar>*:nth-child(3){
-        background-color: moccasin;
-      }
-  </style>
-  <style id="loadAndBoardStyle">
-    #load{
-      display: none;
-      position: absolute;
-      z-index: 10;
-      bottom: 0;
-      left: 2vw;
-      
-      color: white;
-      
-      background-color: rgba(0,0,0,0.8);
-      width: 96vw;
-      height: 77.5vh;
-    }
-    #board{
-      z-index: 0;
-      display: none;
-    }
-  </style>
-  <style id="upperboard_Center_Hand_Style">
-    #center,#hand,#jokers, #consumables{
-      overflow-x: hidden;
-      overflow-y: scroll;
-      display: flex;
-      flex-direction: row;
-      flex-wrap: wrap;
-      justify-content: space-evenly;
-      align-items: center;
-    }
-    
-    #upperboard{
-      margin: 1vh 0;
-      height: 10vh;
-      display: flex;
-      flex-direction: row;
-    }
-      #jokers{
-        background-color: lightcyan;
-        width: 70vw;
-      }
-      #consumables{
-        background-color: honeydew;
-        width: 30vw;
-      }
-    
-    #center,#hand{
-      height: 23vh;
-      }
-      #center{
-        background-color: lightgreen;
-      }
-      #hand{
-        background-color: lightgoldenrodyellow;
-      }
-  </style>
-  <style id="playButtonStyle">
-    #playButtons{
-      background-color: lightcoral;
-      height: 8vh;
-      
-      display: flex;
-      justify-content: space-evenly;
-      align-items: center;
-    }
-    #playButtons>*{
-      height: 7vh;
-      
-      font-size: 16px;
-    }
-      #playHand, #discardHand{
-        width: 25vw;
-      }
-      #sortRank, #sortSuit{
-        width: 18vw;
-      }
-      
-  </style>
-  <style id="cardStyle">
-    #jokers>*,#consumables>*,#center>*,#hand>*{
-      width: 6.48vh;
-      aspect-ratio: 5.76/8;
-      background-blend-mode: multiply; 
-    }
-    #jokers>*{
-      background-image: linear-gradient(to bottom right, red, yellow);
-    }
-    #consumables>*{
-      background-image: linear-gradient(to bottom right, green, lightcyan);
-    }
-    #center>*,#hand>*{
-      background-image: linear-gradient(to bottom right, lightgray, ivory);
-      
-      /*drag and dropable attributes*/
-      position: relative; /* Keep this only if needed for inner absolute elements */
-      touch-action: none;   /* CRITICAL: Prevents mobile browser from scrolling while dragging */
-      user-select: none;    /* Prevents accidental text/image selection highlights */
-      will-change: transform; /* Optimizes GPU performance for smooth dragging animation */
-    }
-    /* Applied dynamically during a drag operation */
-    .dragging-active {
-      pointer-events: none !important; /* Forces document.elementFromPoint to see through the card */
-      z-index: 9999 !important;        /* Keeps the active card visually on top of all others */
-    }
-    .hidden{
-      display: none;
-    }
-    .selected{
-      filter: brightness(70%); /* Tinge 30% darker */
-    }
-    
-    .suit1{
-      background-color: color-mix(in srgb, blue 22%, yellow 8%);
-    }
-    .suit2{
-      background-color: color-mix(in srgb, red 22%, yellow 8%);
-    }
-    .suit3{
-      background-color: color-mix(in srgb, yellow 22%, yellow 8%);
-    }
-    .suit4{
-      background-color: color-mix(in srgb, green 22%, yellow 8%);
-    }
-  </style>
 
-  <script id="onload_and_general_functions_script">
-  //GENERAL
-    window.addEventListener('load', () => {
-      document.addEventListener('touchmove', function(event) {if (event.touches.length > 1) { event.preventDefault();}}, { passive: false });// Disable pinch zoom on the document
-      document.addEventListener('dblclick', function(event) { event.preventDefault();});// Disable double click to zoom
-        //display stuff
-      resize(); 
-      window.addEventListener('resize', resize);
-      window.addEventListener('deviceorientation', resize);
-        //buttons
-      //initializeButtons();
-    });
-    //GENERAL functions
-    function resize(){
-      screenWidth = window.innerWidth; screenHeight = window.innerHeight;
-      resizeTo(screenWidth, screenHeight);
+<script>
+"use strict";
+    
+/* =========================================================
+   BALATO
+   SINGLE-FILE EVENT-DRIVEN CARD GAME
+
+   Architecture:
+
+   DOM
+    ↓
+   Controllers
+    ↓
+   Game State
+    ↓
+   Systems
+    ↓
+   Calculation Context
+    ↓
+   Effects
+    ↓
+   State Mutation
+    ↓
+   Renderer
+    ↓
+   DOM
+========================================================= */
+
+/* =========================================================
+   CONSTANTS, blind data, joker definitions
+========================================================= */
+//if(1==1){
+const SUITS = ["hearts", "diamonds", "clubs", "spades"];
+
+const SUIT_SYMBOLS = {
+  hearts: "♥",
+  diamonds: "♦",
+  clubs: "♣",
+  spades: "♠"
+};
+
+const SUIT_ORDER = {
+  hearts: 0,
+  diamonds: 1,
+  clubs: 2,
+  spades: 3
+};
+
+const RANKS = [
+  "2", "3", "4", "5", "6", "7",
+  "8", "9", "10", "J", "Q", "K", "A"
+];
+
+const RANK_VALUES = {
+  "2": 2,
+  "3": 3,
+  "4": 4,
+  "5": 5,
+  "6": 6,
+  "7": 7,
+  "8": 8,
+  "9": 9,
+  "10": 10,
+  "J": 10,
+  "Q": 10,
+  "K": 10,
+  "A": 11
+};
+
+const RANK_ORDER = {
+  "2": 2,
+  "3": 3,
+  "4": 4,
+  "5": 5,
+  "6": 6,
+  "7": 7,
+  "8": 8,
+  "9": 9,
+  "10": 10,
+  "J": 11,
+  "Q": 12,
+  "K": 13,
+  "A": 14
+};
+
+
+/* =========================================================
+   BLIND DATA check this in the future
+========================================================= */
+const BLINDS = [
+  {
+    name: "SMALL BLIND",
+    multiplier: 1,
+    reward: 3
+  },
+
+  {
+    name: "BIG BLIND",
+    multiplier: 1.5,
+    reward: 4
+  },
+
+  {
+    name: "THE BOSS",
+    multiplier: 2,
+    reward: 6
+  }
+];
+
+
+/* =========================================================
+   JOKER DEFINITIONS
+========================================================= */
+
+const JOKER_DEFINITIONS = {
+
+  joker: {
+    name: "Joker",
+    icon: "🃏",
+    rarity: "common",
+
+    calculate(context) {
+
+      if (context.type === "joker_main") {
+        return {
+          mult: 4,
+          message: "Joker +4 Mult"
+        };
+      }
+
+      return null;
     }
-    //const FRAMERATE = 24;
-    //function startTimer(){ timer = setInterval(update, 1000/FRAMERATE);}
-    function update(){}
-  </script>
-  <script id="classes_script">
-  //CLASSES
-    const SPADE = 1, HEART = 2, DIAMOND = 3, CLUB = 4;
-    const SCORE_TRIGGER=52043, HELD_TRIGGER=4310, HELD_ON_ROUND_END_TRIGGER=4360, DISCARDED_TRIGGER=41524, ROUND_START_TRIGGER=57447;
-    
-    const handContainer = document.getElementById("hand");
-    const centerContainer = document.getElementById("center");
-    //const jokerContainer=, consumablesContainer=;
-    
-    //player
-    class Player{
-      constructor(name, deck){
-        this.name = name;
-        //round
-        this.roundScore = 0;
-        this.handScore = 0;
-        this.chips = 0;
-        this.mult = 0;
-        this.hand = [];
-        this.center = [];//selected cards, idk why i didnt just call this selected
-        this.played = [];
-        this.indexOfLastDrawn = 0;
-        //game
-        this.hands = 3;
-        this.handSize = 7;
-        this.discards = 3;
-        this.coins = 0;
-        this.ante = 1;
-        this.jokers = [];
-        this.deck = deck;
-        this.sortbyRank = true;
+  },
+
+
+  greedy: {
+    name: "Greedy",
+    icon: "💰",
+    rarity: "common",
+
+    calculate(context) {
+
+      if (
+        context.type === "individual" &&
+        context.otherCard &&
+        ["diamonds", "hearts"].includes(context.otherCard.suit)
+      ) {
+        return {
+          chips: 3,
+          message: "Greedy +3 Chips"
+        };
       }
-      static PI;
-      static obtainInstant(){ return Player.PI;}
-      static setInstant(p){ Player.PI = p;}
-      
-      select(card){
-        //error messages if not a selectable card
-          //if(!this.deck.cards.includes(card)) throw new Error("card not in deck");
-          //the above function is wrong because when a card is in the hand or center, it is out of the deck
-        if(!this.hand.includes(card)&&!this.center.includes(card)) throw new Error("card not in hand or center");
-        
-        //function
-        if(this.hand.includes(card)){
-          this.moveCard(card, this.hand, this.center, centerContainer);
-        }
-        else
-        {
-          this.moveCard(card, this.center, this.hand, handContainer); 
-        }
-        card.select();
-      }
-      
-      moveCard(card, fromArray, toArray, toContainer) {
-        //if toContainer == false, hide card
-        
-        //move on arrays
-        const index = fromArray.indexOf(card);
-    
-        if (index !== -1) {
-          const removedCard = fromArray.splice(index, 1)[0];
-          toArray.push(removedCard);
-        }
-        //move on display html elements
-        if(!toContainer) card.htmlElement.classList.add("hidden");
-        else{
-          if(toArray==this.hand){
-            sortBy(Player.obtainInstant().sortbyRank, toArray);
-          }
-          addAllElements(toArray,toContainer);
-          
-          card.htmlElement.classList.remove("hidden");
-        }
-      }
-      
-      moveNCardsFromDeckToHand(n){
-        //
-      }
+
+      return null;
     }
-    
-    function sortBy(sortByRank, toArray) {
-    /**
-     * Sorts an array of cards by rank or by suit, then rank.
-     * @param {boolean} sortByRank - If true, sorts by rank first. If false, sorts by suit then rank.
-     * @param {Array} toArray - The array of card objects to sort.
-     */
-        return toArray.sort((cardA, cardB) => {
-            if (sortByRank) {
-                // Sort by rank first. If ranks are equal, break the tie with suit.
-                if (cardA.rank !== cardB.rank) {
-                    return cardA.rank - cardB.rank;
-                }
-                return cardA.suit - cardB.suit;
-            } else {
-                // Sort by suit first. If suits are equal, break the tie with rank.
-                if (cardA.suit !== cardB.suit) {
-                    return cardA.suit - cardB.suit;
-                }
-                return cardA.rank - cardB.rank;
-            }
-        });
+  },
+
+
+  steelBaron: {
+    name: "Baron",
+    icon: "👑",
+    rarity: "rare",
+
+    calculate(context) {
+
+      if (
+        context.type === "held_card" &&
+        context.otherCard &&
+        context.otherCard.rank === "K"
+      ) {
+        return {
+          xmult: 1.5,
+          message: "Baron ×1.5"
+        };
+      }
+
+      return null;
     }
-    function addAllElements(toArray, toContainer) {
-    /**
-     * Pushes all elements from one array into a container array.
-     * @param {Array} toArray - The source array containing elements to move.
-     * @param {Array} toContainer - The destination array receiving the elements.
-     */
-      toArray.forEach(card => {
-        // Check if the card has the HTML element before appending
-        if (card.htmlElement) {
-          toContainer.appendChild(card.htmlElement);
-          //reset position of each card
-          card.htmlElement.style.transform = `translate(0px, 0px)`;
-          card.currentX = 0;
-          card.currentY = 0;
-          card.isDragging = false;
-          card.hasMovedSignificantDistance = false;
-          card.htmlElement.classList.remove("dragging-active");
-        }
-      });
+  },
+
+
+  mime: {
+    name: "Mime",
+    icon: "🤡",
+    rarity: "rare",
+
+    calculate(context) {
+
+      if (context.type === "held_trigger") {
+        return {
+          repetitions: 1,
+          message: "Mime retriggers held card"
+        };
+      }
+
+      return null;
+    }
+  },
+
+
+  blueprint: {
+    name: "Blueprint",
+    icon: "📐",
+    rarity: "rare",
+
+    calculate(context) {
+
+      if (!context.engine) {
+        return null;
+      }
+
+      const target = context.engine.getJokerToLeftOf(this.id);
+
+      if (!target) {
+        return null;
+      }
+
+      return context.engine.delegateToJoker(
+        target,
+        context
+      );
+    }
+  },
+
+
+  brainstorm: {
+    name: "Brainstorm",
+    icon: "🧠",
+    rarity: "rare",
+
+    calculate(context) {
+
+      if (!context.engine) {
+        return null;
+      }
+
+      const target = context.engine.getLeftmostJoker();
+
+      if (!target || target.id === this.id) {
+        return null;
+      }
+
+      return context.engine.delegateToJoker(
+        target,
+        context
+      );
+    }
+  },
+
+
+  scholar: {
+    name: "Scholar",
+    icon: "📚",
+    rarity: "common",
+
+    calculate(context) {
+
+      if (
+        context.type === "joker_main" &&
+        context.scoringName === "High Card"
+      ) {
+        return {
+          mult: 8,
+          message: "Scholar +8 Mult"
+        };
+      }
+
+      return null;
+    }
+  }
+
+};
+
+//}//end of thing
+
+/* =========================================================
+   GAME STATE, utilities
+========================================================= */
+//if(1==1){
+const gameState = {
+
+  /* -------------------------
+     persistent run state
+  ------------------------- */
+
+  money: 4,
+
+  ante: 1,
+
+  roundNumber: 1,
+
+  jokers: [],
+
+  consumables: [],
+
+  deckModifiers: {},
+
+  collection: {},
+
+
+  /* -------------------------
+     card areas
+  ------------------------- */
+
+  deck: [],
+
+  hand: [],
+
+  discardPile: [],
+
+  playedCards: [],
+
+
+  /* -------------------------
+     selection
+  ------------------------- */
+
+  selectedCards: [],
+
+
+  /* -------------------------
+     round state
+  ------------------------- */
+
+  handsRemaining: 4,
+
+  discardsRemaining: 3,
+
+  roundScore: 0,
+
+  targetScore: 300,
+
+  blindIndex: 0,
+
+  blind: null,
+
+
+  /* -------------------------
+     display/calculation
+  ------------------------- */
+
+  chips: 0,
+
+  mult: 1,
+
+  score: 0,
+
+  currentHandName: "High Card",
+
+  currentHandLevel: 1,
+
+
+  /* -------------------------
+     settings
+  ------------------------- */
+
+  showScoreNumbers: true,
+
+  gameStarted: false,
+
+  inShop: false,
+
+  runLost: false,
+
+
+  /* -------------------------
+     IDs
+  ------------------------- */
+
+  nextCardId: 1,
+
+  nextJokerId: 1
+};
+
+
+/* =========================================================
+   UTILITY
+========================================================= */
+
+function formatNumber(number) {
+
+  if (!Number.isFinite(number)) {
+    return "∞";
+  }
+
+  if (Math.abs(number) >= 1e15) {
+    return number.toExponential(2);
+  }
+
+  return Math.floor(number).toLocaleString();
+}
+
+
+function random(array) {
+
+  return array[
+    Math.floor(Math.random() * array.length)
+  ];
+}
+
+
+function clamp(value, min, max) {
+
+  return Math.max(min, Math.min(max, value));
+}
+
+
+function shuffle(array) {
+
+  const result = [...array];
+
+  for (let i = result.length - 1; i > 0; i--) {
+
+    const j = Math.floor(Math.random() * (i + 1));
+
+    [result[i], result[j]] =
+      [result[j], result[i]];
+  }
+
+  return result;
+}
+
+
+function deepCopy(object) {
+
+  return JSON.parse(JSON.stringify(object));
+}
+//}//end of thing
+
+/* =========================================================
+   CARD FACTORIES, card area system, deck system
+========================================================= */
+//if(1==1){
+function createCard(
+  suit,
+  rank,
+  options = {}
+) {
+
+  return {
+
+    id: gameState.nextCardId++,
+
+    suit,
+
+    rank,
+
+    value: RANK_VALUES[rank],
+
+    selected: false,
+
+    enhancement: options.enhancement || null,
+
+    edition: options.edition || null,
+
+    seal: options.seal || null,
+
+    debuffed: false,
+
+    faceDown: false,
+
+    permanentModifiers: {},
+
+    temporaryModifiers: {},
+
+    status: {},
+
+    metadata: {}
+  };
+}
+
+
+function createStandardDeck() {
+
+  const deck = [];
+
+  for (const suit of SUITS) {
+
+    for (const rank of RANKS) {
+
+      deck.push(
+        createCard(suit, rank)
+      );
+    }
+  }
+
+  return shuffle(deck);
+}
+
+
+/* =========================================================
+   CARD AREA SYSTEM
+========================================================= */
+
+function moveCard(card, from, to) {
+
+  const index = from.indexOf(card);
+
+  if (index !== -1) {
+    from.splice(index, 1);
+  }
+
+  if (!to.includes(card)) {
+    to.push(card);
+  }
+}
+
+
+function moveCards(cards, from, to) {
+
+  for (const card of cards) {
+    moveCard(card, from, to);
+  }
+}
+
+
+function clearSelection() {
+
+  for (const card of gameState.hand) {
+    card.selected = false;
+  }
+
+  gameState.selectedCards = [];
+}
+
+
+function getSelectedCards() {
+
+  return gameState.hand.filter(
+    card => card.selected
+  );
+}
+
+
+/* =========================================================
+   DECK SYSTEM
+========================================================= */
+
+function drawCards(amount) {
+
+  let drawn = 0;
+
+  while (drawn < amount) {
+
+    if (gameState.deck.length === 0) {
+
+      if (gameState.discardPile.length === 0) {
+        break;
+      }
+
+      gameState.deck = shuffle(
+        gameState.discardPile.splice(0)
+      );
     }
 
-    //card
-    class Card{
-      constructor(rank, suit, enh, sea, edi){
-        this.rank = rank;
-        this.suit = suit;
-        
-        this.enhancement = enh;
-        this.edition = edi;
-        this.seal = sea;
-        
-        this.htmlElement = this.makeNewCardHtmlElement();
-        this.isDragging = false;
-        this.hasMovedSignificantDistance = false;
-        this.currentX = 0;
-        this.currentY = 0;
-        this.downX = 0;
-        this.downY = 0;
-        this.startX = 0;
-        this.startY = 0;
+    const card = gameState.deck.pop();
 
-      }
-      //DISPLAY, SELECTING
-      makeNewCardHtmlElement(){
-        let h = document.createElement("div");
-        document.getElementById("hand").appendChild(h);
-        
-        h.classList.add("hidden");
-        h.classList.add("suit"+this.suit);
-        h.innerHTML = this.rank + " " + this.suit;
-        
-        h.addEventListener("click", (event) => {
-          if (this.hasMovedSignificantDistance) {
-            event.stopPropagation();
-            return;
-          }
-          Player.obtainInstant().select(this);
-          this.currentX = 0;
-          this.currentY = 0;
-          h.style.transform = `translate(0px, 0px)`;
-        });
-        
-        h.addEventListener('pointerdown', (event) => {
-          this.isDragging = true;
-          h.classList.add("dragging-active");
-          this.hasMovedSignificantDistance = false;
-          this.downX = event.clientX;
-          this.downY = event.clientY;
-          this.startX = event.clientX - this.currentX;
-          this.startY = event.clientY - this.currentY;
-          h.setPointerCapture(event.pointerId);
-        });
-        
-        h.addEventListener('pointermove', (event) => {
-          if (!this.isDragging) return;
-          
-          const distanceX = Math.abs(event.clientX - this.downX);
-          const distanceY = Math.abs(event.clientY - this.downY);
-          if (distanceX > 5 || distanceY > 5) {
-            this.hasMovedSignificantDistance = true;
-          }
-          
-          this.currentX = event.clientX - this.startX;
-          this.currentY = event.clientY - this.startY;
-          h.style.transform = `translate(${this.currentX}px, ${this.currentY}px)`;
-        });
-        
-        // Dropping the element and sorting the array
-        h.addEventListener('pointerup', (event) => {
-          if (!this.isDragging) return;
-          this.isDragging = false;
-          h.classList.remove("dragging-active");
-          h.releasePointerCapture(event.pointerId);
-          
-          if (this.hasMovedSignificantDistance) {
-            const player = Player.obtainInstant();
-            const toArray = player.hand.includes(this) ? player.hand : player.center;
-            const toContainer = h.parentElement;
-            
-            // 1. Get the container's structural boundaries
-            const containerRect = toContainer.getBoundingClientRect();
-            
-            // 2. Find out how many items are actually in a single row right now
-            const totalCards = toArray.length;
-            const cardsPerRow = totalCards > 7 ? 7 : totalCards; //does this even work? lol
-            
-            // 3. Calculate spatial slot dimensions
-            const slotWidth = containerRect.width / cardsPerRow;
-            const slotHeight = totalCards > 7 ? containerRect.height / 2 : containerRect.height; // Fixed 2 rows
-            
-            // 4. Find where the cursor dropped relative to the top-left of the container
-            const relativeX = event.clientX - containerRect.left;
-            const relativeY = event.clientY - containerRect.top;
-            
-            // 5. Convert pixels to grid coordinates (clamped to prevent out-of-bounds math)
-            const col = Math.max(0, Math.min(cardsPerRow - 1, Math.floor(relativeX / slotWidth)));
-            const row = Math.max(0, Math.min(1, Math.floor(relativeY / slotHeight)));
-            
-            // 6. Calculate the final target array index
-            let targetIndex = (row * cardsPerRow) + col;
-            
-            // Clamp the index to the absolute maximum array length bounds
-            if (targetIndex >= totalCards) {
-              targetIndex = totalCards - 1;
-            }
-            
-            // 7. Find this card's original array position
-            const currentIndex = toArray.indexOf(this);
-            
-            if (currentIndex !== -1 && currentIndex !== targetIndex) {
-              // Remove from old slot and insert into the new calculated slot
-              toArray.splice(currentIndex, 1);
-              toArray.splice(targetIndex, 0, this);
-            }
-            
-            // 8. Readd to container
-            addAllElements(toArray, toContainer);
-            //reset css and local positioning values
-            this.currentX = 0;
-            this.currentY = 0;
-            h.style.transform = `translate(0px, 0px)`;
-          }
-        });
-
-        return h;
-      }
-      
-      select(){
-        
-      }
-      
-      destroy(){}
-      //AFFECTING SCORE
-      //on score effects
-      score(){
-        //add rank to score
-        runModifiers(SCORE_TRIGGER);
-      }
-      //retrigger
-      checkForNumberOfRetriggers(){
-        
-      }
-      //MODIFIERS
-      runModifiers(trigger){
-        this.enhancement.attemptExecuteEffect(trigger,playerInstant,this);
-        //attempt trigger edition
-        //attempt trigger seal
-      }
-      
+    if (!card) {
+      break;
     }
-    /* MODIFIERS
-    Playing cards may each have one Enhancement, one Edition, and one Seal.
-    Jokers may have one Edition and multiple Stickers
-    Consumable may have the negative Edition (via Perkeo)
-    
-    Editions are different for cards, jokers, and consumables, but essentially do the same things
+
+    card.selected = false;
+
+    gameState.hand.push(card);
+
+    drawn++;
+  }
+
+  sortHandBy(gameState.sortOrder);
+
+  return drawn;
+}
+
+
+function reshuffleDiscard() {
+
+  if (!gameState.deck.length &&
+      gameState.discardPile.length) {
+
+    gameState.deck =
+      shuffle(gameState.discardPile.splice(0));
+  }
+}
+
+
+//}//end of thing
+
+/* =========================================================
+   POKER EVALUATOR, effect application
+========================================================= */
+//if(1==1){
+
+function evaluatePokerHand(cards) {
+
+  if (!cards.length) {
+
+    return {
+      name: "High Card",
+      level: 1,
+      scoringCards: [],
+      nonScoringCards: [],
+      baseChips: 0,
+      baseMult: 1
+    };
+  }
+
+
+  const rankGroups = {};
+
+  const suitGroups = {};
+
+
+  for (const card of cards) {
+
+    if (!rankGroups[card.rank]) {
+      rankGroups[card.rank] = [];
+    }
+
+    rankGroups[card.rank].push(card);
+
+
+    if (!suitGroups[card.suit]) {
+      suitGroups[card.suit] = [];
+    }
+
+    suitGroups[card.suit].push(card);
+  }
+
+
+  const groups = Object.values(rankGroups)
+    .sort(
+      (a, b) =>
+        b.length - a.length ||
+        RANK_ORDER[b[0].rank] -
+        RANK_ORDER[a[0].rank]
+    );
+
+
+  const flushSuit =
+    Object.keys(suitGroups)
+      .find(
+        suit => suitGroups[suit].length >= 5
+      );
+
+
+  let uniqueRanks =
+    [...new Set(
+      cards.map(card => RANK_ORDER[card.rank])
+    )].sort((a, b) => b - a);
+
+
+  if (uniqueRanks.includes(14)) {
+    uniqueRanks.push(1);
+  }
+
+
+  let straightHigh = null;
+
+
+  for (let i = 0; i <= uniqueRanks.length - 5; i++) {
+
+    const sequence = uniqueRanks.slice(i, i + 5);
+
+    if (
+      sequence[0] - sequence[4] === 4
+    ) {
+      straightHigh = sequence[0];
+      break;
+    }
+  }
+
+
+  /* Royal Flush */
+
+  if (
+    flushSuit &&
+    uniqueRanks.includes(14) &&
+    uniqueRanks.includes(13) &&
+    uniqueRanks.includes(12) &&
+    uniqueRanks.includes(11) &&
+    uniqueRanks.includes(10)
+  ) {
+
+    const scoringCards =
+      cards.filter(
+        card =>
+          card.suit === flushSuit &&
+          ["10", "J", "Q", "K", "A"]
+            .includes(card.rank)
+      );
+
+    return {
+      name: "Royal Flush",
+      level: 10,
+      scoringCards,
+      nonScoringCards:
+        cards.filter(c => !scoringCards.includes(c)),
+      baseChips: 100,
+      baseMult: 8
+    };
+  }
+
+
+  /* Straight Flush */
+
+  if (flushSuit) {
+
+    const flushRanks =
+      [...new Set(
+        suitGroups[flushSuit]
+          .map(card => RANK_ORDER[card.rank])
+      )]
+      .sort((a, b) => b - a);
+
+    if (flushRanks.includes(14)) {
+      flushRanks.push(1);
+    }
+
+    let high = null;
+
+    for (
+      let i = 0;
+      i <= flushRanks.length - 5;
+      i++
+    ) {
+
+      if (
+        flushRanks[i] -
+        flushRanks[i + 4] === 4
+      ) {
+        high = flushRanks[i];
+        break;
+      }
+    }
+
+    if (high !== null) {
+
+      const needed =
+        high === 5
+          ? [5, 4, 3, 2, 1]
+          : [high, high - 1, high - 2, high - 3, high - 4];
+
+      const scoringCards =
+        cards.filter(card =>
+          card.suit === flushSuit &&
+          needed.includes(
+            RANK_ORDER[card.rank]
+          )
+        );
+
+      return {
+        name: "Straight Flush",
+        level: 9,
+        scoringCards,
+        nonScoringCards:
+          cards.filter(c => !scoringCards.includes(c)),
+        baseChips: 100,
+        baseMult: 8
+      };
+    }
+  }
+
+
+  /* Four of a Kind */
+
+  const four =
+    groups.find(group => group.length >= 4);
+
+  if (four) {
+
+    const scoringCards = [...four];
+
+    return {
+      name: "Four of a Kind",
+      level: 8,
+      scoringCards,
+      nonScoringCards:
+        cards.filter(c => !scoringCards.includes(c)),
+      baseChips: 60,
+      baseMult: 7
+    };
+  }
+
+
+  /* Full House */
+
+  const triple =
+    groups.find(group => group.length >= 3);
+
+  const pair =
+    groups.find(
+      group =>
+        group !== triple &&
+        group.length >= 2
+    );
+
+  if (triple && pair) {
+
+    const scoringCards = [
+      ...triple,
+      ...pair
+    ];
+
+    return {
+      name: "Full House",
+      level: 7,
+      scoringCards,
+      nonScoringCards:
+        cards.filter(c => !scoringCards.includes(c)),
+      baseChips: 40,
+      baseMult: 4
+    };
+  }
+
+
+  /* Flush */
+
+  if (flushSuit) {
+
+    const scoringCards =
+      suitGroups[flushSuit].slice(0, 5);
+
+    return {
+      name: "Flush",
+      level: 6,
+      scoringCards,
+      nonScoringCards:
+        cards.filter(c => !scoringCards.includes(c)),
+      baseChips: 35,
+      baseMult: 4
+    };
+  }
+
+
+  /* Straight */
+
+  if (straightHigh !== null) {
+
+    const needed =
+      straightHigh === 5
+        ? [5, 4, 3, 2, 1]
+        : [
+            straightHigh,
+            straightHigh - 1,
+            straightHigh - 2,
+            straightHigh - 3,
+            straightHigh - 4
+          ];
+
+    const scoringCards = [];
+
+    for (const rankValue of needed) {
+
+      const card = cards.find(
+        c =>
+          RANK_ORDER[c.rank] ===
+          rankValue
+      );
+
+      if (card) {
+        scoringCards.push(card);
+      }
+    }
+
+    return {
+      name: "Straight",
+      level: 5,
+      scoringCards,
+      nonScoringCards:
+        cards.filter(c => !scoringCards.includes(c)),
+      baseChips: 30,
+      baseMult: 4
+    };
+  }
+
+
+  /* Three of a Kind */
+
+  if (triple) {
+
+    return {
+      name: "Three of a Kind",
+      level: 4,
+      scoringCards: [...triple],
+      nonScoringCards:
+        cards.filter(c => !triple.includes(c)),
+      baseChips: 30,
+      baseMult: 3
+    };
+  }
+
+
+  /* Two Pair */
+
+  const pairs =
+    groups.filter(group => group.length >= 2);
+
+  if (pairs.length >= 2) {
+
+    const selectedPairs =
+      pairs.slice(0, 2).flat();
+
+    return {
+      name: "Two Pair",
+      level: 3,
+      scoringCards: selectedPairs,
+      nonScoringCards:
+        cards.filter(
+          c => !selectedPairs.includes(c)
+        ),
+      baseChips: 20,
+      baseMult: 2
+    };
+  }
+
+
+  /* Pair */
+
+  const pairGroup =
+    groups.find(group => group.length >= 2);
+
+  if (pairGroup) {
+
+    return {
+      name: "Pair",
+      level: 2,
+      scoringCards: [...pairGroup],
+      nonScoringCards:
+        cards.filter(
+          c => !pairGroup.includes(c)
+        ),
+      baseChips: 10,
+      baseMult: 2
+    };
+  }
+
+
+  /* High Card */
+
+  const highest =
+    [...cards]
+      .sort(
+        (a, b) =>
+          RANK_ORDER[b.rank] -
+          RANK_ORDER[a.rank]
+      )[0];
+
+  return {
+    name: "High Card",
+    level: 1,
+    scoringCards: highest ? [highest] : [],
+    nonScoringCards:
+      cards.filter(c => c !== highest),
+    baseChips: highest
+      ? highest.value
+      : 0,
+    baseMult: 1
+  };
+}
+
+/* =========================================================
+   EFFECT APPLICATION
+========================================================= */
+
+function applyEffect(calculation, effect) {
+
+  if (!effect) {
+    return;
+  }
+
+
+  if (effect.chips) {
+
+    calculation.chips +=
+      effect.chips;
+  }
+
+
+  if (effect.mult) {
+
+    calculation.mult +=
+      effect.mult;
+  }
+
+
+  if (effect.xmult) {
+
+    calculation.mult *=
+      effect.xmult;
+  }
+
+
+  if (effect.xchips) {
+
+    calculation.chips *=
+      effect.xchips;
+  }
+
+
+  if (effect.money) {
+
+    gameState.money +=
+      effect.money;
+  }
+
+
+  if (effect.message) {
+
+    calculation.trace.push(
+      effect.message
+    );
+  }
+}
+
+//}//end of thing
+
+/* =========================================================
+   JOKER, card effect, held card, scoring ENGINE
+========================================================= */
+//if(1==1){
+
+function createJoker(type) {
+
+  const definition =
+    JOKER_DEFINITIONS[type];
+
+  if (!definition) {
+    return null;
+  }
+
+  return {
+
+    id:
+      `joker_${gameState.nextJokerId++}`,
+
+    type,
+
+    name: definition.name,
+
+    icon: definition.icon,
+
+    rarity: definition.rarity
+  };
+}
+
+
+const JokerEngine = {
+
+  getDefinition(joker) {
+
+    return JOKER_DEFINITIONS[
+      joker.type
+    ];
+  },
+
+
+  calculateJoker(joker, context) {
+
+    const definition =
+      this.getDefinition(joker);
+
+    if (!definition ||
+        typeof definition.calculate !== "function") {
+      return null;
+    }
+
+
+    return definition.calculate.call(
+      {
+        id: joker.id,
+        type: joker.type
+      },
+      {
+        ...context,
+        engine: this,
+        currentJoker: joker
+      }
+    );
+  },
+
+
+  getJokerToLeftOf(id) {
+
+    const index =
+      gameState.jokers.findIndex(
+        joker => joker.id === id
+      );
+
+    if (
+      index <= 0
+    ) {
+      return null;
+    }
+
+    return gameState.jokers[index - 1];
+  },
+
+
+  getLeftmostJoker() {
+
+    return gameState.jokers[0] || null;
+  },
+
+
+  delegateToJoker(target, context) {
+
+    if (!target) {
+      return null;
+    }
+
+    return this.calculateJoker(
+      target,
+      {
+        ...context,
+        delegated: true
+      }
+    );
+  },
+
+
+  runPhase(context, calculation) {
+
+    for (
+      const joker of gameState.jokers
+    ) {
+
+      const result =
+        this.calculateJoker(
+          joker,
+          context
+        );
+
+      applyEffect(
+        calculation,
+        result
+      );
+    }
+  }
+};
+
+
+/* =========================================================
+   CARD EFFECT ENGINE
+========================================================= */
+
+function getCardBaseChips(card) {
+
+  let chips = card.value;
+
+
+  if (card.enhancement === "bonus") {
+    chips += 30;
+  }
+
+
+  if (
+    card.enhancement === "mult"
+  ) {
+    // Mult is handled separately.
+  }
+
+
+  return chips;
+}
+
+
+function getCardEffect(card) {
+
+  const effect = {
+    chips: getCardBaseChips(card)
+  };
+
+
+  if (
+    card.enhancement === "mult"
+  ) {
+    effect.mult = 4;
+  }
+
+
+  if (
+    card.enhancement === "glass"
+  ) {
+    effect.xmult = 2;
+  }
+
+
+  return effect;
+}
+
+
+/* =========================================================
+   HELD CARD ENGINE
+========================================================= */
+
+function runHeldCardEffects(calculation) {
+
+  /*
+    This implements the important abstraction:
+
+    HELD CARD
+       ↓
+    effects
+       ↓
+    retriggers
+       ↓
+    effects again
+
+    Mime adds another held-card execution.
+  */
+
+
+  const heldCards =
+    gameState.hand.filter(
+      card => !card.selected
+    );
+
+
+  for (const card of heldCards) {
+
+    let repetitions = 1;
+
+
+    /* --------------------------------
+       normal held trigger
+    -------------------------------- */
+
+    for (
+      let trigger = 0;
+      trigger < repetitions;
+      trigger++
+    ) {
+
+      const context = {
+
+        type: "held_card",
+
+        otherCard: card,
+
+        fullHand: gameState.hand,
+
+        scoringHand:
+          calculation.scoringHand,
+
+        scoringName:
+          calculation.scoringName
+      };
+
+
+      /* Steel */
+
+      if (
+        card.enhancement === "steel"
+      ) {
+
+        applyEffect(
+          calculation,
+          {
+            xmult: 1.5,
+            message:
+              `${card.rank} Steel ×1.5`
+          }
+        );
+      }
+
+
+      /* Baron + other held effects */
+
+      JokerEngine.runPhase(
+        context,
+        calculation
+      );
+    }
+
+
+    /*
+      Mime is itself a trigger.
+
+      Ask each Joker if it creates
+      another held-card execution.
     */
-    class Enhancement{
-      constructor(triggerType, chipAddAmount, multiplierAdd, chipMultiplier, multiplierMultiply, isStoneCard, isWildCard, willBeDestroyed, coinAmountAdd, coinAmountMultiply, chance) {
-        this.trigger = triggerType; // see above for triggers, 0 means no trigger (on add)
-        
-        this.chipAdd = chipAddAmount; // chip add
-        this.multAdd = multiplierAdd; // mult add
-        this.chipMult = chipMultiplier; // chip multiply
-        this.multMult = multiplierMultiply; // mult multiply
-        
-        this.isStone = isStoneCard;
-        this.isWild = isWildCard; // bool
-        this.willBeDestroyed = willBeDestroyed; // bool; indicates if the card will be destroyed
-        
-        this.coinAdd = coinAmountAdd; // amount of coins A
-        this.coinMult = coinAmountMultiply; // amount of coins M
-        
-        this.chance = chance; // chance of the card getting destroyed/triggered
-      }
-      attemptExecuteEffect(trigger,player,card){
-        if(trigger==this.trigger){
-          let chanceSuccess = false;
-          if(Math.random()<this.chance) chanceSuccess = true;
-          if(chanceSuccess || willBeDestroyed){ this.executeEffect(player,card);}
-          if(chanceSuccess && willBeDestroyed){ card.destroy();}
-        }
-      }
-      executeEffect(p,c){
-        p.chips *= this.coinMultiply;
-        p.mult *= this.mm;
-        p.chips += this.ca;
-        p.mult += this.ma;
-        if(sr+re>0){ c.srEffect(se,re);}
-        if(isWild){ c.srEffect(isWild);}
-        p.coins += this.coina;
-        p.coins *= this.coinm;
-      }
-    }
-    
-    //instantiation
-    if(1==1){
-      var ebonus = new Enhancement(SCORE_TRIGGER, 30, 0, 1, 1, false, false, false, 0, 0, 1);
-      var emult  = new Enhancement(SCORE_TRIGGER, 0, 4, 1, 1, false, false, false, 0, 0, 1);
-      var ewild  = new Enhancement(0, 0, 0, 1, 1, false, true, false, 0, 0, 1);
-      var eglass = new Enhancement(SCORE_TRIGGER, 0, 0, 1, 2, false, false, true, 0, 0, 0.25);
-      var esteel = new Enhancement(HELD_TRIGGER, 0, 0, 1, 1.5, false, false, false, 0, 0, 1);
-      var estone = new Enhancement(0, 50, 0, 0, 0, true, false, false, 0, 0, 1);
-      var egold  = new Enhancement(HELD_ON_ROUND_END_TRIGGER, 0, 0, 1, 1, false, false, false, 3, 0, 1);
-      var elucky = new Enhancement(SCORE_TRIGGER, 0, 20, 1, 1, false, false, false, 0, 0, 0.2);
-    }
-    
-    //deck
-    class Deck{
-      constructor(c){
-        this.cards = c;
-        this.presentedOrder = c;
-      }
-      shuffle(){
-        let currentIndex = this.cards.length;
-      
-        while (currentIndex != 0) {
-          let randomIndex = Math.floor(Math.random() * currentIndex);
-          currentIndex--;
-          [this.presentedOrder[currentIndex], this.presentedOrder[randomIndex]] = [
-          this.presentedOrder[randomIndex], this.presentedOrder[currentIndex]];
-        }
-      }
-      sort(){
-        //idek
-      }
-      addCard(card){
-        this.cards.push(card);
-        this.sort();
-        this.presentedOrder = this.cards;
-        //shuffle?
-      }
-    }
-    //jokers
-    
-    //TESTING INSTANCES
-    console.log("start12");
-    unco = new Card(1, SPADE, 1, 1, 1);
-    docs = new Card(2, SPADE, 1, 1, 1);
-    trecs = new Card(3, DIAMOND, 1, 1, 1);
-    quco = new Card(4, DIAMOND, 1, 1, 1);
-    uncod = new Card(5, HEART, 1, 1, 1);
-    docsd = new Card(6, HEART, 1, 1, 1);
-    trecsd = new Card(7, CLUB, 1, 1, 1);
-    qucod = new Card(8, CLUB, 1, 1, 1);
-    decko = new Deck([unco,docs,trecs,quco,uncod,docsd,trecsd,qucod]);
-    
-    const playerInstant = new Player("name", decko);//add functions to allow change of name or smn
-    Player.setInstant(playerInstant);
-    
-    playerInstant.moveCard(unco, playerInstant.deck.cards, playerInstant.hand, handContainer);
-    playerInstant.moveCard(docs, playerInstant.deck.cards, playerInstant.hand, handContainer);
-    playerInstant.moveCard(trecs, playerInstant.deck.cards, playerInstant.hand, handContainer);
-    playerInstant.moveCard(quco, playerInstant.deck.cards, playerInstant.hand, handContainer);
-    playerInstant.moveCard(uncod, playerInstant.deck.cards, playerInstant.hand, handContainer);
-    playerInstant.moveCard(docsd, playerInstant.deck.cards, playerInstant.hand, handContainer);
-    playerInstant.moveCard(trecsd, playerInstant.deck.cards, playerInstant.hand, handContainer);
-    playerInstant.moveCard(qucod, playerInstant.deck.cards, playerInstant.hand, handContainer);
-    //TESTING INSTANCES
-      
-  </script>
-  <script id="game_class_script">
-    //game
-    const SMALLREWARD = 3, BIGREWARD = 4, BOSSREWARD = 5, FINISHERREWARD = 8;
-    const SMALLMULT = 1, BIGMULT = 1.5, BOSSMULT = 2, FINISHERMULT = 2;
-    class Game{
-      constructor(seed){
-        this.baseReq = [100, 300,800,2000,5000, 11000,20000,35000,50000, 110000,560000,7200000,300000000, 47000000000,29000000000000, 77000000000000000, 860000000000000000000];//with ante as the index
-        this.blindCount = 0;
-        this.currentRoundsBlinds = [];
-        this.completedBossBlinds = [];
-      }
-      startNextRound(player){
-        this.blindCount++;
-        let smallBlind = new Blind("small blind", player.ante*SMALLMULT, SMALLREWARD, "", );
-        let bigBlind = new Blind("big blind", player.ante*BIGMULT, BIGREWARD, "", );
-        let bossBlind = createBossBlind();
-        
-      }
-      skipNextBlind(){
-        this.blindCount++;
-      }
-      createBossBlind(){
-        //createBossBlind
-        //temporary
-        return new Blind("bos blind", player.ante*BOSSMULT, BOSSREWARD, "", );
-      }
-    }
-    //round
-    class Blind{
-      constructor(title, blindReq, blindReward, description, hands, discards) {
-        this.title = title;
-        this.blindReq = blindReq;
-        this.blindReward = blindReward;
-        this.description = description;
-        this.hands = hands;
-        this.discards = discards;
-        //player
-        this.special; //?
-      }
-      start(player){
-        //shuffle player.deck
-        //draw hand with player.deck.presentedOrder, player.handSize, 
-        
-        //if(this.isBoss) attemptExecuteBossBlindEffect(ROUND_START_TRIGGER)
-        
-        //
-      }
-      end(){
-        //for each card in hand.attemptExecuteEffect(HELD_ON_ROUND_END_TRIGGER);
-        //put away all cards (not discard)
+
+    let extraTriggers = 0;
+
+
+    for (
+      const joker of gameState.jokers
+    ) {
+
+      const result =
+        JokerEngine.calculateJoker(
+          joker,
+          {
+            type: "held_trigger",
+            otherCard: card
+          }
+        );
+
+
+      if (result &&
+          result.repetitions) {
+
+        extraTriggers +=
+          result.repetitions;
       }
     }
 
-    var standard52 = new Deck([
-      
-    ]);
-    var user = new Player("test", standard52);
-  </script>
-  <script>
-    //DISPLAYS
-    //dashboard
-    //const blindNameHTML, blindReqHTML, blindRewardHTML 
-    function updateBlindData(blind){
-      updateBlindName(blind);
-      updateBlindScore(blind);
+
+    /*
+      Execute additional triggers.
+    */
+
+    for (
+      let repeat = 0;
+      repeat < extraTriggers;
+      repeat++
+    ) {
+
+      const context = {
+
+        type: "held_card",
+
+        otherCard: card,
+
+        fullHand: gameState.hand,
+
+        scoringHand:
+          calculation.scoringHand,
+
+        scoringName:
+          calculation.scoringName,
+
+        repetition: true
+      };
+
+
+      if (
+        card.enhancement === "steel"
+      ) {
+
+        applyEffect(
+          calculation,
+          {
+            xmult: 1.5,
+            message:
+              `${card.rank} Steel retrigger ×1.5`
+          }
+        );
+      }
+
+
+      JokerEngine.runPhase(
+        context,
+        calculation
+      );
     }
-    function updateBlindName(blind){
-      
-    }
-    function updateBlindScore(blind){
-      
-    }
-    
-    function updateHandDetails(){//this would be used upon playing a hand 
-      updateBlindScore();
-      updateHandScore();
-    }
-    function updateBlindScore(){
-      
-    }
-    function updateHandScore(){//create hand score html element to reduce animations?
-      
-    }
-    function updateHandType(hand, player){//this would be used when selecting hand type 
-    //idk what var type the hand should be
-    //i can reduce access from player to only necessary player details
-      updateHandName(hand);
-      updateHandBaseScore(hand, player);
-    }
-    function updateHandName(hand){
-      
-    }
-    function updateHandBaseScore(hand, player){//i can reduce access from player to only necessary player details
-      
-    }
-    
-    function updateRightHandSide(playerHands, playerDiscards, playerCoin, playerAnte, playerRound){//update on score, on purchase, on blind select, on everything
-      
-    }
-    //deck
-    function updateDeckDisplay(){
-      
-    }
-    //cards
-      //jokers
-    function addCardToJokers(card) {
-    	addCardToContainer(card, jokerContainer);
-    }
-    function removeCardFromJokers(card) {
-    	removeCardFromContainer(card, jokerContainer);
-    }
-    function clearJokers() {
-    	clearContainerContents(jokerContainer);
-    }
-    function selectCardInJokers(card) {
-    	selectCardInContainer(card, jokerContainer);
-    }
-    function reorderJokers(indexFrom, indexTo) {
-    	reorderCardInContainer(indexFrom, indexTo, jokerContainer);
-    }
-      //consumables
-    function addCardToConsumables(card) {
-    	addCardToContainer(card, consumablesContainer);
-    }
-    function removeCardFromConsumables(card) {
-    	removeCardFromContainer(card, consumablesContainer);
-    }
-    function clearConsumables() {
-    	clearContainerContents(consumablesContainer);
-    }
-    function selectCardInConsumables(card) {
-    	selectCardInContainer(card, consumablesContainer);
-    }
-    function reorderConsumables(indexFrom, indexTo) {
-    	reorderCardInContainer(indexFrom, indexTo, consumablesContainer);
-    }
-    
-      //center
-      //hand    
-    
-    //BUTTONS 
-    //button bar
-    //play button bar
-  if(1==1){
-    var sortRankBtn = document.getElementById("sortRank");
-    var sortSuitBtn = document.getElementById("sortSuit");
-    
-    sortRankBtn.onclick = function() {
-      let pi = Player.obtainInstant();
-      pi.sortbyRank = true;
-      sortBy(true, pi.hand);
-      addAllElements(pi.hand,handContainer);
-    };
-    sortSuitBtn.onclick = function() {
-      let pi = Player.obtainInstant();
-      pi.sortbyRank = false;
-      sortBy(false, pi.hand);
-      addAllElements(pi.hand,handContainer);
+  }
+}
+
+
+/* =========================================================
+   SCORING ENGINE
+========================================================= */
+
+function scoreHand(fullHand, pokerResult) {
+
+  const calculation = {
+
+    chips:
+      pokerResult.baseChips,
+
+    mult:
+      pokerResult.baseMult,
+
+    fullHand,
+
+    scoringHand:
+      pokerResult.scoringCards,
+
+    scoringName:
+      pokerResult.name,
+
+    trace: []
+  };
+
+
+  /* =======================================================
+     BEFORE
+  ======================================================= */
+
+  JokerEngine.runPhase(
+    {
+      type: "before",
+
+      fullHand,
+
+      scoringHand:
+        pokerResult.scoringCards,
+
+      scoringName:
+        pokerResult.name
+    },
+
+    calculation
+  );
+
+
+  /* =======================================================
+     INITIAL SCORING
+  ======================================================= */
+
+  JokerEngine.runPhase(
+    {
+      type: "initial_scoring_step",
+
+      fullHand,
+
+      scoringHand:
+        pokerResult.scoringCards,
+
+      scoringName:
+        pokerResult.name
+    },
+
+    calculation
+  );
+
+
+  /* =======================================================
+     CARD SCORING LOOP
+  ======================================================= */
+
+  for (
+    const card of pokerResult.scoringCards
+  ) {
+
+
+    /* ------------------------------------
+       MAIN SCORING
+    ------------------------------------ */
+
+    applyEffect(
+      calculation,
+      getCardEffect(card)
+    );
+
+
+    /* ------------------------------------
+       INDIVIDUAL
+    ------------------------------------ */
+
+    const individualContext = {
+
+      type: "individual",
+
+      otherCard: card,
+
+      fullHand,
+
+      scoringHand:
+        pokerResult.scoringCards,
+
+      scoringName:
+        pokerResult.name
     };
 
-  }
-  if(1==0){
-    var lb = document.getElementById("lb");
-    var ub = document.getElementById("ub");
-    var rb = document.getElementById("rb");
-    var db = document.getElementById("db");
-    var a = document.getElementById("a");
-    var b = document.getElementById("b");
-    function initializeButtons(){
-      buttons = [lb, ub, rb, db, a, b];
-      buttons.forEach(button => {
-        button.addEventListener('touchstart', executeButtonEffect);
-        button.innerHTML = "._.<br>i"+button.id.charAt(0)+"i<br>._.";
-      })
+
+    JokerEngine.runPhase(
+      individualContext,
+      calculation
+    );
+
+
+    /* ------------------------------------
+       RED SEAL / CARD RETRIGGER
+    ------------------------------------ */
+
+    let repetitions = 0;
+
+
+    if (card.seal === "red") {
+      repetitions++;
     }
-    function executeButtonEffect(){
-      const buttonId = event.target.id;
-      console.log(`Button pressed: ${buttonId}`);
+
+
+    for (
+      const joker of gameState.jokers
+    ) {
+
+      const result =
+        JokerEngine.calculateJoker(
+          joker,
+          {
+            type: "repetition",
+
+            otherCard: card,
+
+            fullHand,
+
+            scoringHand:
+              pokerResult.scoringCards,
+
+            scoringName:
+              pokerResult.name
+          }
+        );
+
+
+      if (
+        result &&
+        result.repetitions
+      ) {
+        repetitions +=
+          result.repetitions;
+      }
+    }
+
+
+    /*
+      Repeat the card event.
+
+      A retrigger means executing the
+      card effect again, not multiplying
+      the numerical result.
+    */
+
+    for (
+      let repetition = 0;
+      repetition < repetitions;
+      repetition++
+    ) {
+
+      applyEffect(
+        calculation,
+        getCardEffect(card)
+      );
+
+
+      JokerEngine.runPhase(
+        {
+          type: "individual",
+
+          otherCard: card,
+
+          repetition: true,
+
+          fullHand,
+
+          scoringHand:
+            pokerResult.scoringCards,
+
+          scoringName:
+            pokerResult.name
+        },
+
+        calculation
+      );
     }
   }
-  </script>
+
+
+  /* =======================================================
+     PRE-JOKER
+  ======================================================= */
+
+  JokerEngine.runPhase(
+    {
+      type: "pre_joker",
+
+      fullHand,
+
+      scoringHand:
+        pokerResult.scoringCards,
+
+      scoringName:
+        pokerResult.name
+    },
+
+    calculation
+  );
+
+
+  /* =======================================================
+     JOKER MAIN
+  ======================================================= */
+
+  JokerEngine.runPhase(
+    {
+      type: "joker_main",
+
+      fullHand,
+
+      scoringHand:
+        pokerResult.scoringCards,
+
+      scoringName:
+        pokerResult.name
+    },
+
+    calculation
+  );
+
+
+  /* =======================================================
+     OTHER JOKER
+  ======================================================= */
+
+  for (
+    const joker of gameState.jokers
+  ) {
+
+    for (
+      const otherJoker of gameState.jokers
+    ) {
+
+      if (
+        joker.id === otherJoker.id
+      ) {
+        continue;
+      }
+
+      const result =
+        JokerEngine.calculateJoker(
+          joker,
+          {
+            type: "other_joker",
+
+            otherJoker,
+
+            fullHand,
+
+            scoringHand:
+              pokerResult.scoringCards,
+
+            scoringName:
+              pokerResult.name
+          }
+        );
+
+
+      applyEffect(
+        calculation,
+        result
+      );
+    }
+  }
+
+
+  /* =======================================================
+     HELD CARDS
+  ======================================================= */
+
+  runHeldCardEffects(
+    calculation
+  );
+
+
+  /* =======================================================
+     POST-JOKER
+  ======================================================= */
+
+  JokerEngine.runPhase(
+    {
+      type: "post_joker",
+
+      fullHand,
+
+      scoringHand:
+        pokerResult.scoringCards,
+
+      scoringName:
+        pokerResult.name
+    },
+
+    calculation
+  );
+
+
+  /* =======================================================
+     FINAL SCORING
+  ======================================================= */
+
+  JokerEngine.runPhase(
+    {
+      type: "final_scoring_step",
+
+      fullHand,
+
+      scoringHand:
+        pokerResult.scoringCards,
+
+      scoringName:
+        pokerResult.name,
+
+      chips:
+        calculation.chips,
+
+      mult:
+        calculation.mult
+    },
+
+    calculation
+  );
+
+
+  /*
+    Clamp invalid values.
+  */
+
+  calculation.chips =
+    Math.max(0, calculation.chips);
+
+  calculation.mult =
+    Math.max(1, calculation.mult);
+
+
+  /*
+    Final mathematical operation.
+  */
+
+  const finalScore =
+    Math.floor(
+      calculation.chips *
+      calculation.mult
+    );
+
+
+  return {
+
+    ...calculation,
+
+    finalScore
+  };
+}
+
+
+
+//}//end of thing
+
+
+/* =========================================================
+   PLAY CONTROLLER, card destruction, discard controller, sorting, selection
+========================================================= */
+//if(1==1){
+function playSelectedHand() {
+
+  if (gameState.inShop ||
+      gameState.runLost) {
+    return;
+  }
+
+
+  const selected =
+    getSelectedCards();
+
+
+  if (!selected.length) {
+
+    showToast(
+      "Select at least one card."
+    );
+
+    return;
+  }
+
+
+  if (
+    gameState.handsRemaining <= 0
+  ) {
+    return;
+  }
+
+
+  const pokerResult =
+    evaluatePokerHand(selected);
+
+
+  gameState.currentHandName =
+    pokerResult.name;
+
+  gameState.currentHandLevel =
+    pokerResult.level;
+
+
+  /*
+    The selected cards are now
+    temporarily considered played.
+  */
+
+  gameState.playedCards =
+    [...selected];
+
+
+  const result =
+    scoreHand(
+      selected,
+      pokerResult
+    );
+
+
+  gameState.chips =
+    result.chips;
+
+  gameState.mult =
+    result.mult;
+
+  gameState.score =
+    result.finalScore;
+
+  gameState.roundScore +=
+    result.finalScore;
+
+
+  gameState.handsRemaining--;
+
+
+  /*
+    Destruction is processed after
+    scoring has completed.
+  */
+
+  processDestruction(
+    selected
+  );
+
+
+  /*
+    Move played cards.
+
+    Cards marked for destruction
+    disappear instead.
+  */
+
+  const survivors =
+    selected.filter(
+      card => !card.status.destroy
+    );
+
+
+  moveCards(
+    survivors,
+    gameState.hand,
+    gameState.discardPile
+  );
+
+
+  for (
+    const card of selected
+  ) {
+
+    if (
+      card.status.destroy
+    ) {
+
+      removeCardEverywhere(
+        card
+      );
+    }
+  }
+
+
+  clearSelection();
+
+
+  drawCards(
+    selected.length
+  );
+
+
+  showScorePopup(
+    result.finalScore
+  );
+
+
+  renderGame();
+
+
+  /*
+    Check blind after the
+    scoring transaction.
+  */
+
+  if (
+    gameState.roundScore >=
+    gameState.targetScore
+  ) {
+
+    defeatBlind();
+
+    return;
+  }
+
+
+  if (
+    gameState.handsRemaining <= 0
+  ) {
+
+    loseRun();
+
+    return;
+  }
+
+
+  renderGame();
+}
+
+
+
+/* =========================================================
+   CARD DESTRUCTION
+========================================================= */
+
+function processDestruction(cards) {
+
+  for (
+    const card of cards
+  ) {
+
+    /*
+      Glass-style cards have a chance
+      to destroy themselves after scoring.
+    */
+
+    if (
+      card.enhancement === "glass" &&
+      Math.random() < 0.25
+    ) {
+
+      card.status.destroy = true;
+    }
+  }
+}
+
+
+function removeCardEverywhere(card) {
+
+  const areas = [
+    gameState.deck,
+    gameState.hand,
+    gameState.discardPile,
+    gameState.playedCards
+  ];
+
+
+  for (
+    const area of areas
+  ) {
+
+    const index =
+      area.indexOf(card);
+
+    if (index !== -1) {
+      area.splice(index, 1);
+    }
+  }
+}
+
+
+/* =========================================================
+   DISCARD CONTROLLER
+========================================================= */
+
+function discardSelectedCards() {
+
+  if (
+    gameState.inShop ||
+    gameState.runLost
+  ) {
+    return;
+  }
+
+
+  const selected =
+    getSelectedCards();
+
+
+  if (!selected.length) {
+
+    showToast(
+      "Select cards to discard."
+    );
+
+    return;
+  }
+
+
+  if (
+    gameState.discardsRemaining <= 0
+  ) {
+
+    showToast(
+      "No discards remaining."
+    );
+
+    return;
+  }
+
+
+  /*
+    Discard event.
+
+    This is deliberately separate from
+    scoring.
+  */
+
+  for (
+    const card of selected
+  ) {
+
+    card.selected = false;
+  }
+
+
+  moveCards(
+    selected,
+    gameState.hand,
+    gameState.discardPile
+  );
+
+
+  gameState.discardsRemaining--;
+
+
+  drawCards(
+    selected.length
+  );
+
+
+  clearSelection();
+
+
+  renderGame();
+}
+
+
+/* =========================================================
+   SORTING
+========================================================= */
+
+function sortHandByRank() {
+  gameState.sortOrder = "rank";
+
+  gameState.hand.sort(
+    (a, b) =>
+      RANK_ORDER[a.rank] -
+      RANK_ORDER[b.rank]
+  );
+
+  renderHand();
+}
+
+
+function sortHandBySuit() {
+  gameState.sortOrder = "suit";
+
+  gameState.hand.sort(
+    (a, b) =>
+      SUIT_ORDER[a.suit] -
+      SUIT_ORDER[b.suit] ||
+      RANK_ORDER[a.rank] -
+      RANK_ORDER[b.rank]
+  );
+
+  renderHand();
+}
+
+function sortHandBy(pick) {
+  if(pick === "suit") sortHandBySuit()
+  else if(pick === "rank") sortHandByRank()
+  else throw new error("could not sort")
+
+}
+
+
+/* =========================================================
+   SELECTION
+========================================================= */
+
+function selectCard(cardId) {
+
+  const card =
+    gameState.hand.find(
+      c => c.id === cardId
+    );
+
+
+  if (!card) {
+    return;
+  }
+
+
+  card.selected =
+    !card.selected;
+
+
+  gameState.selectedCards =
+    getSelectedCards();
+
+
+  renderHand();
+}
+
+//}//end of thing
+
+/* =========================================================
+   ROUND / BLIND ENGINE, blind completion, run loss
+========================================================= */
+//if(1==1){
+
+
+function getCurrentBlind() {
+
+  return BLINDS[
+    gameState.blindIndex %
+    BLINDS.length
+  ];
+}
+
+
+function calculateTargetScore() {
+
+  const blind =
+    getCurrentBlind();
+
+
+  /*
+    Target scales with ante and blind.
+  */
+
+  const base =
+    300 *
+    Math.pow(2.25, gameState.ante - 1);
+
+
+  return Math.floor(
+    base *
+    blind.multiplier
+  );
+}
+
+
+function initializeBlind() {
+
+  const blind =
+    getCurrentBlind();
+
+
+  gameState.blind =
+    deepCopy(blind);
+
+
+  gameState.targetScore =
+    calculateTargetScore();
+
+
+  gameState.roundScore = 0;
+
+  gameState.handsRemaining = 4;
+
+  gameState.discardsRemaining = 3;
+
+  gameState.chips = 0;
+
+  gameState.mult = 1;
+
+  gameState.score = 0;
+
+  gameState.playedCards = [];
+
+
+  /*
+    Deal a fresh hand.
+  */
+
+  gameState.hand = [];
+
+  drawCards(8);
+
+
+  renderGame();
+}
+
+
+function startGame() {
+
+  gameState.gameStarted = true;
+
+  gameState.inShop = false;
+
+  gameState.runLost = false;
+
+  gameState.money = 4;
+
+  gameState.ante = 1;
+
+  gameState.roundNumber = 1;
+
+  gameState.blindIndex = 0;
+
+  gameState.jokers = [];
+
+  gameState.consumables = [];
+
+  gameState.discardPile = [];
+
+  gameState.playedCards = [];
+
+  gameState.nextCardId = 1;
+
+  gameState.nextJokerId = 1;
+
+  gameState.sortOrder = "rank";//default
+
+
+  gameState.deck =
+    createStandardDeck();
+
+
+  /*
+    Give the player a basic Joker
+    so the system is visible immediately.
+  */
+
+  gameState.jokers.push(
+    createJoker("joker")
+  );
+
+
+  initializeBlind();
+
+
+  document
+    .getElementById("load")
+    .classList.add("hidden");
+}
+
+
+function nextRound() {
+
+  gameState.blindIndex++;
+
+  /*
+    Three blinds = one ante.
+  */
+
+  if (
+    gameState.blindIndex % 3 === 0
+  ) {
+
+    gameState.ante++;
+
+    gameState.roundNumber++;
+  }
+
+
+  gameState.inShop = false;
+
+
+  closeOverlay(
+    "roundOverlay"
+  );
+
+  closeOverlay(
+    "shopOverlay"
+  );
+
+
+  initializeBlind();
+}
+
+
+/* =========================================================
+   BLIND COMPLETION
+========================================================= */
+
+function defeatBlind() {
+
   
+  const reward =
+    gameState.blind.reward;
+
+  console.log(gameState.discardPile);
+  moveCards(
+    [...gameState.discardPile],
+    gameState.discardPile,
+    gameState.deck
+  )
+  moveCards(
+    [...gameState.hand],
+    gameState.hand,
+    gameState.deck
+  )
+
+  console.log(gameState.discardPile);
+  gameState.money += reward;
+
+
+  gameState.inShop = true;
+
+
+  showRoundOverlay(
+    "BLIND DEFEATED",
+    `You scored ${formatNumber(gameState.roundScore)} / ${formatNumber(gameState.targetScore)}.<br><br>Reward: $${reward}`
+  );
+
+
+  openShop();
+}
+
+
+/* =========================================================
+   RUN LOSS
+========================================================= */
+
+function loseRun() {
+
+  gameState.runLost = true;
+
+
+  showRoundOverlay(
+    "RUN OVER",
+    `Final score: ${formatNumber(gameState.roundScore)}`
+  );
+
+
+  document
+    .getElementById("nextRoundBtn")
+    .textContent = "NEW RUN";
+}
+
+//}//end of thing
+
+/* =========================================================
+   SHOP
+========================================================= */
+//if(1==1){
+
+function generateShopItems() {
+
+  const possible = [
+
+    {
+      type: "joker",
+      jokerType: "steelBaron",
+      name: "Baron",
+      description:
+        "Held Kings give ×1.5 Mult.",
+      price: 8
+    },
+
+    {
+      type: "joker",
+      jokerType: "mime",
+      name: "Mime",
+      description:
+        "Retrigger held-card effects.",
+      price: 8
+    },
+
+    {
+      type: "joker",
+      jokerType: "blueprint",
+      name: "Blueprint",
+      description:
+        "Copies the Joker immediately to its left.",
+      price: 10
+    },
+
+    {
+      type: "joker",
+      jokerType: "brainstorm",
+      name: "Brainstorm",
+      description:
+        "Delegates to the leftmost Joker.",
+      price: 10
+    },
+
+    {
+      type: "joker",
+      jokerType: "scholar",
+      name: "Scholar",
+      description:
+        "High Card gets +8 Mult.",
+      price: 6
+    },
+
+    {
+      type: "joker",
+      jokerType: "greedy",
+      name: "Greedy",
+      description:
+        "Heart/diamond scoring cards get +3 Chips.",
+      price: 5
+    },
+
+    {
+      type: "enhancement",
+      enhancement: "steel",
+      name: "Steel Card",
+      description:
+        "A random card becomes Steel.",
+      price: 5
+    },
+
+    {
+      type: "enhancement",
+      enhancement: "mult",
+      name: "Mult Card",
+      description:
+        "A random card gets +4 Mult.",
+      price: 5
+    },
+
+    {
+      type: "enhancement",
+      enhancement: "bonus",
+      name: "Bonus Card",
+      description:
+        "A random card gets +30 Chips.",
+      price: 5
+    },
+
+    {
+      type: "enhancement",
+      enhancement: "glass",
+      name: "Glass Card",
+      description:
+        "A random card gets ×2 Mult, but may break.",
+      price: 7
+    }
+  ];
+
+
+  return shuffle(
+    possible
+  ).slice(0, 4);
+}
+
+
+let currentShopItems = [];
+
+
+function openShop() {
+
+  currentShopItems =
+    generateShopItems();
+
+
+  renderShop();
+
+
+  document
+    .getElementById("shopOverlay")
+    .classList.remove("hidden");
+}
+
+
+function renderShop() {
+
+  const container =
+    document.getElementById(
+      "shopGrid"
+    );
+
+
+  container.innerHTML = "";
+
+
+  document.getElementById(
+    "shopMoney"
+  ).textContent =
+    `Money: $${gameState.money}`;
+
+
+  currentShopItems.forEach(
+    (item, index) => {
+
+      const element =
+        document.createElement("div");
+
+
+      element.className =
+        "shopItem";
+
+
+      element.innerHTML = `
+        <h3>${item.name}</h3>
+        <p>${item.description}</p>
+        <div class="shopPrice">
+          $${item.price}
+        </div>
+      `;
+
+
+      element.addEventListener(
+        "click",
+        () => purchaseShopItem(index)
+      );
+
+
+      container.appendChild(
+        element
+      );
+    }
+  );
+}
+
+
+function purchaseShopItem(index) {
+
+  const item =
+    currentShopItems[index];
+
+
+  if (!item) {
+    return;
+  }
+
+
+  if (
+    gameState.money <
+    item.price
+  ) {
+
+    showToast(
+      "Not enough money."
+    );
+
+    return;
+  }
+
+
+  if (
+    item.type === "joker" &&
+    gameState.jokers.length >= 8
+  ) {
+
+    showToast(
+      "Joker slots are full."
+    );
+
+    return;
+  }
+
+
+  gameState.money -=
+    item.price;
+
+
+  if (
+    item.type === "joker"
+  ) {
+
+    gameState.jokers.push(
+      createJoker(
+        item.jokerType
+      )
+    );
+  }
+
+
+  if (
+    item.type === "enhancement"
+  ) {
+
+    const card =
+      random(
+        gameState.deck
+          .concat(gameState.hand)
+      );
+
+
+    if (card) {
+      card.enhancement =
+        item.enhancement;
+    }
+  }
+
+
+  currentShopItems.splice(
+    index,
+    1
+  );
+
+
+  renderShop();
+
+  renderGame();
+
+
+  showToast(
+    `${item.name} purchased!`
+  );
+}
+
+
+function rerollShop() {
+
+  const cost = 5;
+
+
+  if (
+    gameState.money <
+    cost
+  ) {
+
+    showToast(
+      "Not enough money."
+    );
+
+    return;
+  }
+
+
+  gameState.money -= cost;
+
+
+  currentShopItems =
+    generateShopItems();
+
+
+  renderShop();
+
+  renderGame();
+}
+
+
+function leaveShop() {
+
+  closeOverlay(
+    "shopOverlay"
+  );
+
+
+  showRoundOverlay(
+    "READY",
+    "Leave the shop to begin the next blind."
+  );
+
+
+  document
+    .getElementById(
+      "nextRoundBtn"
+    )
+    .textContent = "NEXT BLIND";
+}
+
+
+//}//end of thing
+
+/* =========================================================
+   RENDERING
+========================================================= */
+//if(1==1){
+
+
+function createCardElement(card) {
+
+  const element =
+    document.createElement("div");
+
+
+  element.className =
+    "card " +
+    (
+      ["hearts", "diamonds"]
+        .includes(card.suit)
+        ? "red"
+        : "black"
+    );
+
+
+  element.dataset.id =
+    card.id;
+
+
+  if (card.selected) {
+
+    element.classList.add(
+      "selected"
+    );
+  }
+
+
+  const badges = [];
+
+
+  if (
+    card.enhancement === "steel"
+  ) {
+    badges.push(
+      `<span class="badge steel">STEEL</span>`
+    );
+  }
+
+
+  if (
+    card.enhancement === "bonus"
+  ) {
+    badges.push(
+      `<span class="badge bonus">BONUS</span>`
+    );
+  }
+
+
+  if (
+    card.enhancement === "mult"
+  ) {
+    badges.push(
+      `<span class="badge mult">+MULT</span>`
+    );
+  }
+
+
+  if (
+    card.enhancement === "glass"
+  ) {
+    badges.push(
+      `<span class="badge">GLASS</span>`
+    );
+  }
+
+
+  if (
+    card.seal === "red"
+  ) {
+    badges.push(
+      `<span class="badge redseal">RED</span>`
+    );
+  }
+
+
+  element.innerHTML = `
+
+    <div class="cardTop">
+      <span class="cardRank">${card.rank}</span>
+      <span class="cardSuit">
+        ${SUIT_SYMBOLS[card.suit]}
+      </span>
+    </div>
+
+    <div class="cardCenterSuit">
+      ${SUIT_SYMBOLS[card.suit]}
+    </div>
+
+    <div class="cardBadges">
+      ${badges.join("")}
+    </div>
+  `;
+
+
+  element.addEventListener(
+    "pointerdown",
+    event => {
+
+      event.preventDefault();
+
+      selectCard(card.id);
+    }
+  );
+
+
+  return element;
+}
+
+
+function renderHand() {
+
+  const handElement =
+    document.getElementById(
+      "hand"
+    );
+
+
+  handElement.innerHTML = "";
+
+
+  for (
+    const card of gameState.hand
+  ) {
+
+    handElement.appendChild(
+      createCardElement(card)
+    );
+  }
+}
+
+
+function renderJokers() {
+
+  const container =
+    document.getElementById(
+      "jokers"
+    );
+
+
+  container.innerHTML = "";
+
+
+  for (
+    const joker of gameState.jokers
+  ) {
+
+    const element =
+      document.createElement("div");
+
+
+    element.className =
+      "jokerCard";
+
+
+    element.dataset.id =
+      joker.id;
+
+
+    element.innerHTML = `
+
+      <div class="jokerIcon">
+        ${joker.icon}
+      </div>
+
+      <div class="jokerName">
+        ${joker.name}
+      </div>
+
+    `;
+
+
+    container.appendChild(
+      element
+    );
+  }
+}
+
+
+function renderConsumables() {
+
+  const container =
+    document.getElementById(
+      "consumables"
+    );
+
+
+  container.innerHTML = "";
+
+
+  for (
+    const item of gameState.consumables
+  ) {
+
+    const element =
+      document.createElement("div");
+
+
+    element.className =
+      "consumableCard";
+
+
+    element.textContent =
+      item.name;
+
+
+    container.appendChild(
+      element
+    );
+  }
+}
+
+
+function renderDashboard() {
+
+  const blind =
+    gameState.blind ||
+    getCurrentBlind();
+
+
+  document.getElementById(
+    "blindTitle"
+  ).textContent =
+    blind.name;
+
+
+  document.getElementById(
+    "blindReq"
+  ).textContent =
+    formatNumber(
+      gameState.targetScore
+    );
+
+
+  document.getElementById(
+    "blindReward"
+  ).textContent =
+    `$${blind.reward}`;
+
+
+  document.getElementById(
+    "roundScore"
+  ).textContent =
+    formatNumber(
+      gameState.roundScore
+    );
+
+
+  document.getElementById(
+    "handTypeName"
+  ).textContent =
+    gameState.currentHandName
+      .toUpperCase();
+
+
+  document.getElementById(
+    "handLevel"
+  ).textContent =
+    `lvl. ${gameState.currentHandLevel}`;
+
+
+  document.getElementById(
+    "chips"
+  ).textContent =
+    gameState.showScoreNumbers
+      ? formatNumber(gameState.chips)
+      : "???";
+
+
+  document.getElementById(
+    "mult"
+  ).textContent =
+    gameState.showScoreNumbers
+      ? formatNumber(gameState.mult)
+      : "???";
+
+
+  document.getElementById(
+    "hands"
+  ).textContent =
+    gameState.handsRemaining;
+
+
+  document.getElementById(
+    "discards"
+  ).textContent =
+    gameState.discardsRemaining;
+
+
+  document.getElementById(
+    "coin"
+  ).textContent =
+    gameState.money;
+
+
+  document.getElementById(
+    "ante"
+  ).textContent =
+    gameState.ante;
+
+
+  document.getElementById(
+    "round"
+  ).textContent =
+    gameState.roundNumber;
+}
+
+
+function renderButtons() {
+
+  document.getElementById(
+    "playHand"
+  ).disabled =
+    gameState.inShop ||
+    gameState.handsRemaining <= 0;
+
+
+  document.getElementById(
+    "discardHand"
+  ).disabled =
+    gameState.inShop ||
+    gameState.discardsRemaining <= 0;
+
+
+  document.getElementById(
+    "sortRank"
+  ).disabled =
+    gameState.inShop;
+
+
+  document.getElementById(
+    "sortSuit"
+  ).disabled =
+    gameState.inShop;
+}
+
+
+function renderCenter() {
+
+  const center =
+    document.getElementById(
+      "center"
+    );
+
+
+  const oldMessage =
+    document.getElementById(
+      "centerMessage"
+    );
+
+
+  center.innerHTML = "";
+
+
+  if (
+    gameState.playedCards.length
+  ) {
+
+    for (
+      const card of gameState.playedCards
+    ) {
+
+      center.appendChild(
+        createCardElement(card)
+      );
+    }
+  }
+
+
+  if (
+    oldMessage &&
+    !gameState.playedCards.length
+  ) {
+
+    center.appendChild(
+      oldMessage
+    );
+  }
+}
+
+
+function renderGame() {
+
+  renderDashboard();
+
+  renderJokers();
+
+  renderConsumables();
+
+  renderCenter();
+
+  renderHand();
+
+  renderButtons();
+}
+
+//}//end of thing
+
+/* =========================================================
+   SCORE POPUP, toast, overlays, run info, collection, deck info
+========================================================= */
+//if(1==1){
+
+
+function showScorePopup(score) {
+
+  const popup =
+    document.createElement(
+      "div"
+    );
+
+
+  popup.className =
+    "scorePopup";
+
+
+  popup.textContent =
+    `+${formatNumber(score)}`;
+
+
+  document
+    .getElementById("base")
+    .appendChild(popup);
+
+
+  setTimeout(
+    () => popup.remove(),
+    950
+  );
+}
+
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+let toastTimer = null;
+
+
+function showToast(message) {
+
+  const toast =
+    document.getElementById(
+      "toast"
+    );
+
+
+  toast.textContent =
+    message;
+
+
+  toast.classList.add(
+    "show"
+  );
+
+
+  clearTimeout(
+    toastTimer
+  );
+
+
+  toastTimer =
+    setTimeout(
+      () => {
+        toast.classList.remove(
+          "show"
+        );
+      },
+      1500
+    );
+}
+
+
+/* =========================================================
+   OVERLAYS
+========================================================= */
+
+function closeOverlay(id) {
+
+  document
+    .getElementById(id)
+    .classList.add("hidden");
+}
+
+
+function openOverlay(id) {
+
+  document
+    .getElementById(id)
+    .classList.remove("hidden");
+}
+
+
+function showRoundOverlay(
+  title,
+  text
+) {
+
+  document.getElementById(
+    "roundOverlayTitle"
+  ).textContent = title;
+
+
+  document.getElementById(
+    "roundOverlayText"
+  ).innerHTML = text;
+
+
+  openOverlay(
+    "roundOverlay"
+  );
+}
+
+
+/* =========================================================
+   RUN INFO
+========================================================= */
+
+function renderRunInfo() {
+
+  const container =
+    document.getElementById(
+      "runInfoContent"
+    );
+
+
+  container.innerHTML = `
+
+    <p>Ante: ${gameState.ante}</p>
+    <p>Round: ${gameState.roundNumber}</p>
+    <p>Money: $${gameState.money}</p>
+    <p>Target: ${formatNumber(gameState.targetScore)}</p>
+    <p>Round Score: ${formatNumber(gameState.roundScore)}</p>
+    <br>
+    <p>Jokers:</p>
+    <p>
+      ${
+        gameState.jokers
+          .map(j => j.name)
+          .join(" → ") || "None"
+      }
+    </p>
+  `;
+}
+
+
+/* =========================================================
+   COLLECTION
+========================================================= */
+
+function renderCollection() {
+
+  const container =
+    document.getElementById(
+      "collectionContent"
+    );
+
+
+  const all =
+    Object.values(
+      JOKER_DEFINITIONS
+    );
+
+
+  container.innerHTML =
+    all.map(
+      joker => `
+        <div style="
+          padding:10px;
+          margin:5px 0;
+          background:#eee;
+          color:#111;
+          border:2px solid #111;
+        ">
+          <strong>
+            ${joker.icon}
+            ${joker.name}
+          </strong>
+
+          <div style="font-size:10px;">
+            ${joker.rarity}
+          </div>
+        </div>
+      `
+    ).join("");
+}
+
+
+/* =========================================================
+   DECK INFO
+========================================================= */
+
+function renderDeckInfo() {
+
+  const total =
+    gameState.deck.length +
+    gameState.hand.length +
+    gameState.discardPile.length;
+
+
+  document.getElementById(
+    "deckInfo"
+  ).innerHTML = `
+
+    <p>Deck: ${gameState.deck.length}</p>
+
+    <p>Hand: ${gameState.hand.length}</p>
+
+    <p>Discard: ${gameState.discardPile.length}</p>
+
+    <p>Total cards: ${total}</p>
+
+    <br>
+
+    <p>Steel:
+      ${
+        countCardsByEnhancement(
+          "steel"
+        )
+      }
+    </p>
+
+    <p>Bonus:
+      ${
+        countCardsByEnhancement(
+          "bonus"
+        )
+      }
+    </p>
+
+    <p>Mult:
+      ${
+        countCardsByEnhancement(
+          "mult"
+        )
+      }
+    </p>
+
+    <p>Glass:
+      ${
+        countCardsByEnhancement(
+          "glass"
+        )
+      }
+    </p>
+  `;
+}
+
+
+function countCardsByEnhancement(
+  enhancement
+) {
+
+  return [
+    ...gameState.deck,
+    ...gameState.hand,
+    ...gameState.discardPile
+  ]
+  .filter(
+    card =>
+      card.enhancement === enhancement
+  )
+  .length;
+}
+
+
+//}//end of thing
+
+/* =========================================================
+   LOCAL SAVE
+========================================================= */
+//if(1==1){
+
+
+function saveRun() {
+
+  try {
+
+    localStorage.setItem(
+      "balato_run",
+      JSON.stringify({
+        money: gameState.money,
+        ante: gameState.ante,
+        roundNumber:
+          gameState.roundNumber,
+        jokers:
+          gameState.jokers,
+        deck:
+          gameState.deck,
+        hand:
+          gameState.hand,
+        discardPile:
+          gameState.discardPile,
+        blindIndex:
+          gameState.blindIndex
+      })
+    );
+
+  } catch (error) {
+
+    console.warn(
+      "Could not save run.",
+      error
+    );
+  }
+}
+
+
+/* =========================================================
+   RESET
+========================================================= */
+
+function resetRun() {
+
+  localStorage.removeItem(
+    "balato_run"
+  );
+
+
+  startGame();
+}
+
+//}//end of thing
+
+/* =========================================================
+   EVENT CONTROLLERS
+========================================================= */
+//if(1==1){
+
+
+document
+  .getElementById("playBtn")
+  .addEventListener(
+    "click",
+    startGame
+  );
+
+
+document
+  .getElementById("options")
+  .addEventListener(
+    "click",
+    () => openOverlay(
+      "optionsOverlay"
+    )
+  );
+
+
+document
+  .getElementById("collectionsBtn")
+  .addEventListener(
+    "click",
+    () => {
+
+      renderCollection();
+
+      openOverlay(
+        "collectionOverlay"
+      );
+    }
+  );
+
+
+document
+  .getElementById("playHand")
+  .addEventListener(
+    "click",
+    playSelectedHand
+  );
+
+
+document
+  .getElementById("discardHand")
+  .addEventListener(
+    "click",
+    discardSelectedCards
+  );
+
+
+document
+  .getElementById("sortRank")
+  .addEventListener(
+    "click",
+    sortHandByRank
+  );
+
+
+document
+  .getElementById("sortSuit")
+  .addEventListener(
+    "click",
+    sortHandBySuit
+  );
+
+
+document
+  .getElementById("rerollBtn")
+  .addEventListener(
+    "click",
+    rerollShop
+  );
+
+
+document
+  .getElementById("leaveShopBtn")
+  .addEventListener(
+    "click",
+    leaveShop
+  );
+
+
+document
+  .getElementById("nextRoundBtn")
+  .addEventListener(
+    "click",
+    () => {
+
+      if (gameState.runLost) {
+
+        startGame();
+
+        return;
+      }
+
+
+      nextRound();
+    }
+  );
+
+
+document
+  .getElementById("runInfoBtn")
+  .addEventListener(
+    "click",
+    () => {
+
+      renderRunInfo();
+
+      openOverlay(
+        "runInfoOverlay"
+      );
+    }
+  );
+
+
+document
+  .getElementById("optionsGameBtn")
+  .addEventListener(
+    "click",
+    () =>
+      openOverlay(
+        "optionsOverlay"
+      )
+  );
+
+
+document
+  .getElementById("deckButton")
+  .addEventListener(
+    "click",
+    () => {
+
+      renderDeckInfo();
+
+      openOverlay(
+        "deckOverlay"
+      );
+    }
+  );
+
+
+document
+  .getElementById("toggleNumbersBtn")
+  .addEventListener(
+    "click",
+    () => {
+
+      gameState.showScoreNumbers =
+        !gameState.showScoreNumbers;
+
+      renderGame();
+    }
+  );
+
+
+document
+  .getElementById("resetRunBtn")
+  .addEventListener(
+    "click",
+    () => {
+
+      if (
+        confirm(
+          "Reset the current run?"
+        )
+      ) {
+
+        resetRun();
+
+        closeOverlay(
+          "optionsOverlay"
+        );
+      }
+    }
+  );
+
+
+document
+  .querySelectorAll(
+    ".closeOverlay"
+  )
+  .forEach(
+    button => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          const overlay =
+            button.closest(
+              ".overlay"
+            );
+
+          if (overlay) {
+            overlay.classList.add(
+              "hidden"
+            );
+          }
+        }
+      );
+    }
+  );
+
+
+//}//end of thing
+
+/* =========================================================
+   INITIAL STATE, development debug api, 
+========================================================= */
+//if(1==1){
+renderGame();
+
+
+/* =========================================================
+   DEVELOPMENT DEBUG API
+========================================================= */
+
+/*
+  Useful from the browser console:
+
+  gameState
+
+  evaluatePokerHand(gameState.hand)
+
+  scoreHand(
+    gameState.hand.slice(0,5),
+    evaluatePokerHand(
+      gameState.hand.slice(0,5)
+    )
+  )
+
+  gameState.jokers.push(
+    createJoker("mime")
+  )
+
+  gameState.jokers.push(
+    createJoker("steelBaron")
+  )
+
+  gameState.hand[0].enhancement = "steel"
+
+  gameState.hand[0].rank = "K"
+
+  renderGame()
+*/
+
+
+window.Balato = {
+
+  state: gameState,
+
+  createCard,
+
+  createJoker,
+
+  evaluatePokerHand,
+
+  scoreHand,
+
+  drawCards,
+
+  renderGame,
+
+  nextRound,
+
+  startGame
+};
+
+document.getElementById('closeRoundOverlay').addEventListener(
+        "click",
+        () => closeOverlay('roundOverlay')
+      );
+
+//}//end of thing
+
+</script>
+
 </html>
