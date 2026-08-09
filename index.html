@@ -36,12 +36,15 @@
     }
     
     button {
-      border: 3px solid #111;
+      border: 3px solid rgba(0, 0, 0, 0.25);
+      border-radius: 12px;
       background: #eee;
       color: #111;
       font-weight: bold;
       cursor: pointer;
-      box-shadow: 3px 3px 0 #111;
+      box-shadow: 
+        3px 3px 0 #111,
+        3px 3px 0 #111;
     }
     
     button:active {
@@ -511,6 +514,14 @@
     
     .card.black {
       color: #111;
+    }
+
+    .card.yellow {
+      color: rgba(230,155,0,1);
+    }
+    
+    .card.blue {
+      color: rgba(0,50,200,1);
     }
     
     .cardTop {
@@ -1127,6 +1138,7 @@ const JOKER_DEFINITIONS = {
     name: "Joker",
     icon: "🃏",
     rarity: "common",
+    description: "this is the most common joker",
 
     calculate(context) {
 
@@ -1146,6 +1158,7 @@ const JOKER_DEFINITIONS = {
     name: "Greedy",
     icon: "💰",
     rarity: "common",
+    description: "this is the bithc",
 
     calculate(context) {
 
@@ -1169,6 +1182,7 @@ const JOKER_DEFINITIONS = {
     name: "Baron",
     icon: "👑",
     rarity: "rare",
+    description: "your highness",
 
     calculate(context) {
 
@@ -1192,6 +1206,7 @@ const JOKER_DEFINITIONS = {
     name: "Mime",
     icon: "🤡",
     rarity: "rare",
+    description: "this is the the is this",
 
     calculate(context) {
 
@@ -1211,6 +1226,7 @@ const JOKER_DEFINITIONS = {
     name: "Blueprint",
     icon: "📐",
     rarity: "rare",
+    description: "this is the architect",
 
     calculate(context) {
 
@@ -1236,6 +1252,7 @@ const JOKER_DEFINITIONS = {
     name: "Brainstorm",
     icon: "🧠",
     rarity: "rare",
+    description: "this is the green needle",
 
     calculate(context) {
 
@@ -1261,6 +1278,7 @@ const JOKER_DEFINITIONS = {
     name: "Scholar",
     icon: "📚",
     rarity: "common",
+    description: "this joker went to mbb",
 
     calculate(context) {
 
@@ -1551,7 +1569,7 @@ function drawCards(amount) {
 
   while (drawn < amount) {
 
-    if (gameState.deck.length === 0) {
+    if (gameState.deck.length === 0) {//if deck is empty
 
       if (gameState.discardPile.length === 0) {
         break;
@@ -1562,6 +1580,7 @@ function drawCards(amount) {
       );
     }
 
+    //take card from deck to hand
     const card = gameState.deck.pop();
 
     if (!card) {
@@ -2048,7 +2067,9 @@ function createJoker(type) {
 
     icon: definition.icon,
 
-    rarity: definition.rarity
+    rarity: definition.rarity,
+
+    description: definition.description
   };
 }
 
@@ -2149,7 +2170,7 @@ const JokerEngine = {
 
 
 /* =========================================================
-   CARD EFFECT ENGINE
+    CARD EFFECT ENGINE
 ========================================================= */
 
 function getCardBaseChips(card) {
@@ -3125,8 +3146,30 @@ function selectCard(cardId) {
   renderDashboard();
 
   renderHand();
+
+  return card.selected;
 }
 
+function selectJoker(jokerId) {
+console.log(jokerId);
+  for (const joker of gameState.jokers){
+    console.log("this is in jokers "+joker.id);
+  };
+
+  const card =
+    gameState.jokers.find(
+      c => c.id === jokerId
+    );
+
+  console.log("selected card "+card.id);
+
+  if (!card) {
+    return;
+  }
+  showToast(
+    card.description
+  );
+}
 //}//end of thing
 
 /* =========================================================
@@ -3688,15 +3731,21 @@ function createCardElement(card) {
   const element =
     document.createElement("div");
 
-
-  element.className =
-    "card " +
-    (
-      ["hearts", "diamonds"]
-        .includes(card.suit)
-        ? "red"
-        : "black"
-    );
+  let cardColor;
+  switch(card.suit) {
+    case "hearts":
+      cardColor = "red";
+      break;
+    case "diamonds":
+      cardColor = "yellow";
+      break;
+    case "clubs":
+      cardColor = "blue";
+      break;
+    default:
+      cardColor = "black";
+  }
+  element.className = "card " + cardColor;
 
 
   element.dataset.id =
@@ -3783,15 +3832,33 @@ function createCardElement(card) {
     event => {
 
       event.preventDefault();
-
-      selectCard(card.id);
+      gameState.draggable = true;
+      gameState.selectState = selectCard(card.id);
     }
   );
-
+  element.addEventListener(
+    "pointermove",
+    event => {
+      
+      event.preventDefault();
+      if(gameState.draggable && card.selected != gameState.selectState){
+        selectCard(card.id);
+      }
+    }
+  );
 
   return element;
 }
 
+document.addEventListener(
+  "pointerup",
+  event => {
+    
+    event.preventDefault();
+    
+    gameState.draggable = false;
+    
+  });
 
 function renderHand() {
 
@@ -3833,14 +3900,11 @@ function renderJokers() {
     const element =
       document.createElement("div");
 
-
     element.className =
       "jokerCard";
 
-
     element.dataset.id =
       joker.id;
-
 
     element.innerHTML = `
 
@@ -3854,6 +3918,7 @@ function renderJokers() {
 
     `;
 
+    element.addEventListener("click", () => selectJoker(joker.id));
 
     container.appendChild(
       element
