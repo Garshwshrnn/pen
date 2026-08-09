@@ -961,9 +961,14 @@
             <h2 id="roundOverlayTitle">BLIND DEFEATED</h2>
             <p id="roundOverlayText"></p>
             <button id="nextRoundBtn">NEXT BLIND</button>
-            <button id="closeRoundOverlay">SHOP</button>
         </div>
         
+        <div id="roundCongratsOverlay" class="overlay hidden">
+            <h2 id="roundCongratsOverlayTitle">BLIND DEFEATED</h2>
+            <p id="roundCongratsOverlayText"></p>
+            <button class="closeOverlay">SHOP</button>
+        </div>
+
         <div id="optionsOverlay" class="overlay hidden">
             <h2>OPTIONS</h2>
             <button id="toggleNumbersBtn">NUMBER DISPLAY</button>
@@ -988,7 +993,6 @@
             <div id="deckInfo"></div>
             <button class="closeOverlay">CLOSE</button>
         </div>
-
     </div>
 </body>
 
@@ -3243,8 +3247,8 @@ function nextRound() {
 
     gameState.ante++;
 
-    gameState.roundNumber++;
   }
+  gameState.roundNumber = gameState.blindIndex % 3 +1;
 
 
   gameState.inShop = false;
@@ -3269,11 +3273,10 @@ function nextRound() {
 
 function defeatBlind() {
 
-  
   const reward =
     gameState.blind.reward;
 
-  console.log(gameState.discardPile);
+  //return used cards to deck
   moveCards(
     [...gameState.discardPile],
     gameState.discardPile,
@@ -3285,14 +3288,13 @@ function defeatBlind() {
     gameState.deck
   )
 
-  console.log(gameState.discardPile);
   gameState.money += reward;
 
 
   gameState.inShop = true;
 
 
-  showRoundOverlay(
+  showRoundCongratsOverlay(
     "BLIND DEFEATED",
     `You scored ${formatNumber(gameState.roundScore)} / ${formatNumber(gameState.targetScore)}.<br><br>Reward: $${reward}`
   );
@@ -4161,6 +4163,25 @@ function showRoundOverlay(
   );
 }
 
+function showRoundCongratsOverlay(
+  title,
+  text
+) {
+
+  document.getElementById(
+    "roundCongratsOverlayTitle"
+  ).textContent = title;
+
+
+  document.getElementById(
+    "roundCongratsOverlayText"
+  ).innerHTML = text;
+
+
+  openOverlay(
+    "roundCongratsOverlay"
+  );
+}
 
 /* =========================================================
    RUN INFO
@@ -4474,6 +4495,9 @@ document
 
 
       nextRound();
+      console.log("ante: "+gameState.ante);
+      console.log("round: "+gameState.roundNumber);
+      console.log("blindindex: "+gameState.blindIndex);
     }
   );
 
@@ -4566,6 +4590,7 @@ document
         "click",
         () => {
 
+
           const overlay =
             button.closest(
               ".overlay"
@@ -4581,6 +4606,10 @@ document
     }
   );
 
+/*document.getElementById('closeRoundCongratsOverlay').addEventListener(
+        "click",
+        () => closeOverlay('roundCongratsOverlay')
+      );*/
 
 //}//end of thing
 
@@ -4646,10 +4675,6 @@ window.Balato = {
   startGame
 };
 
-document.getElementById('closeRoundOverlay').addEventListener(
-        "click",
-        () => closeOverlay('roundOverlay')
-      );
 
 //}//end of thing
 
