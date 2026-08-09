@@ -2762,16 +2762,10 @@ function playSelectedHand() {
   const selected =
     getSelectedCards();
 
-
   if (!selected.length) {
-
-    showToast(
-      "Select at least one card."
-    );
-
+    showToast("Select at least one card.");
     return;
   }
-
 
   if (
     gameState.handsRemaining <= 0
@@ -3095,6 +3089,13 @@ function selectCard(cardId) {
   if (!card) {
     return;
   }
+  if (!card.selected && getSelectedCards().length >= 5) {
+    showToast(
+      "Select at most 5 cards."
+    );
+
+    return;
+  }
 
 
   card.selected =
@@ -3104,6 +3105,23 @@ function selectCard(cardId) {
   gameState.selectedCards =
     getSelectedCards();
 
+
+  const pokerResult =
+    evaluatePokerHand(gameState.selectedCards);
+
+  gameState.currentHandName =
+    pokerResult.name;
+
+  gameState.currentHandLevel =
+    pokerResult.level;
+
+  gameState.chips =
+    pokerResult.baseChips;
+
+  gameState.mult =
+    pokerResult.baseMult;
+
+  renderDashboard();
 
   renderHand();
 }
@@ -4506,7 +4524,7 @@ document
         closeOverlay(
           "roundOverlay"
         );
-        
+
         return;
       }
 
