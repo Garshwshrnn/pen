@@ -528,6 +528,13 @@
       color: rgba(0,50,200,1);
     }
     
+    .card.discarded {
+      background: linear-gradient(145deg, #afafaf, #bebebe);
+    }
+    .card.handed {
+      background: linear-gradient(145deg, #eeeeee, #441444);
+    }
+
     .cardTop {
       position: absolute;
       left: 4px;
@@ -743,6 +750,326 @@
     #toast.show {
       opacity: 1;
     }
+
+            /* =====================================================
+          DECK OVERLAY
+        ====================================================== */
+
+        #deckOverlay {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+
+            display: flex;
+            flex-direction: column;
+
+            width: min(92vw, 900px);
+            height: min(88vh, 760px);
+
+            margin: auto;
+            padding: 22px;
+
+            color: #f5f5f5;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    rgba(38, 42, 48, 0.98),
+                    rgba(20, 23, 27, 0.99)
+                );
+
+            border: 2px solid #555;
+            border-radius: 18px;
+
+            box-shadow:
+                0 25px 80px rgba(0, 0, 0, 0.75),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
+
+            overflow: hidden;
+        }
+
+        /* Dark backdrop */
+
+        #deckOverlay::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+
+            background: rgba(0, 0, 0, 0.72);
+            backdrop-filter: blur(5px);
+        }
+
+        /* =====================================================
+          HEADER
+        ====================================================== */
+
+        .deckOverlayHeader {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding-bottom: 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .deckEyebrow {
+            margin-bottom: 3px;
+
+            color: #999;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 2px;
+        }
+
+        #deckOverlay h2 {
+            margin: 0;
+
+            font-size: clamp(28px, 5vw, 42px);
+            line-height: 1;
+
+            letter-spacing: 1px;
+        }
+
+        .deckCount {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+
+            color: #aaa;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+        }
+
+        .deckCount strong {
+            color: #fff;
+            font-size: 28px;
+            line-height: 1;
+        }
+
+        /* =====================================================
+          STATS
+        ====================================================== */
+
+        .deckStats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+
+            padding: 14px 0;
+        }
+
+        .deckStat {
+            padding: 9px 6px;
+
+            text-align: center;
+
+            background: rgba(255, 255, 255, 0.045);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+        }
+
+        .deckStat span {
+            display: block;
+
+            color: #858585;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .deckStat strong {
+            display: block;
+            margin-top: 2px;
+
+            font-size: 18px;
+        }
+
+        /* =====================================================
+          SECTION HEADER
+        ====================================================== */
+
+        .deckSectionHeader {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            margin-bottom: 8px;
+            padding: 0 3px;
+
+            color: #aaa;
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+        }
+
+        #deckFilterLabel {
+            color: #666;
+        }
+
+        /* =====================================================
+          CARD GRID
+        ====================================================== */
+
+        #deckInfo {
+            flex: 1;
+
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(30px, 1fr));
+            align-content: start;
+
+            gap: 9px;
+
+            padding: 10px 4px;
+
+            overflow-y: auto;
+            overflow-x: hidden;
+
+            scrollbar-width: thin;
+            scrollbar-color: #555 transparent;
+        }
+
+        #deckInfo::-webkit-scrollbar {
+            width: 7px;
+        }
+
+        #deckInfo::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        #deckInfo::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 10px;
+        }
+
+        /* =====================================================
+          INDIVIDUAL DECK CARD
+
+          Your JS can generate:
+          <div class="deckCard red">
+              <span class="deckRank">A</span>
+              <span class="deckSuit">♥</span>
+              <small>#01</small>
+          </div>
+        ====================================================== */
+
+        .deckCard {
+            position: relative;
+
+            aspect-ratio: 0.72;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    #ffffff,
+                    #dedede
+                );
+
+            color: #171717;
+
+            border: 1px solid #aaa;
+            border-radius: 8px;
+
+            box-shadow:
+                0 4px 8px rgba(0, 0, 0, 0.3),
+                inset 0 0 0 2px rgba(0, 0, 0, 0.04);
+
+            transition:
+                transform 0.12s ease,
+                box-shadow 0.12s ease;
+        }
+
+        .deckCard:hover {
+            transform: translateY(-4px);
+
+            box-shadow:
+                0 9px 18px rgba(0, 0, 0, 0.4);
+        }
+
+        .deckCard.red {
+            color: #d92727;
+        }
+
+        .deckCard.black {
+            color: #171717;
+        }
+
+        .deckRank {
+            font-size: 25px;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .deckSuit {
+            margin-top: 3px;
+
+            font-size: 24px;
+            line-height: 1;
+        }
+
+        .deckCard small {
+            position: absolute;
+            right: 5px;
+            bottom: 4px;
+
+            color: #999;
+            font-size: 7px;
+            font-weight: 700;
+        }
+
+        /* =====================================================
+          FOOTER
+        ====================================================== */
+
+        .deckOverlayFooter {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding-top: 14px;
+            padding-bottom: 30px;
+
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .deckLegend {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+
+            color: #777;
+
+            font-size: 8px;
+            font-weight: 800;
+            letter-spacing: 0.8px;
+        }
+
+        .deckLegendDot {
+            width: 7px;
+            height: 7px;
+
+            border-radius: 50%;
+        }
+
+        .deckLegendDot.red {
+            background: #d92727;
+        }
+
+        .deckLegendDot.black {
+            margin-left: 8px;
+            background: #222;
+            border: 1px solid #777;
+        }
+
+        .deckCloseBtn {
+            min-width: 110px;
+        }
     
     /* =========================================================
        SCORE ANIMATION
@@ -1003,11 +1330,69 @@
             <button class="closeOverlay">CLOSE</button>
         </div>
         
+        <!-- =====================================================
+            DECK OVERLAY
+        ====================================================== -->
         <div id="deckOverlay" class="overlay hidden">
-            <h2>DECK</h2>
-            <div id="deckInfo"></div>
-            <button class="closeOverlay">CLOSE</button>
+
+            <div class="deckOverlayHeader">
+                <div>
+                    <div class="deckEyebrow">CURRENT RUN</div>
+                    <h2>DECK</h2>
+                </div>
+
+                <div class="deckCount">
+                    <strong id="deckCardCount">52</strong>
+                    <span>CARDS</span>
+                </div>
+            </div>
+
+            <div class="deckStats">
+
+                <div class="deckStat">
+                    <span>SPADES</span>
+                    <strong id="deckSpades">13</strong>
+                </div>
+
+                <div class="deckStat">
+                    <span>HEARTS</span>
+                    <strong id="deckHearts">13</strong>
+                </div>
+
+                <div class="deckStat">
+                    <span>DIAMONDS</span>
+                    <strong id="deckDiamonds">13</strong>
+                </div>
+
+                <div class="deckStat">
+                    <span>CLUBS</span>
+                    <strong id="deckClubs">13</strong>
+                </div>
+            </div>
+
+            <div class="deckSectionHeader">
+                <span>YOUR DECK</span>
+                <span id="deckFilterLabel">ALL CARDS</span>
+            </div>
+
+            <div id="deckInfo" class="deckGrid">
+                <!-- JS-generated cards go here -->
+            </div>
+
+            <div class="deckOverlayFooter">
+                <div class="deckLegend">
+                    <span class="deckLegendDot red"></span>
+                    <span>RED SUITS</span>
+
+                    <span class="deckLegendDot black"></span>
+                    <span>BLACK SUITS</span>
+                </div>
+
+                <button class="closeOverlay deckCloseBtn">CLOSE</button>
+            </div>
+
         </div>
+
     </div>
 </body>
 
@@ -3068,20 +3453,32 @@ function discardSelectedCards() {
 function sortHandByRank() {
   gameState.sortOrder = "rank";
 
-  gameState.hand.sort(
+  sortCardsByRank(gameState.hand);
+
+  renderHand();
+}
+
+function sortCardsByRank(set) {
+  set.sort(
     (a, b) =>
       RANK_ORDER[a.rank] -
       RANK_ORDER[b.rank]
   );
 
-  renderHand();
+  return set;
 }
 
 
 function sortHandBySuit() {
   gameState.sortOrder = "suit";
 
-  gameState.hand.sort(
+  sortCardBySuit(gameState.hand)
+
+  renderHand();
+}
+
+function sortCardBySuit(set) {
+  set.sort(
     (a, b) =>
       SUIT_ORDER[a.suit] -
       SUIT_ORDER[b.suit] ||
@@ -3089,7 +3486,7 @@ function sortHandBySuit() {
       RANK_ORDER[b.rank]
   );
 
-  renderHand();
+  return set;
 }
 
 function sortHandBy(pick) {
@@ -4370,53 +4767,99 @@ function renderDeckInfo() {
     gameState.hand.length +
     gameState.discardPile.length;
 
+  const deckInfo = document.getElementById("deckInfo");
+  deckInfo.innerHTML = "";
 
-  document.getElementById(
-    "deckInfo"
-  ).innerHTML = `
+console.log("-------- discards");
+  let disCards = [...gameState.discardPile];
+  for (const card of disCards){
+    card.discarded = true;
+    card.handed = false;
+    console.log(card.rank + card.suit);
+  }
+console.log("-------- hands");
+  let handCards = [...gameState.hand];
+  for (const card of handCards){
+    card.discarded = false;
+    card.handed = true;
 
-    <p>Deck: ${gameState.deck.length}</p>
+    console.log(card.rank + card.suit);
+  }
+  let cardsInPlay = [...handCards,...gameState.deck,...disCards];
 
-    <p>Hand: ${gameState.hand.length}</p>
+  cardsInPlay = sortCardBySuit(cardsInPlay);
 
-    <p>Discard: ${gameState.discardPile.length}</p>
+  cardsInPlay.forEach((card, index) => {
+      const cardEl = document.createElement("div");
 
-    <p>Total cards: ${total}</p>
-
-    <br>
-
-    <p>Steel:
-      ${
-        countCardsByEnhancement(
-          "steel"
-        )
+      let cardColor;
+      switch(card.suit) {
+        case "hearts":
+          cardColor = "red";
+          break;
+        case "diamonds":
+          cardColor = "yellow";
+          break;
+        case "clubs":
+          cardColor = "blue";
+          break;
+        default:
+          cardColor = "black";
       }
-    </p>
+      if(card.discarded) cardColor = cardColor + " discarded";
+      if(card.handed) cardColor = cardColor + " handed";
+      cardEl.className = `deckCard card `+ cardColor;
 
-    <p>Bonus:
-      ${
-        countCardsByEnhancement(
-          "bonus"
-        )
+      const badges = [];
+      if (
+        card.enhancement === "steel"
+      ) {
+        badges.push(
+          `<span class="badge steel">STEEL</span>`
+        );
       }
-    </p>
+      if (
+        card.enhancement === "bonus"
+      ) {
+        badges.push(
+          `<span class="badge bonus">BONUS</span>`
+        );
+      }
+      if (
+        card.enhancement === "mult"
+      ) {
+        badges.push(
+          `<span class="badge mult">+MULT</span>`
+        );
+      }
+      if (
+        card.enhancement === "glass"
+      ) {
+        badges.push(
+          `<span class="badge">GLASS</span>`
+        );
+      }
+      if (
+        card.seal === "red"
+      ) {
+        badges.push(
+          `<span class="badge redseal">RED</span>`
+        );
+      }
+      
+      cardEl.innerHTML = `
+          <span class="deckRank">${card.rank}</span>
+          <span class="deckSuit">${SUIT_SYMBOLS[card.suit]}</span>
+          <div class="cardBadges">
+            ${badges.join("")}
+          </div>
+          <small>#${String(index + 1).padStart(2, "0")}</small>
+      `;
 
-    <p>Mult:
-      ${
-        countCardsByEnhancement(
-          "mult"
-        )
-      }
-    </p>
+      deckInfo.appendChild(cardEl);
+  });
 
-    <p>Glass:
-      ${
-        countCardsByEnhancement(
-          "glass"
-        )
-      }
-    </p>
-  `;
+  document.getElementById("deckCardCount").textContent = total;
 }
 
 
