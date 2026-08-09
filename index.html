@@ -65,7 +65,7 @@
     #load {
       position: fixed;
       inset: 0;
-      z-index: 1000;
+      z-index: 99;
     
       display: flex;
       flex-direction: column;
@@ -971,7 +971,7 @@
 
         <div id="optionsOverlay" class="overlay hidden">
             <h2>OPTIONS</h2>
-            <button id="toggleNumbersBtn">NUMBER DISPLAY</button>
+            <button id="toggleNumbersBtn">TOGGLE NUMBER DISPLAY</button>
             <button id="resetRunBtn">RESET RUN</button>
             <button class="closeOverlay">CLOSE</button>
         </div>
@@ -1101,7 +1101,7 @@ const BLINDS = [
   {
     name: "THE BOSS",
     multiplier: 2,
-    reward: 6
+    reward: 5
   }
 ];
 
@@ -2889,6 +2889,7 @@ function playSelectedHand() {
   ) {
 
     defeatBlind();
+    shuffle(gameState.deck);
 
     return;
   }
