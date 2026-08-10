@@ -277,11 +277,24 @@
       flex: 1;
     }
     
+    #moneyBox {
+      height: 50%;
+      background: #f4ca38;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: bold;
+
+      padding-top: 35px;
+    }
+    
     .counterBox {
       display: flex;
       flex-direction: column;
       justify-content: center;
-      border-bottom: 2px solid #111;
+      border-top: 7px solid rgba(0,0,0,0);
+      border-bottom: 1px solid rgba(0,0,0,0);
     }
     
     .counterBox p:first-child {
@@ -294,18 +307,8 @@
       color: #13802d;
     }
     
-    #moneyBox {
-      height: 32%;
-      background: #f4ca38;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      font-weight: bold;
-    }
-    
     #roundInfoBottom {
-      height: 35%;
+      height: 21%;
       display: grid;
       grid-template-columns: 1fr 1fr;
     }
@@ -359,13 +362,13 @@
       display: grid;
       grid-template-columns: 70% 30%;
       gap: 4px;
-    
+
       padding: 3px 4px;
     }
     
     #jokers,
     #consumables {
-      overflow: hidden;
+      overflow-x: auto;
     
       display: flex;
       flex-direction: row;
@@ -613,8 +616,8 @@
     
     .jokerCard,
     .consumableCard {
-      height: 49px;
-      width: 46px;
+      height: 98%;
+      aspect-ratio: 33/46;
     
       border: 2px solid #111;
       border-radius: 4px;
@@ -664,7 +667,7 @@
     
     .overlay {
       position: absolute;
-      inset: 0;
+      inset: 22dvh 0 0 0;
       z-index: 100;
     
       background: rgba(10,10,15,.92);
@@ -676,7 +679,7 @@
     
       overflow: auto;
     
-      padding: 18px;
+      padding: 18px 18px 8dvh 18px;
     }
     
     .overlay h2 {
@@ -1196,6 +1199,10 @@
             </div>
             
             <div id="roundInfo">
+                <div id="moneyBox">
+                    $<span id="coin">4</span>
+                </div>
+                 
                 <div id="roundInfoTop">
                     <div class="counterBox">
                         <p>HANDS</p>
@@ -1206,10 +1213,6 @@
                         <p>DISCS</p>
                         <p id="discards">3</p>
                     </div>
-                </div>
-                 
-                <div id="moneyBox">
-                    $<span id="coin">4</span>
                 </div>
                 
                 <div id="roundInfoBottom">
@@ -3696,6 +3699,30 @@ function startGame() {
     so the system is visible immediately.
   */
 
+  gameState.jokers.push(
+    createJoker("joker")
+  );
+  gameState.jokers.push(
+    createJoker("joker")
+  );
+  gameState.jokers.push(
+    createJoker("joker")
+  );
+  gameState.jokers.push(
+    createJoker("joker")
+  );
+  gameState.jokers.push(
+    createJoker("joker")
+  );
+  gameState.jokers.push(
+    createJoker("joker")
+  );
+  gameState.jokers.push(
+    createJoker("joker")
+  );
+  gameState.jokers.push(
+    createJoker("joker")
+  );
   gameState.jokers.push(
     createJoker("joker")
   );
