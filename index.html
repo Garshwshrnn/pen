@@ -4536,7 +4536,7 @@ function startGame() {
     Give the player a basic Joker
     so the system is visible immediately.
   */
-
+  if(1==0){
   gameState.jokers.push(
     createJoker("joker")
   );
@@ -4563,7 +4563,7 @@ function startGame() {
   );
   gameState.jokers.push(
     createJoker("joker")
-  );
+  );}
 
   showRoundOverlay(
     "READY",
@@ -4786,7 +4786,7 @@ function openShop() {
   currentShopItems =
     generateShopItems();
 
-
+  renderDashboard();
   renderShop();
 
 
@@ -6106,6 +6106,7 @@ document
       closeOverlay(
         "loseOverlay"
       );
+      renderDashboard();
 
     }
   );
