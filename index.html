@@ -691,7 +691,651 @@
       min-height: 45px;
       margin: 5px 0;
     }
-    
+    /* =========================================================
+   BALATRO-STYLE ROUND / BLIND OVERLAY
+========================================================= */
+
+#roundOverlay {
+  position: absolute;
+  inset: 22dvh 0 0 0;
+
+  z-index: 200;
+
+  padding: 14px 12px 18px;
+
+  background:
+    radial-gradient(
+      circle at 50% 15%,
+      rgba(255,255,255,.08),
+      transparent 35%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(28,31,36,.98),
+      rgba(10,11,14,.99)
+    );
+
+  color: white;
+
+  overflow-y: auto;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.roundOverlayHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 3px 4px 12px;
+
+  border-bottom: 2px solid rgba(255,255,255,.12);
+}
+
+.roundOverlayEyebrow {
+  color: #aaa;
+
+  font-size: 10px;
+  font-weight: bold;
+
+  letter-spacing: 2px;
+}
+
+#roundOverlayTitle {
+  margin: 3px 0 0;
+
+  font-size: clamp(22px, 6vw, 32px);
+
+  line-height: 1;
+
+  text-shadow:
+    3px 3px 0 #111;
+}
+
+.roundOverlayAnteBadge {
+  min-width: 52px;
+
+  padding: 5px 8px;
+
+  text-align: center;
+
+  background: #3c4148;
+
+  border: 2px solid #111;
+  border-radius: 7px;
+
+  box-shadow:
+    3px 3px 0 #111;
+
+  color: #aaa;
+
+  font-size: 8px;
+  font-weight: bold;
+}
+
+.roundOverlayAnteBadge strong {
+  display: block;
+
+  color: white;
+
+  font-size: 22px;
+
+  line-height: 1;
+}
+
+
+/* =========================================================
+   BLIND SELECTION
+========================================================= */
+
+.blindSelection {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 7px;
+
+  padding: 13px 0;
+}
+
+
+.blindChoice {
+  position: relative;
+
+  min-height: 165px;
+
+  display: flex;
+  flex-direction: column;
+
+  background:
+    linear-gradient(
+      145deg,
+      #dce9e9,
+      #5270c4
+    );
+
+  color: #111;
+
+  border: 3px solid #111;
+  border-radius: 9px;
+
+  box-shadow:
+    4px 4px 0 #080808;
+
+  overflow: hidden;
+
+  transition:
+    transform .12s ease,
+    filter .12s ease,
+    opacity .12s ease;
+}
+
+
+.blindChoiceHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  min-height: 32px;
+
+  padding: 5px 6px;
+
+  background: rgba(0,0,0,.18);
+
+  border-bottom: 2px solid rgba(0,0,0,.2);
+}
+
+
+.blindChoiceType {
+  font-size: clamp(7px, 2vw, 10px);
+  font-weight: 900;
+}
+
+
+.blindChoiceStatus {
+  font-size: 7px;
+  font-weight: 900;
+
+  color: #146b2b;
+}
+
+
+.blindChoiceIcon {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  height: 55px;
+
+  font-size: 38px;
+
+  text-shadow:
+    2px 2px 0 rgba(0,0,0,.25);
+}
+
+
+.smallBlindIcon {
+  color: #2787a0;
+}
+
+
+.bigBlindIcon {
+  color: #2377d8;
+}
+
+
+.bossBlindIcon {
+  color: #c62d38;
+}
+
+
+.bossBlindChoice {
+  background:
+    linear-gradient(
+      145deg,
+      #f0b2b2,
+      #bc666c
+    );
+}
+
+
+/* =========================================================
+   BLIND SCORE / REWARD
+========================================================= */
+
+.blindChoiceScore,
+.blindChoiceReward {
+  display: flex;
+  flex-direction: column;
+
+  text-align: center;
+
+  padding: 3px 4px;
+}
+
+
+.blindChoiceScore {
+  margin-top: auto;
+}
+
+
+.blindChoiceScore span,
+.blindChoiceReward span {
+  color: rgba(0,0,0,.55);
+
+  font-size: 7px;
+  font-weight: 900;
+}
+
+
+.blindChoiceScore strong {
+  font-size: clamp(12px, 3.4vw, 17px);
+}
+
+
+.blindChoiceReward {
+  margin-top: 3px;
+
+  background: rgba(255,255,255,.28);
+
+  border-top: 1px solid rgba(0,0,0,.15);
+}
+
+
+.blindChoiceReward strong {
+  color: #08752a;
+
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   BLIND STATES
+========================================================= */
+
+.blindChoice.current {
+  transform: translateY(-5px);
+
+  border-color: #ffe36e;
+
+  box-shadow:
+    0 0 0 2px #f4bf25,
+    4px 7px 0 #080808;
+}
+
+
+.blindChoice.current::before {
+  content: "NEXT";
+
+  position: absolute;
+
+  top: 0;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  z-index: 3;
+
+  padding: 3px 8px;
+
+  background: #f4ca38;
+
+  color: #111;
+
+  border-radius: 0 0 5px 5px;
+
+  font-size: 7px;
+  font-weight: 900;
+}
+
+
+.blindChoice.completed {
+  filter: grayscale(.85);
+  opacity: .55;
+}
+
+
+.blindChoice.completed .blindChoiceStatus::after {
+  content: "✓";
+}
+
+
+.blindChoice.locked {
+  opacity: .72;
+}
+
+
+/* =========================================================
+   SECTION TITLES
+========================================================= */
+
+.roundOverlaySection {
+  margin-top: 3px;
+}
+
+
+.roundOverlaySectionTitle {
+  margin-bottom: 5px;
+
+  padding-left: 3px;
+
+  color: #999;
+
+  font-size: 8px;
+  font-weight: 900;
+
+  letter-spacing: 1.5px;
+}
+
+
+/* =========================================================
+   BOSS DESCRIPTION
+========================================================= */
+
+.bossDescriptionBox {
+  min-height: 72px;
+
+  display: flex;
+  align-items: center;
+
+  padding: 9px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #492327,
+      #272a30
+    );
+
+  border: 2px solid #111;
+  border-radius: 7px;
+
+  box-shadow:
+    3px 3px 0 #080808;
+}
+
+
+.bossDescriptionIcon {
+  width: 48px;
+  height: 48px;
+
+  flex: 0 0 48px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-right: 9px;
+
+  background: #c33d47;
+
+  border: 2px solid #111;
+  border-radius: 6px;
+
+  font-size: 27px;
+
+  box-shadow:
+    2px 2px 0 #111;
+}
+
+
+.bossDescriptionContent {
+  min-width: 0;
+}
+
+
+.bossDescriptionContent strong {
+  display: block;
+
+  margin-bottom: 4px;
+
+  font-size: 12px;
+}
+
+
+.bossDescriptionContent p {
+  color: #ccc;
+
+  font-size: 9px;
+
+  line-height: 1.35;
+}
+
+
+/* =========================================================
+   VOUCHER + SKIP
+========================================================= */
+
+.roundOverlayExtras {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 7px;
+
+  margin-top: 10px;
+}
+
+
+.roundOverlayExtra {
+  min-width: 0;
+}
+
+
+.roundExtraBox {
+  min-height: 74px;
+
+  display: flex;
+  align-items: center;
+
+  padding: 8px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #343940,
+      #202328
+    );
+
+  border: 2px solid #111;
+  border-radius: 7px;
+
+  box-shadow:
+    3px 3px 0 #080808;
+}
+
+
+.roundExtraIcon {
+  width: 38px;
+  height: 38px;
+
+  flex: 0 0 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-right: 7px;
+
+  background: #555b62;
+
+  border: 2px solid #111;
+  border-radius: 5px;
+
+  font-size: 19px;
+}
+
+
+.roundExtraBox strong {
+  display: block;
+
+  margin-bottom: 3px;
+
+  color: white;
+
+  font-size: 9px;
+}
+
+
+.roundExtraBox p {
+  color: #999;
+
+  font-size: 7px;
+
+  line-height: 1.35;
+}
+
+
+.voucherBox {
+  background:
+    linear-gradient(
+      145deg,
+      #3d523c,
+      #242a27
+    );
+}
+
+
+.skipBox {
+  background:
+    linear-gradient(
+      145deg,
+      #3c414a,
+      #24272d
+    );
+}
+
+
+/* =========================================================
+   MESSAGE
+========================================================= */
+
+.roundOverlayMessage {
+  min-height: 25px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 7px 3px;
+
+  text-align: center;
+}
+
+
+#roundOverlayText {
+  color: #aaa;
+
+  font-size: 9px;
+
+  line-height: 1.4;
+}
+
+
+/* =========================================================
+   NEXT BUTTON
+========================================================= */
+
+#roundOverlay #nextRoundBtn {
+  width: 100%;
+
+  min-height: 48px;
+
+  margin-top: 2px;
+
+  background:
+    linear-gradient(
+      #f5d96e,
+      #d5a92e
+    );
+
+  color: #111;
+
+  font-size: clamp(13px, 4vw, 18px);
+
+  border: 3px solid #111;
+
+  box-shadow:
+    4px 4px 0 #080808;
+}
+#loseOverlay{
+  color: red;
+}
+#loseRunBtn {
+  width: 100%;
+
+  min-height: 48px;
+
+  margin-top: 35px;
+
+  background:
+    linear-gradient(
+      purple,
+      red
+    );
+
+  color: white;
+
+  font-size: clamp(13px, 4vw, 18px);
+
+  border: 3px solid #111;
+
+  box-shadow:
+    4px 4px 0 #080808;
+}
+
+
+/* =========================================================
+   SMALL PHONES
+========================================================= */
+
+@media (max-width: 380px) {
+
+  #roundOverlay {
+    padding: 10px 8px 14px;
+  }
+
+  .blindSelection {
+    gap: 4px;
+  }
+
+  .blindChoice {
+    min-height: 145px;
+  }
+
+  .blindChoiceIcon {
+    height: 45px;
+    font-size: 30px;
+  }
+
+  .bossDescriptionBox {
+    min-height: 64px;
+  }
+
+  .bossDescriptionIcon {
+    width: 38px;
+    height: 38px;
+    flex-basis: 38px;
+    font-size: 21px;
+  }
+
+  .roundExtraBox {
+    min-height: 67px;
+    padding: 6px;
+  }
+
+  .roundExtraIcon {
+    width: 30px;
+    height: 30px;
+    flex-basis: 30px;
+    font-size: 15px;
+  }
+}
     .shopGrid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -1303,9 +1947,205 @@
         </div>
         
         <div id="roundOverlay" class="overlay hidden">
-            <h2 id="roundOverlayTitle">BLIND DEFEATED</h2>
-            <p id="roundOverlayText"></p>
-            <button id="nextRoundBtn">NEXT BLIND</button>
+          <!-- =====================================================
+              THREE BLINDS
+          ====================================================== -->
+
+          <div class="blindSelection">
+
+              <!-- SMALL BLIND -->
+
+              <div class="blindChoice" id="roundBlind0">
+
+                  <div class="blindChoiceHeader">
+                      <span class="blindChoiceType">SMALL BLIND</span>
+                      <span class="blindChoiceStatus" id="roundBlind0Status"></span>
+                  </div>
+
+                  <div class="blindChoiceIcon smallBlindIcon">
+                      ♦
+                  </div>
+
+                  <div class="blindChoiceScore">
+                      <span>REQUIRED SCORE</span>
+                      <strong id="roundBlind0Score">—</strong>
+                  </div>
+
+                  <div class="blindChoiceReward">
+                      <span>REWARD</span>
+                      <strong id="roundBlind0Reward">$3</strong>
+                  </div>
+
+              </div>
+
+
+              <!-- BIG BLIND -->
+
+              <div class="blindChoice" id="roundBlind1">
+
+                  <div class="blindChoiceHeader">
+                      <span class="blindChoiceType">BIG BLIND</span>
+                      <span class="blindChoiceStatus" id="roundBlind1Status"></span>
+                  </div>
+
+                  <div class="blindChoiceIcon bigBlindIcon">
+                      ♦
+                  </div>
+
+                  <div class="blindChoiceScore">
+                      <span>REQUIRED SCORE</span>
+                      <strong id="roundBlind1Score">—</strong>
+                  </div>
+
+                  <div class="blindChoiceReward">
+                      <span>REWARD</span>
+                      <strong id="roundBlind1Reward">$4</strong>
+                  </div>
+
+              </div>
+
+
+              <!-- BOSS -->
+
+              <div class="blindChoice bossBlindChoice" id="roundBlind2">
+
+                  <div class="blindChoiceHeader">
+                      <span class="blindChoiceType">BOSS BLIND</span>
+                      <span class="blindChoiceStatus" id="roundBlind2Status"></span>
+                  </div>
+
+                  <div class="blindChoiceIcon bossBlindIcon">
+                      ☠
+                  </div>
+
+                  <div class="blindChoiceScore">
+                      <span>REQUIRED SCORE</span>
+                      <strong id="roundBlind2Score">—</strong>
+                  </div>
+
+                  <div class="blindChoiceReward">
+                      <span>REWARD</span>
+                      <strong id="roundBlind2Reward">$5</strong>
+                  </div>
+
+              </div>
+
+          </div>
+
+
+          <!-- =====================================================
+              BOSS DESCRIPTION
+          ====================================================== -->
+
+          <div class="roundOverlaySection">
+
+              <div class="roundOverlaySectionTitle">
+                  BOSS BLIND
+              </div>
+
+              <div class="bossDescriptionBox">
+
+                  <div class="bossDescriptionIcon">
+                      ☠
+                  </div>
+
+                  <div class="bossDescriptionContent">
+
+                      <strong id="roundBossName">
+                          THE BOSS
+                      </strong>
+
+                      <p id="roundBossDescription">
+                          <!-- Reserved for future Boss Blind description. -->
+                          Boss Blind description coming soon.
+                      </p>
+
+                  </div>
+
+              </div>
+
+          </div>
+
+
+          <!-- =====================================================
+              VOUCHER / SKIP
+          ====================================================== -->
+
+          <div class="roundOverlayExtras">
+
+              <div class="roundOverlayExtra">
+
+                  <div class="roundOverlaySectionTitle">
+                      VOUCHER
+                  </div>
+
+                  <div class="roundExtraBox voucherBox">
+
+                      <div class="roundExtraIcon">
+                          🎟
+                      </div>
+
+                      <div>
+                          <strong id="roundVoucherName">
+                              VOUCHER
+                          </strong>
+
+                          <p id="roundVoucherDescription">
+                              Voucher description coming soon.
+                          </p>
+                      </div>
+
+                  </div>
+
+              </div>
+
+
+              <div class="roundOverlayExtra">
+
+                  <div class="roundOverlaySectionTitle">
+                      SKIP BLIND
+                  </div>
+
+                  <div class="roundExtraBox skipBox">
+
+                      <div class="roundExtraIcon">
+                          ⏩
+                      </div>
+
+                      <div>
+                          <strong id="roundSkipName">
+                              SKIP BLIND
+                          </strong>
+
+                          <p id="roundSkipDescription">
+                              Skip Blind description coming soon.
+                          </p>
+
+                      </div>
+
+                  </div>
+
+              </div>
+
+          </div>
+
+
+          <!-- =====================================================
+              MESSAGE / ACTION
+          ====================================================== -->
+
+          <div class="roundOverlayMessage">
+              <p id="roundOverlayText"></p>
+          </div>
+
+          <button id="nextRoundBtn">SELECT BLIND</button>
+
+        </div>
+
+        <div id="loseOverlay" class="overlay hidden">
+            <h2 id="loseOverlayTitle">YOU HAVE BEEN DEFEATED</h2>
+            <p id="loseOverlayText"></p>
+            <button id="loseRunBtn">NEW RUN</button>
         </div>
         
         <div id="roundCongratsOverlay" class="overlay hidden">
@@ -1492,19 +2332,22 @@ const BLINDS = [
   {
     name: "SMALL BLIND",
     multiplier: 1,
-    reward: 3
+    reward: 3,
+    description: ""
   },
 
   {
     name: "BIG BLIND",
     multiplier: 1.5,
-    reward: 4
+    reward: 4,
+    description: ""
   },
 
   {
     name: "THE BOSS",
     multiplier: 2,
-    reward: 5
+    reward: 5,
+    description: ""
   }
 ];
 
@@ -3591,29 +4434,24 @@ function getCurrentBlind() {
 }
 
 
+function calculateBlindTargetScore(ante, blindIndex) {
+
+  const blind = BLINDS[blindIndex];
+
+  if (!blind) {
+    return 0;
+  }
+
+  return blind.multiplier * BASE_CHIP[ante];
+}
+
+
 function calculateTargetScore() {
 
-  const blind =
-    getCurrentBlind();
-
-  /*
-    Target scales with ante and blind.
-  */
-  let calculateBlind = false;//simplified placeholder
-  if(calculateBlind){
-    const base =
-      300 *
-      Math.pow(2.25, gameState.ante - 1);
-
-
-    return Math.floor(
-      base *
-      blind.multiplier
-    );
-  };
-
-  return blind.multiplier * BASE_CHIP[gameState.ante];
-  //does not consider if gameState.ante is negative
+  return calculateBlindTargetScore(
+    gameState.ante,
+    gameState.blindIndex % 3
+  );
 }
 
 
@@ -3669,11 +4507,11 @@ function startGame() {
 
   gameState.money = 4;
 
-  gameState.ante = 1;
+  gameState.ante = 0;
 
   gameState.roundNumber = 1;
 
-  gameState.blindIndex = 0;
+  gameState.blindIndex = -1;
 
   gameState.jokers = [];
 
@@ -3727,8 +4565,11 @@ function startGame() {
     createJoker("joker")
   );
 
-
-  initializeBlind();
+  showRoundOverlay(
+    "READY",
+    "Leave the shop to begin the next blind."
+  );
+  //initializeBlind();
 
 
   document
@@ -3817,14 +4658,14 @@ function loseRun() {
   gameState.runLost = true;
 
 
-  showRoundOverlay(
-    "RUN OVER",
+  showLoseOverlay(
+    "YOU HAVE BEEN DEFEATED",
     `Final score: ${formatNumber(gameState.roundScore)}`
   );
 
 
   document
-    .getElementById("nextRoundBtn")
+    .getElementById("loseRunBtn")
     .textContent = "NEW RUN";
 }
 
@@ -4142,7 +4983,7 @@ function leaveShop() {
     .getElementById(
       "nextRoundBtn"
     )
-    .textContent = "NEXT BLIND";
+    .textContent = "SELECT BLIND";
 }
 
 
@@ -4669,19 +5510,199 @@ function openOverlay(id) {
 }
 
 
+function calculateBlindTargetScore(ante, blindIndex) {
+
+  const blind =
+    BLINDS[blindIndex];
+
+  if (!blind) {
+    return 0;
+  }
+
+  /*
+    Same calculation used by the actual
+    blind, but allows the overlay to
+    preview all three blinds.
+  */
+
+  return blind.multiplier *
+    BASE_CHIP[ante];
+}
+
+
+function renderRoundOverlayBlinds() {
+
+/*
+0 = small
+1 = big
+2 = boss
+*/
+  let currentBeatenBlindIndex = gameState.blindIndex % 3;
+  let ante = gameState.ante;
+
+  if(currentBeatenBlindIndex===2){
+    currentBeatenBlindIndex=-1;
+    ante++;
+  }
+
+  /*
+    Render all three blinds.
+  */
+
+  for (
+    let index = 0;
+    index < 3;
+    index++
+  ) {
+
+    const blind =
+      BLINDS[index];
+
+    const element =
+      document.getElementById(`roundBlind${index}`);
+
+    const scoreElement =
+      document.getElementById(`roundBlind${index}Score`);
+
+    const rewardElement =
+      document.getElementById(`roundBlind${index}Reward`);
+
+    const statusElement =
+      document.getElementById(`roundBlind${index}Status`);
+
+    /*
+      Reset classes.
+    */
+    element.classList.remove(
+      "current",
+      "completed",
+      "locked"
+    );
+
+
+    /*
+      Required score.
+    */
+    scoreElement.textContent =
+      formatNumber( calculateBlindTargetScore(ante, index));
+
+    /*
+      Reward.
+    */
+    rewardElement.textContent = `$${blind.reward}`;
+
+    /*
+      Current / completed state.
+    */
+    if (index <= currentBeatenBlindIndex) {
+      element.classList.add("completed");
+      statusElement.textContent = "CLEARED";
+
+    } else if (index === currentBeatenBlindIndex+1) {
+      element.classList.add("current");
+      statusElement.textContent = "UPCOMING";
+
+    } else {
+      element.classList.add("locked");
+      statusElement.textContent = "LOCKED";
+    }
+  }
+
+
+  /*
+    Boss information.
+
+    This is intentionally ready for
+    future Boss Blind definitions.
+  */
+
+  const boss =
+    BLINDS[2];
+
+  document.getElementById(
+    "roundBossName"
+  ).textContent =
+    boss.name;
+
+
+  /*
+    Do not remove this empty/reserved
+    description area when Boss data
+    is implemented later.
+  */
+
+  document.getElementById(
+    "roundBossDescription"
+  ).textContent =
+    boss.description ||
+    "Boss Blind description coming soon.";
+
+
+  /*
+    Voucher placeholder.
+
+    Later you can populate these from
+    run/shop/voucher state.
+  */
+
+  document.getElementById(
+    "roundVoucherName"
+  ).textContent =
+    "VOUCHER";
+
+  document.getElementById(
+    "roundVoucherDescription"
+  ).textContent =
+    "Voucher description coming soon.";
+
+
+  /*
+    Skip Blind placeholder.
+  */
+
+  document.getElementById(
+    "roundSkipName"
+  ).textContent =
+    "SKIP BLIND";
+
+  document.getElementById(
+    "roundSkipDescription"
+  ).textContent =
+    "Skip Blind description coming soon.";
+}
+
+function showLoseOverlay(
+  title,
+  text
+) {
+
+  document.getElementById(
+    "loseOverlayTitle"
+  ).innerHTML =
+    title;
+
+  document.getElementById(
+    "loseOverlayText"
+  ).innerHTML =
+    text;
+
+  openOverlay(
+    "loseOverlay"
+  );
+}
+
 function showRoundOverlay(
   title,
   text
 ) {
 
   document.getElementById(
-    "roundOverlayTitle"
-  ).textContent = title;
-
-
-  document.getElementById(
     "roundOverlayText"
-  ).innerHTML = text;
+  ).innerHTML =
+    text;
+
+
+  renderRoundOverlayBlinds();
 
 
   openOverlay(
@@ -5076,6 +6097,18 @@ document
     }
   );
 
+document
+  .getElementById("loseRunBtn")
+  .addEventListener(
+    "click",
+    () => {
+      startGame();
+      closeOverlay(
+        "loseOverlay"
+      );
+
+    }
+  );
 
 document
   .getElementById("runInfoBtn")
