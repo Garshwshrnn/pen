@@ -2373,10 +2373,10 @@ const JOKER_DEFINITIONS = {
     name: "Joker",
     icon: "🃏",
     rarity: "common",
+    price: 2,
     description: "this is the most common joker",
 
     calculate(context) {
-
       if (context.type === "joker_main") {
         return {
           mult: 4,
@@ -2393,10 +2393,10 @@ const JOKER_DEFINITIONS = {
     name: "Greedy",
     icon: "💰",
     rarity: "common",
+    price: 5,
     description: "this is the bithc",
 
     calculate(context) {
-
       if (
         context.type === "individual" &&
         context.otherCard &&
@@ -2417,10 +2417,10 @@ const JOKER_DEFINITIONS = {
     name: "Baron",
     icon: "👑",
     rarity: "rare",
+    price: 8,
     description: "your highness",
 
     calculate(context) {
-
       if (
         context.type === "held_card" &&
         context.otherCard &&
@@ -2441,10 +2441,10 @@ const JOKER_DEFINITIONS = {
     name: "Mime",
     icon: "🤡",
     rarity: "rare",
+    price: 5,
     description: "this is the the is this",
 
     calculate(context) {
-
       if (context.type === "held_trigger") {
         return {
           repetitions: 1,
@@ -2461,10 +2461,10 @@ const JOKER_DEFINITIONS = {
     name: "Blueprint",
     icon: "📐",
     rarity: "rare",
+    price: 10,
     description: "this is the architect",
 
     calculate(context) {
-
       if (!context.engine) {
         return null;
       }
@@ -2487,6 +2487,7 @@ const JOKER_DEFINITIONS = {
     name: "Brainstorm",
     icon: "🧠",
     rarity: "rare",
+    price: 10,
     description: "this is the green needle",
 
     calculate(context) {
@@ -2513,6 +2514,7 @@ const JOKER_DEFINITIONS = {
     name: "Scholar",
     icon: "📚",
     rarity: "common",
+    price: 4,
     description: "this joker went to mbb",
 
     calculate(context) {
@@ -4676,63 +4678,7 @@ function loseRun() {
 ========================================================= */
 //if(1==1){
 
-function generateShopItems() {
-
   const possible = [
-
-    {
-      type: "joker",
-      jokerType: "steelBaron",
-      name: "Baron",
-      description:
-        "Held Kings give ×1.5 Mult.",
-      price: 8
-    },
-
-    {
-      type: "joker",
-      jokerType: "mime",
-      name: "Mime",
-      description:
-        "Retrigger held-card effects.",
-      price: 8
-    },
-
-    {
-      type: "joker",
-      jokerType: "blueprint",
-      name: "Blueprint",
-      description:
-        "Copies the Joker immediately to its left.",
-      price: 10
-    },
-
-    {
-      type: "joker",
-      jokerType: "brainstorm",
-      name: "Brainstorm",
-      description:
-        "Delegates to the leftmost Joker.",
-      price: 10
-    },
-
-    {
-      type: "joker",
-      jokerType: "scholar",
-      name: "Scholar",
-      description:
-        "High Card gets +8 Mult.",
-      price: 6
-    },
-
-    {
-      type: "joker",
-      jokerType: "greedy",
-      name: "Greedy",
-      description:
-        "Heart/diamond scoring cards get +3 Chips.",
-      price: 5
-    },
 
     {
       type: "enhancement",
@@ -4770,6 +4716,20 @@ function generateShopItems() {
       price: 7
     }
   ];
+
+  for (const [key, j] of Object.entries(JOKER_DEFINITIONS)) {
+    possible.push({
+      type: "joker",
+      jokerType: key,
+      name: j.name,
+      description: j.description,
+      price: j.price,
+      rarity: j.rarity
+    })
+  };
+
+
+function generateShopItems() {
 
 
   return shuffle(
