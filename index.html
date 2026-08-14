@@ -2368,7 +2368,9 @@ const BASE_CHIP = [
 ========================================================= */
 
 const JOKER_DEFINITIONS = {
-
+  //70% chance of generating a Common Joker,
+  //25% chance of generating an Uncommon Joker,
+  //5% chance of generating a Rare Joker
   joker: {
     name: "Joker",
     icon: "🃏",
@@ -2560,6 +2562,22 @@ const gameState = {
   deckModifiers: {},
 
   collection: {},
+
+  /* -------------------------
+     shop
+  ------------------------- */
+
+  numOfShopCards: 2,
+
+  rarities: {
+    //Joker
+      common: 20 * 0.70,
+      uncommon: 20 * 0.25,
+      rare: 20 * 0.5,
+    Tarot: 4,
+    Planet: 4,
+    PlayingCard: 0
+  },
 
 
   /* -------------------------
@@ -4680,7 +4698,7 @@ function loseRun() {
 
   const possible = [
 
-    {
+    /*{
       type: "enhancement",
       enhancement: "steel",
       name: "Steel Card",
@@ -4714,7 +4732,7 @@ function loseRun() {
       description:
         "A random card gets ×2 Mult, but may break.",
       price: 7
-    }
+    }*/
   ];
 
   for (const [key, j] of Object.entries(JOKER_DEFINITIONS)) {
@@ -4730,12 +4748,20 @@ function loseRun() {
 
 
 function generateShopItems() {
+  let output = [];
+  let allowed = false;
+  let possibleItem;
 
+  for(let i = 0; i<gameState.numOfShopCards; i++){
+    while(!allowed){
+      shuffle([...possible])
+    }
+  };
 
-  return shuffle(
-    possible
-  ).slice(0, 4);
+  return output;
 }
+//buy_cost = (base_cost + edition_cost) * discount_percent
+//sell_value = floor(buy_cost / 2)
 
 
 let currentShopItems = [];
@@ -4769,12 +4795,13 @@ function renderShop() {
 
   document.getElementById(
     "shopMoney"
-  ).textContent =
-    `Money: $${gameState.money}`;
+  ).textContent = "";
+    //`Money: $${gameState.money}`;
 
-
+      currentShopItems[0].name = "mjam";
   currentShopItems.forEach(
     (item, index) => {
+
 
       const element =
         document.createElement("div");
