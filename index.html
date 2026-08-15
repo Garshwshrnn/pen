@@ -2368,9 +2368,6 @@ const BASE_CHIP = [
 ========================================================= */
 
 const JOKER_DEFINITIONS = {
-  //70% chance of generating a Common Joker,
-  //25% chance of generating an Uncommon Joker,
-  //5% chance of generating a Rare Joker
   joker: {
     name: "Joker",
     icon: "🃏",
@@ -2580,6 +2577,8 @@ const gameState = {
   },
 
   discount_percent: 1,
+
+  appearanceRateModifier: 1,
 
 
   /* -------------------------
@@ -3304,29 +3303,27 @@ function applyEffect(calculation, effect) {
 ========================================================= */
 //if(1==1){
 
-function createJoker(type) {
+function createJoker(type, ed, sv) {
 
   const definition =
     JOKER_DEFINITIONS[type];
-
+    
   if (!definition) {
     return null;
   }
 
   return {
-
     id:
       `joker_${gameState.nextJokerId++}`,
-
     type,
-
     name: definition.name,
-
     icon: definition.icon,
 
     rarity: definition.rarity,
+    description: definition.description,
 
-    description: definition.description
+    edition: ed,
+    sell_value: sv
   };
 }
 
@@ -4431,6 +4428,7 @@ console.log(jokerId);
     );
 
   console.log("selected card "+card.id);
+  console.log(JSON.stringify(card, null, 2));
 
   if (!card) {
     return;
@@ -4536,6 +4534,7 @@ function startGame() {
   gameState.blindIndex = -1;
 
   gameState.jokers = [];
+  gameState.jokerLimit = 5;
 
   gameState.consumables = [];
 
@@ -4558,38 +4557,38 @@ function startGame() {
     Give the player a basic Joker
     so the system is visible immediately.
   */
+  if(1==1){
+  gameState.jokers.push(
+    createJoker("joker", "none", 2)
+  );
+  gameState.jokers.push(
+    createJoker("joker", "none", 2)
+  );
+  gameState.jokers.push(
+    createJoker("joker", "none", 2)
+  );
+  gameState.jokers.push(
+    createJoker("joker", "none", 2)
+  );
+  }
   if(1==0){
   gameState.jokers.push(
-    createJoker("joker")
+    createJoker("joker", "none", 2)
   );
   gameState.jokers.push(
-    createJoker("joker")
+    createJoker("joker", "none", 2)
   );
   gameState.jokers.push(
-    createJoker("joker")
+    createJoker("joker", "none", 2)
   );
   gameState.jokers.push(
-    createJoker("joker")
+    createJoker("joker", "none", 2)
   );
-  gameState.jokers.push(
-    createJoker("joker")
-  );
-  gameState.jokers.push(
-    createJoker("joker")
-  );
-  gameState.jokers.push(
-    createJoker("joker")
-  );
-  gameState.jokers.push(
-    createJoker("joker")
-  );
-  gameState.jokers.push(
-    createJoker("joker")
-  );}
+  }
 
   showRoundOverlay(
     "READY",
-    "Leave the shop to begin the next blind."
+    "Begin the first blind."
   );
   //initializeBlind();
 
@@ -4754,16 +4753,19 @@ function generateShopItems() {
   let allowed = false;
 
   for(let i = 0; i<gameState.numOfShopCards; i++){
+
     let possibleItem;
     while(!itemIsSellable(possibleItem)){ 
       possibleItem = shuffle([...possible])[0]; }
     
     let edition = getRandomEdition("joker");
 
+    possibleItem.edition = edition;
     const buyPrice = (possibleItem.price + edition.price) * gameState.discount_percent;
 
     output[i] = {
       item: possibleItem, 
+      type: "joker",
       buy_price: buyPrice, 
       sell_value: Math.floor(buyPrice / 2) 
     };
@@ -4778,9 +4780,72 @@ function itemIsSellable(item){
   if(item === undefined) return false;
   return true;
 }
+
+const BASE_EDITION_JOKER_RATES = {
+  negative: 0.003,
+  poly: 0.003,
+  holo: 0.014,
+  foil: 0.02
+};
+const BASE_EDITION_PLAYINGCARD_RATES = {
+  poly: 0.012,
+  holo: 0.028,
+  foil: 0.04
+};
+
 function getRandomEdition(itemType){
+  const rand = Math.random();
+  let ed; let p = 0;
+  let polyModifier = 1;
+
+  switch(itemType) {
+    case "joker":
+      if(gameState.appearanceRateModifier != 1){
+        polyModifier = (((7-3)/(4-2) * gameState.appearanceRateModifier) - 1)
+      };
+
+      if (0<=rand
+      <BASE_EDITION_JOKER_RATES.negative){
+        ed = "negative";
+        p = 5;}
+      else if (0<=rand-(BASE_EDITION_JOKER_RATES.negative)
+      <(BASE_EDITION_JOKER_RATES.poly*(polyModifier)) ) {
+        ed = "poly";
+        p = 5;}
+      else if (0<=rand-(BASE_EDITION_JOKER_RATES.negative+BASE_EDITION_JOKER_RATES.poly*(polyModifier)) 
+      <(BASE_EDITION_JOKER_RATES.holo*(gameState.appearanceRateModifier)) ) {
+        ed = "holo";
+        p = 3;}
+      else if (0<=rand-(BASE_EDITION_JOKER_RATES.negative+BASE_EDITION_JOKER_RATES.poly*(polyModifier)+BASE_EDITION_JOKER_RATES.holo*(gameState.appearanceRateModifier)) 
+      <(BASE_EDITION_JOKER_RATES.foil*(gameState.appearanceRateModifier)) ) {
+        ed = "foil";
+        p = 2;}
+      else ed = "none";
+
+      break;
+    case "playingCard": 
+
+      if (0<=rand
+      <(BASE_EDITION_PLAYINGCARD_RATES.poly*(gameState.appearanceRateModifier)) ) {
+        ed = "poly";
+        p = 5;}
+      else if (0<=rand-(BASE_EDITION_PLAYINGCARD_RATES.poly*(gameState.appearanceRateModifier)) 
+      <(BASE_EDITION_PLAYINGCARD_RATES.holo*(gameState.appearanceRateModifier)) ) {
+        ed = "holo";
+        p = 3;}
+      else if (0<=rand-((BASE_EDITION_PLAYINGCARD_RATES.poly+BASE_EDITION_PLAYINGCARD_RATES.holo)*(gameState.appearanceRateModifier)) 
+      <(BASE_EDITION_PLAYINGCARD_RATES.foil*(gameState.appearanceRateModifier)) ) {
+        ed = "foil";
+        p = 2;}
+      else ed = "none";
+
+      break
+    default:
+      throw new Error("getRandomEdition(itemType); itemType not recognized");
+  }
   return {
-    price: 0
+    name: ed,
+    price: p
   }
 }
 
@@ -4815,11 +4880,9 @@ function renderShop() {
   ).textContent = "";
     //`Money: $${gameState.money}`;
 
-      currentShopItems[0].name = "mjam";
   currentShopItems.forEach(
     (e, index) => {
 
-      console.log(e);
       const element =
         document.createElement("div");
       
@@ -4863,7 +4926,7 @@ function purchaseShopItem(index) {
 
   if (
     gameState.money <
-    item.price
+    item.buy_price
   ) {
 
     showToast(
@@ -4876,7 +4939,7 @@ function purchaseShopItem(index) {
 
   if (
     item.type === "joker" &&
-    gameState.jokers.length >= 8
+    gameState.jokers.length >= gameState.jokerLimit
   ) {
 
     showToast(
@@ -4888,7 +4951,7 @@ function purchaseShopItem(index) {
 
 
   gameState.money -=
-    item.price;
+    item.buy_price;
 
 
   if (
@@ -4897,7 +4960,7 @@ function purchaseShopItem(index) {
 
     gameState.jokers.push(
       createJoker(
-        item.jokerType
+        item.item.jokerType, item.item.edition.name, item.sell_value
       )
     );
   }
@@ -4933,7 +4996,7 @@ function purchaseShopItem(index) {
 
 
   showToast(
-    `${item.name} purchased!`
+    `${item.item.name} purchased!`
   );
 }
 
@@ -5547,6 +5610,9 @@ function renderRoundOverlayBlinds() {
     currentBeatenBlindIndex=-1;
     ante++;
   }
+  if(gameState.blindIndex===-1){
+    ante++;
+  }
 
   /*
     Render all three blinds.
@@ -5704,9 +5770,7 @@ function showRoundOverlay(
   ).innerHTML =
     text;
 
-
   renderRoundOverlayBlinds();
-
 
   openOverlay(
     "roundOverlay"
