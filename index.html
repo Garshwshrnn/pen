@@ -553,7 +553,7 @@
     .cardRank {
       font-size: clamp(14px, 4vw, 22px);
     }
-    
+
     .cardSuit {
       font-size: clamp(11px, 3vw, 17px);
     }
@@ -1407,12 +1407,13 @@
 
             display: flex;
             flex-direction: column;
+            justify-content: space-between;
 
             width: min(92vw, 900px);
             height: min(88vh, 760px);
 
             margin: auto;
-            padding: 22px;
+            padding: 22px 1px;
 
             color: #f5f5f5;
 
@@ -1454,7 +1455,6 @@
             align-items: center;
             justify-content: space-between;
 
-            padding-bottom: 18px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.12);
         }
 
@@ -1499,7 +1499,8 @@
 
         .deckStats {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(1, 1fr);
+            grid-template-rows: 0.9fr 1fr 1fr 1fr 1fr 0.7fr 1fr;
             gap: 8px;
 
             padding: 14px 0;
@@ -1537,6 +1538,7 @@
 
         .deckSectionHeader {
             display: flex;
+            flex-direction: column;
             justify-content: space-between;
             align-items: center;
 
@@ -1557,14 +1559,21 @@
           CARD GRID
         ====================================================== */
 
-        #deckInfo {
+        #deckOrganizer{
+            display: grid;
+            grid-auto-flow: column;
+            grid-template-columns: repeat(4, 0.75fr) 1fr;
+        }
+
+        .deckInfo {
+          height: 100%;
             flex: 1;
 
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(30px, 1fr));
-            align-content: start;
-
-            gap: 9px;
+            grid-auto-flow: column;
+  grid-template-columns: repeat(1, 1fr);
+  grid-template-rows: repeat(12, 1fr);
+            gap: 0px;
 
             padding: 10px 4px;
 
@@ -1575,15 +1584,15 @@
             scrollbar-color: #555 transparent;
         }
 
-        #deckInfo::-webkit-scrollbar {
+        .deckInfo::-webkit-scrollbar {
             width: 7px;
         }
 
-        #deckInfo::-webkit-scrollbar-track {
+        .deckInfo::-webkit-scrollbar-track {
             background: transparent;
         }
 
-        #deckInfo::-webkit-scrollbar-thumb {
+        .deckInfo::-webkit-scrollbar-thumb {
             background: #555;
             border-radius: 10px;
         }
@@ -1601,13 +1610,17 @@
 
         .deckCard {
             position: relative;
-
+            
+            height: 32px;
             aspect-ratio: 0.72;
 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            display: grid;
+            grid-auto-flow: column;
+  grid-template-columns: 1.17fr 1fr;
+  grid-template-rows: 1fr;
+            flex-direction: row;
+            place-items: end;
+            justify-content: space-evenly;
 
             background:
                 linear-gradient(
@@ -1630,7 +1643,18 @@
                 box-shadow 0.12s ease;
         }
 
-        .deckCard:hover {
+        .deckCardOrganizer{
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: space-around;
+        }
+        .hover {
+          -webkit-user-select: none;
+          -webkit-touch-callout: none;        
+        }
+
+        .deckCard:hover, .deckCard.hover_effect {
             transform: translateY(-4px);
 
             box-shadow:
@@ -1646,23 +1670,19 @@
         }
 
         .deckRank {
-            font-size: 25px;
+            font-size: 22px;
             font-weight: 900;
             line-height: 1;
         }
 
         .deckSuit {
-            margin-top: 3px;
+            margin: 3px 0;
 
-            font-size: 24px;
-            line-height: 1;
+            font-size: 20px;
+            line-height: 0.4;
         }
 
         .deckCard small {
-            position: absolute;
-            right: 5px;
-            bottom: 4px;
-
             color: #999;
             font-size: 7px;
             font-weight: 700;
@@ -1672,21 +1692,13 @@
           FOOTER
         ====================================================== */
 
-        .deckOverlayFooter {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-
-            padding-top: 14px;
-            padding-bottom: 30px;
-
-            border-top: 1px solid rgba(255, 255, 255, 0.12);
-        }
-
         .deckLegend {
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            display: grid;
+            grid-auto-flow: column;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+
+            text-align: center;
 
             color: #777;
 
@@ -1700,20 +1712,26 @@
             height: 7px;
 
             border-radius: 50%;
+            display: inline-block;
+        }
+        div:has(> .deckLegendDot){
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .deckLegendDot.red {
             background: #d92727;
+            border: 1px solid #d33;
         }
 
         .deckLegendDot.black {
-            margin-left: 8px;
             background: #222;
             border: 1px solid #777;
         }
 
         .deckCloseBtn {
-            min-width: 110px;
+          margin: 23px 15px;
         }
     
     /* =========================================================
@@ -2188,48 +2206,55 @@
                 </div>
             </div>
 
-            <div class="deckStats">
+            <div id="deckOrganizer">
 
-                <div class="deckStat">
-                    <span>SPADES</span>
-                    <strong id="deckSpades">13</strong>
+              <div id="deckInfohearts" class="deckInfo deckGrid">
+                  <!-- JS-generated cards go here -->
+              </div>
+              <div id="deckInfodiamonds" class="deckInfo deckGrid">
+                  <!-- JS-generated cards go here -->
+              </div>
+              <div id="deckInfoclubs" class="deckInfo deckGrid">
+                  <!-- JS-generated cards go here -->
+              </div>
+              <div id="deckInfospades" class="deckInfo deckGrid">
+                  <!-- JS-generated cards go here -->
+              </div>
+
+              <div class="deckStats">
+                <div class="deckSectionHeader">
+                    <span>YOUR DECK</span>
+                    <span id="deckFilterLabel">ALL CARDS</span>
                 </div>
 
-                <div class="deckStat">
-                    <span>HEARTS</span>
-                    <strong id="deckHearts">13</strong>
-                </div>
+                  <div class="deckStat">
+                      <span>HEARTS</span>
+                      <strong id="deckhearts">13</strong>
+                  </div>
 
-                <div class="deckStat">
-                    <span>DIAMONDS</span>
-                    <strong id="deckDiamonds">13</strong>
-                </div>
+                  <div class="deckStat">
+                      <span>DIAMONDS</span>
+                      <strong id="deckdiamonds">13</strong>
+                  </div>
 
-                <div class="deckStat">
-                    <span>CLUBS</span>
-                    <strong id="deckClubs">13</strong>
-                </div>
-            </div>
+                  <div class="deckStat">
+                      <span>CLUBS</span>
+                      <strong id="deckclubs">13</strong>
+                  </div>
 
-            <div class="deckSectionHeader">
-                <span>YOUR DECK</span>
-                <span id="deckFilterLabel">ALL CARDS</span>
-            </div>
-
-            <div id="deckInfo" class="deckGrid">
-                <!-- JS-generated cards go here -->
-            </div>
-
-            <div class="deckOverlayFooter">
+                  <div class="deckStat">
+                      <span>SPADES</span>
+                      <strong id="deckspades">13</strong>
+                  </div>
                 <div class="deckLegend">
-                    <span class="deckLegendDot red"></span>
-                    <span>RED SUITS</span>
-
-                    <span class="deckLegendDot black"></span>
-                    <span>BLACK SUITS</span>
+                    <div><span class="deckLegendDot red"></div>
+                    <p><span>RED SUITS</span></p>
+                    <div><span class="deckLegendDot black"></span></div>
+                    <p><span>BLACK SUITS</span></p>
                 </div>
 
                 <button class="closeOverlay deckCloseBtn">CLOSE</button>
+              </div>
             </div>
 
         </div>
@@ -2794,6 +2819,10 @@ function createStandardDeck() {
       );
     }
   }
+  deck.push(createCard(SUITS[0], RANKS[0]));
+  deck.push(createCard(SUITS[0], RANKS[0]));
+  deck.push(createCard(SUITS[0], RANKS[0]));
+  deck.push(createCard(SUITS[0], RANKS[0]));
 
   return shuffle(deck);
 }
@@ -5919,16 +5948,22 @@ function renderCollection() {
 /* =========================================================
    DECK INFO
 ========================================================= */
-
 function renderDeckInfo() {
-
   const total =
     gameState.deck.length +
     gameState.hand.length +
     gameState.discardPile.length;
+  let suitCounts = {
+    hearts: 0,
+    diamonds: 0,
+    clubs: 0,
+    spades: 0
+  }
 
-  const deckInfo = document.getElementById("deckInfo");
-  deckInfo.innerHTML = "";
+  for(const suit of SUITS){
+    document.getElementById("deckInfo"+suit).innerHTML = "";
+
+  };
 
 console.log("-------- discards");
   let disCards = [...gameState.discardPile];
@@ -5970,6 +6005,8 @@ console.log("-------- hands");
       if(card.handed) cardColor = cardColor + " handed";
       cardEl.className = `deckCard card `+ cardColor;
 
+      suitCounts[card.suit]++;
+
       const badges = [];
       if (
         card.enhancement === "steel"
@@ -6009,15 +6046,30 @@ console.log("-------- hands");
       
       cardEl.innerHTML = `
           <span class="deckRank">${card.rank}</span>
-          <span class="deckSuit">${SUIT_SYMBOLS[card.suit]}</span>
-          <div class="cardBadges">
-            ${badges.join("")}
+          <div class="deckCardOrganizer">
+            <span class="deckSuit">${SUIT_SYMBOLS[card.suit]}</span>
+            <small>#${String(index + 1).padStart(2, "0")}</small>
           </div>
-          <small>#${String(index + 1).padStart(2, "0")}</small>
       `;
 
-      deckInfo.appendChild(cardEl);
+      cardEl.addEventListener("pointerover", (event) => {
+        cardEl.classList.add("hover_effect");
+      });
+      cardEl.addEventListener("pointerout", (event) => {
+        cardEl.classList.remove("hover_effect")
+      });
+          /*<div class="cardBadges">
+            ${badges.join("")}
+          </div>*/
+
+      document.getElementById("deckInfo"+card.suit).appendChild(cardEl);
   });
+
+  for(const suit of SUITS){
+    document.getElementById("deck"+suit).textContent = suitCounts[suit];
+    document.getElementById("deckInfo"+suit).style.gridTemplateRows = "repeat("+suitCounts[suit]+", 1fr)";
+
+  };
 
   document.getElementById("deckCardCount").textContent = total;
 }
