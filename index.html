@@ -629,8 +629,6 @@
     
       padding: 3px;
     
-      overflow: hidden;
-    
       font-size: 7px;
       text-align: center;
     
@@ -697,9 +695,9 @@
 
 #roundOverlay {
   position: absolute;
-  inset: 22dvh 0 0 0;
+  inset: 28.5dvh 0 0 0;
 
-  z-index: 200;
+  z-index: 99;
 
   padding: 14px 12px 18px;
 
@@ -1405,7 +1403,7 @@
         #deckOverlay {
             position: fixed;
             inset: 0;
-            z-index: 1000;
+            z-index: 100;
 
             display: flex;
             flex-direction: column;
@@ -4476,10 +4474,9 @@ console.log(jokerId);
 
 
 function getCurrentBlind() {
-
   return BLINDS[
-    gameState.blindIndex %
-    BLINDS.length
+    ((gameState.blindIndex % BLINDS.length))
+    // + BLINDS.length) % BLINDS.length
   ];
 }
 
@@ -4601,7 +4598,7 @@ function startGame() {
     createJoker("joker", "none", 2)
   );
   }
-  if(1==0){
+  if(1==1){
   gameState.jokers.push(
     createJoker("joker", "none", 2)
   );
@@ -4616,11 +4613,14 @@ function startGame() {
   );
   }
 
+
   showRoundOverlay(
     "READY",
     "Begin the first blind."
   );
   //initializeBlind();
+
+  renderGame();
 
 
   document
@@ -5345,28 +5345,28 @@ function renderDashboard() {
 
   const blind =
     gameState.blind ||
-    getCurrentBlind();
+    getCurrentBlind() || {
+      name: "BALATO"
+    };
 
 
   document.getElementById(
     "blindTitle"
   ).textContent =
-    blind.name;
+    blind.name || "";
 
 
   document.getElementById(
     "blindReq"
-  ).textContent =
+  ).textContent =`${blind.reward ? 
     formatNumber(
       gameState.targetScore
-    );
-
+    ) : "BALATO"}`;
 
   document.getElementById(
     "blindReward"
-  ).textContent =
-    `$${blind.reward}`;
-
+  ).textContent = `${blind.reward ? 
+    "$"+blind.reward : "BALATO"}`;
 
   document.getElementById(
     "roundScore"
