@@ -2579,6 +2579,8 @@ const gameState = {
     PlayingCard: 0
   },
 
+  discount_percent: 1,
+
 
   /* -------------------------
      card areas
@@ -4750,22 +4752,37 @@ function loseRun() {
 function generateShopItems() {
   let output = [];
   let allowed = false;
-  let possibleItem;
 
   for(let i = 0; i<gameState.numOfShopCards; i++){
-    while(!allowed){
-      shuffle([...possible])
-    }
+    let possibleItem;
+    while(!itemIsSellable(possibleItem)){ 
+      possibleItem = shuffle([...possible])[0]; }
+    
+    let edition = getRandomEdition("joker");
+
+    const buyPrice = (possibleItem.price + edition.price) * gameState.discount_percent;
+
+    output[i] = {
+      item: possibleItem, 
+      buy_price: buyPrice, 
+      sell_value: Math.floor(buyPrice / 2) 
+    };
   };
 
   return output;
 }
-//buy_cost = (base_cost + edition_cost) * discount_percent
-//sell_value = floor(buy_cost / 2)
-
 
 let currentShopItems = [];
 
+function itemIsSellable(item){
+  if(item === undefined) return false;
+  return true;
+}
+function getRandomEdition(itemType){
+  return {
+    price: 0
+  }
+}
 
 function openShop() {
 
@@ -4800,25 +4817,24 @@ function renderShop() {
 
       currentShopItems[0].name = "mjam";
   currentShopItems.forEach(
-    (item, index) => {
+    (e, index) => {
 
-
+      console.log(e);
       const element =
         document.createElement("div");
-
+      
+      const item = e.item;
 
       element.className =
         "shopItem";
-
 
       element.innerHTML = `
         <h3>${item.name}</h3>
         <p>${item.description}</p>
         <div class="shopPrice">
-          $${item.price}
+          $${e.buy_price}
         </div>
       `;
-
 
       element.addEventListener(
         "click",
