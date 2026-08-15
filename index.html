@@ -2411,6 +2411,80 @@ const JOKER_DEFINITIONS = {
     }
   },
 
+  scholar: {
+    name: "Scholar",
+    icon: "📚",
+    rarity: "common",
+    price: 4,
+    description: "this joker went to mbb",
+
+    calculate(context) {
+
+      if (
+        context.type === "joker_main" &&
+        context.scoringName === "High Card"
+      ) {
+        return {
+          mult: 8,
+          message: "Scholar +8 Mult"
+        };
+      }
+
+      return null;
+    }
+  },
+
+  luckyCat: {
+    name: "Lucky Cat",
+    icon: "🐱",
+    rarity: "uncommon",
+    price: 6,
+    description: "gains X0.25 Mult per successful lucky card trigger",
+    calculate(context) {
+      //idk lol
+      return null;
+    }
+  },
+
+  onyxAgate: {
+    name: "Onyx Agate",
+    icon: "🪨",
+    rarity: "uncommon",
+    price: 7,
+    description: "Played cards with Club suit give +7 Mult when scored",
+    calculate(context) {
+        if (
+            context.type === "individual" &&
+            context.otherCard &&
+            ["clubs"].includes(context.otherCard.suit)
+        ) {
+            return {
+                mult: 7,
+                message: "Onyx Agate +7 Mult"
+            };
+        }
+        return null;
+    }
+  },
+
+  mime: {
+    name: "Mime",
+    icon: "🤡",
+    rarity: "uncommon",
+    price: 5,
+    description: "this is the the is this",
+
+    calculate(context) {
+      if (context.type === "held_trigger") {
+        return {
+          repetitions: 1,
+          message: "Mime retriggers held card"
+        };
+      }
+
+      return null;
+    }
+  },
 
   steelBaron: {
     name: "Baron",
@@ -2434,27 +2508,6 @@ const JOKER_DEFINITIONS = {
       return null;
     }
   },
-
-
-  mime: {
-    name: "Mime",
-    icon: "🤡",
-    rarity: "rare",
-    price: 5,
-    description: "this is the the is this",
-
-    calculate(context) {
-      if (context.type === "held_trigger") {
-        return {
-          repetitions: 1,
-          message: "Mime retriggers held card"
-        };
-      }
-
-      return null;
-    }
-  },
-
 
   blueprint: {
     name: "Blueprint",
@@ -2506,31 +2559,8 @@ const JOKER_DEFINITIONS = {
         context
       );
     }
-  },
-
-
-  scholar: {
-    name: "Scholar",
-    icon: "📚",
-    rarity: "common",
-    price: 4,
-    description: "this joker went to mbb",
-
-    calculate(context) {
-
-      if (
-        context.type === "joker_main" &&
-        context.scoringName === "High Card"
-      ) {
-        return {
-          mult: 8,
-          message: "Scholar +8 Mult"
-        };
-      }
-
-      return null;
-    }
   }
+
 
 };
 
@@ -4525,7 +4555,7 @@ function startGame() {
 
   gameState.runLost = false;
 
-  gameState.money = 4;
+  gameState.money = 40;
 
   gameState.ante = 0;
 
@@ -4534,7 +4564,7 @@ function startGame() {
   gameState.blindIndex = -1;
 
   gameState.jokers = [];
-  gameState.jokerLimit = 5;
+  gameState.jokerLimit = 15;
 
   gameState.consumables = [];
 
@@ -4755,8 +4785,18 @@ function generateShopItems() {
   for(let i = 0; i<gameState.numOfShopCards; i++){
 
     let possibleItem;
-    while(!itemIsSellable(possibleItem)){ 
-      possibleItem = shuffle([...possible])[0]; }
+    let j=-1;
+    let shopArray = shuffle([...possible]);
+    let rarity = Math.random();
+      if(rarity<0.7) rarity = "common"
+      else if (rarity<0.95) rarity = "uncommon"
+      else rarity = "rare";
+      console.log("looking for "+rarity+"...");
+
+    while(!itemCanBePurchased(possibleItem) || possibleItem.rarity != rarity || output.some(entry => entry.item === possibleItem)){ 
+      j++;
+      possibleItem = shopArray[j];}
+console.log(rarity + ": " + possibleItem.name);
     
     let edition = getRandomEdition("joker");
 
@@ -4776,8 +4816,15 @@ function generateShopItems() {
 
 let currentShopItems = [];
 
-function itemIsSellable(item){
-  if(item === undefined) return false;
+function itemCanBePurchased(item){
+  //only rlly just isJokerUniqueNotOwnedYet(item) soo idk if im making this better in the future
+  if(!item) return false;
+
+  let isUnique = true;
+  for (const joker of gameState.jokers) {
+    if(joker.name == item.name) isUnique = false;
+  }
+  if(!isUnique) return false;
   return true;
 }
 
@@ -4871,9 +4918,7 @@ function renderShop() {
       "shopGrid"
     );
 
-
   container.innerHTML = "";
-
 
   document.getElementById(
     "shopMoney"
