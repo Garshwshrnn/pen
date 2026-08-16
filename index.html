@@ -531,10 +531,10 @@
       color: rgba(0,50,200,1);
     }
     
-    .card.discarded {
+    .deckCard.discarded {
       opacity: 0.5;
     }
-    .card.handed {
+    .deckCard.handed {
       opacity: 0.5;
       /*background: linear-gradient(145deg, #eeeeee, #441444);*/
     }
@@ -1497,11 +1497,42 @@
         /* =====================================================
           STATS
         ====================================================== */
+        #rankStats{
+          padding: 10px 4px;
+          text-align: center;
+
+          display: grid;
+          grid-template-columns: repeat(1, 1fr);
+          grid-template-rows: repeat(13, 1fr);
+          gap: 4px;
+        }
+        .rankStat{
+          display: flex;
+          flex-direction: column;
+
+          place-items: center;
+        }
+        .rankStat > p{
+          font-size: 11px;
+          color: #efe;
+
+          width: 16px;
+          height: 13px;
+
+          background:
+            linear-gradient(
+              145deg,
+              #909090,
+              #393839
+            );
+          font-weight: bold;
+          border-radius: 2px;
+        }
 
         .deckStats {
             display: grid;
             grid-template-columns: repeat(1, 1fr);
-            grid-template-rows: 0.9fr 1fr 1fr 1fr 1fr 0.7fr 1fr;
+            grid-template-rows: repeat(2, 0.45fr) repeat(4, 1fr) 0.7fr 1fr;
             gap: 8px;
 
             padding: 14px 0;
@@ -1552,8 +1583,17 @@
             letter-spacing: 1.5px;
         }
 
-        #deckFilterLabel {
-            color: #666;
+        .deckFilter{
+          border-color: #a13;
+          background-color: #ed3d3c;
+          color: #eee;
+          margin: 0 !important;
+        }
+        #deckFilterRemaining {
+
+        }
+        #deckFilterAll{
+
         }
 
         /* =====================================================
@@ -1563,7 +1603,7 @@
         #deckOrganizer{
             display: grid;
             grid-auto-flow: column;
-            grid-template-columns: repeat(4, 0.75fr) 1fr;
+            grid-template-columns: repeat(4, 0.45fr) 0.25fr 0.7fr;
 
             height: 75vh;
             overflow: clip;
@@ -1616,6 +1656,7 @@
         .deckCard {
             position: absolute;
             
+            width: 43px;
             height: 32px;
             aspect-ratio: 0.72;
 
@@ -1624,7 +1665,7 @@
   grid-template-columns: 1.17fr 1fr;
   grid-template-rows: 1fr;
             flex-direction: row;
-            place-items: end;
+            place-items: center;
             justify-content: space-evenly;
 
             background:
@@ -1736,7 +1777,7 @@
         }
 
         .deckCloseBtn {
-          margin: 23px 15px;
+          margin: 0px 0px !important;
         }
     
     /* =========================================================
@@ -2226,31 +2267,94 @@
                   <!-- JS-generated cards go here -->
               </div>
 
+              <div id="rankStats">
+                <div class="rankStat">
+                  <p>2</p>
+                  <strong id="rank2">4</strong>
+                </div>
+                <div class="rankStat">
+                  <p>3</p>
+                  <strong id="rank3">4</strong>
+                </div>
+                <div class="rankStat">
+                  <p>4</p>
+                  <strong id="rank4">4</strong>
+                </div>
+                <div class="rankStat">
+                  <p>5</p>
+                  <strong id="rank5">4</strong>
+                </div>
+                <div class="rankStat">
+                  <p>6</p>
+                  <strong id="rank6">4</strong>
+                </div>
+                <div class="rankStat">
+                  <p>7</p>
+                  <strong id="rank7">4</strong>
+                </div>
+                <div class="rankStat">
+                  <p>8</p>
+                  <strong id="rank8">4</strong>
+                </div>
+                <div class="rankStat">
+                  <p>9</p>
+                  <strong id="rank9">4</strong>
+                </div>
+                <div class="rankStat">
+                  <p>10</p>
+                  <strong id="rank10">4</strong>
+                </div>
+                <div class="rankStat">
+                  <p>J</p>
+                  <strong id="rankJ">4</strong>
+                </div>
+                <div class="rankStat">
+                  <p>Q</p>
+                  <strong id="rankQ">4</strong>
+                </div>
+                <div class="rankStat">
+                  <p>K</p>
+                  <strong id="rankK">4</strong>
+                </div>
+                <div class="rankStat">
+                  <p>A</p>
+                  <strong id="rankA">4</strong>
+                </div>
+              </div>
+
               <div class="deckStats">
-                <div class="deckSectionHeader">
-                    <span>YOUR DECK</span>
-                    <span id="deckFilterLabel">ALL CARDS</span>
+                <button id="deckFilterRemaining" class="deckFilter" 
+                onclick="
+                  document.getElementById('deckFilterAll').disabled = false;
+                  document.getElementById('deckFilterRemaining').disabled = true;
+                  renderDeckInfo();
+                ">
+                Remaining</button>
+                <button id="deckFilterAll" class="deckFilter" disabled
+                onclick="
+                  document.getElementById('deckFilterAll').disabled = true;
+                  document.getElementById('deckFilterRemaining').disabled = false;
+                  renderDeckInfo();
+                ">
+                Full Deck</button>
+
+                <div class="deckStat">
+                    <span>HEARTS</span>
+                    <strong id="deckhearts">13</strong>
+                </div>
+                <div class="deckStat">
+                    <span>DIAMONDS</span>
+                    <strong id="deckdiamonds">13</strong>
+                </div>
+                <div class="deckStat">
+                    <span>CLUBS</span>
+                    <strong id="deckclubs">13</strong>
+                </div>
+                <div class="deckStat">
+                    <span>SPADES</span>
+                    <strong id="deckspades">13</strong>
                 </div>
 
-                  <div class="deckStat">
-                      <span>HEARTS</span>
-                      <strong id="deckhearts">13</strong>
-                  </div>
-
-                  <div class="deckStat">
-                      <span>DIAMONDS</span>
-                      <strong id="deckdiamonds">13</strong>
-                  </div>
-
-                  <div class="deckStat">
-                      <span>CLUBS</span>
-                      <strong id="deckclubs">13</strong>
-                  </div>
-
-                  <div class="deckStat">
-                      <span>SPADES</span>
-                      <strong id="deckspades">13</strong>
-                  </div>
                 <div class="deckLegend">
                     <div><span class="deckLegendDot red"></div>
                     <p><span>RED SUITS</span></p>
@@ -2824,6 +2928,10 @@ function createStandardDeck() {
       );
     }
   }
+  deck.push(createCard(SUITS[0], RANKS[0]));
+  deck.push(createCard(SUITS[0], RANKS[0]));
+  deck.push(createCard(SUITS[0], RANKS[0]));
+  deck.push(createCard(SUITS[0], RANKS[0]));
   deck.push(createCard(SUITS[0], RANKS[0]));
   deck.push(createCard(SUITS[0], RANKS[0]));
   deck.push(createCard(SUITS[0], RANKS[0]));
@@ -5960,6 +6068,7 @@ const CARD_COLORS = {
   spades: "black"
 }
 function renderDeckInfo() {
+  console.log("rendering deck info");
   const total =
     gameState.deck.length +
     gameState.hand.length +
@@ -5971,6 +6080,21 @@ function renderDeckInfo() {
     clubs: 0,
     spades: 0
   }
+  let rankCounts = {
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "5": 0,
+    "6": 0,
+    "7": 0,
+    "8": 0,
+    "9": 0,
+    "10": 0,
+    "J": 0,
+    "Q": 0,
+    "K": 0,
+    "A": 0
+  };
 
   for(const suit of SUITS){
     document.getElementById("deckInfo"+suit).innerHTML = "";
@@ -6003,12 +6127,15 @@ function renderDeckInfo() {
 
       let cardColor = CARD_COLORS[card.suit];
 
-      if (card.discarded) cardColor += " discarded";
-      if (card.handed) cardColor += " handed";
+      if(document.getElementById("deckFilterRemaining").disabled){
+        if (card.discarded) cardColor += " discarded";
+        if (card.handed) cardColor += " handed";
+      }
 
-      cardEl.className = `deckCard card ${cardColor}`;
+      cardEl.className = `deckCard ${cardColor}`;
 
       suitCounts[card.suit]++;
+      rankCounts[card.rank]++;
       htmlElements[card.suit].push(cardEl);
 
       const badges = [];
@@ -6070,6 +6197,10 @@ function renderDeckInfo() {
       card.style.marginTop = `${index * spacing}px`;
     });
   };
+
+  for(const rank of RANKS){
+    document.getElementById("rank"+rank).textContent = rankCounts[rank];
+  }
 
   document.getElementById("deckCardCount").textContent = total;
 }
