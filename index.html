@@ -2447,17 +2447,11 @@
 const SUITS = ["hearts", "diamonds", "clubs", "spades"];
 
 const SUIT_SYMBOLS = {
-  hearts: "♥",
-  diamonds: "♦",
-  clubs: "♣",
-  spades: "♠"
+  hearts: "♥", diamonds: "♦", clubs: "♣", spades: "♠"
 };
 
 const SUIT_ORDER = {
-  hearts: 0,
-  diamonds: 1,
-  clubs: 2,
-  spades: 3
+  hearts: 0, diamonds: 1, clubs: 2, spades: 3
 };
 
 const RANKS = [
@@ -2466,35 +2460,13 @@ const RANKS = [
 ];
 
 const RANK_VALUES = {
-  "2": 2,
-  "3": 3,
-  "4": 4,
-  "5": 5,
-  "6": 6,
-  "7": 7,
-  "8": 8,
-  "9": 9,
-  "10": 10,
-  "J": 10,
-  "Q": 10,
-  "K": 10,
-  "A": 11
+  "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8,
+  "9": 9, "10": 10, "J": 10, "Q": 10, "K": 10, "A": 11
 };
 
 const RANK_ORDER = {
-  "2": 2,
-  "3": 3,
-  "4": 4,
-  "5": 5,
-  "6": 6,
-  "7": 7,
-  "8": 8,
-  "9": 9,
-  "10": 10,
-  "J": 11,
-  "Q": 12,
-  "K": 13,
-  "A": 14
+  "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8,
+  "9": 9, "10": 10, "J": 11, "Q": 12, "K": 13, "A": 14
 };
 
 
@@ -6598,25 +6570,15 @@ renderGame();
   renderGame()
 */
 
-
 window.Balato = {
-
   state: gameState,
-
   createCard,
-
   createJoker,
-
   evaluatePokerHand,
-
   scoreHand,
-
   drawCards,
-
   renderGame,
-
   nextRound,
-
   startGame
 };
 
