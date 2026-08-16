@@ -1707,13 +1707,21 @@
                 0 9px 18px rgba(0, 0, 0, 0.4);
         }
 
-        .deckCard.red {
+        .overlay .red {
             color: #d92727;
         }
 
-        .deckCard.black {
+        .overlay .black {
             color: #171717;
         }
+
+    .overlay .yellow {
+      color: rgba(230,155,0,1);
+    }
+    
+    .overlay .blue {
+      color: rgba(0,50,200,1);
+    }
 
         .deckRank {
             font-size: 22px;
@@ -2339,15 +2347,15 @@
                 Full Deck</button>
 
                 <div class="deckStat">
-                    <span>HEARTS</span>
+                    <span class="red">HEARTS</span>
                     <strong id="deckhearts">13</strong>
                 </div>
                 <div class="deckStat">
-                    <span>DIAMONDS</span>
+                    <span class="yellow">DIAMONDS</span>
                     <strong id="deckdiamonds">13</strong>
                 </div>
                 <div class="deckStat">
-                    <span>CLUBS</span>
+                    <span class="blue">CLUBS</span>
                     <strong id="deckclubs">13</strong>
                 </div>
                 <div class="deckStat">
