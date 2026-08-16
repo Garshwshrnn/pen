@@ -532,10 +532,11 @@
     }
     
     .card.discarded {
-      background: linear-gradient(145deg, #afafaf, #bebebe);
+      opacity: 0.5;
     }
     .card.handed {
-      background: linear-gradient(145deg, #eeeeee, #441444);
+      opacity: 0.5;
+      /*background: linear-gradient(145deg, #eeeeee, #441444);*/
     }
 
     .cardTop {
@@ -1410,21 +1411,20 @@
             justify-content: space-between;
 
             width: min(92vw, 900px);
-            height: min(88vh, 760px);
+            height: 90vh;
 
             margin: auto;
-            padding: 22px 1px;
+            padding: 4.5vh 1px;
 
             color: #f5f5f5;
 
             background:
-                linear-gradient(
-                    135deg,
-                    rgba(38, 42, 48, 0.98),
-                    rgba(20, 23, 27, 0.99)
-                );
+              linear-gradient(
+                135deg,
+                rgba(38, 42, 48, 0.98),
+                rgba(20, 23, 27, 0.99)
+              );
 
-            border: 2px solid #555;
             border-radius: 18px;
 
             box-shadow:
@@ -1442,7 +1442,7 @@
             inset: 0;
             z-index: -1;
 
-            background: rgba(0, 0, 0, 0.72);
+            background: rgba(0, 0, 0, 0.42);
             backdrop-filter: blur(5px);
         }
 
@@ -1455,7 +1455,8 @@
             align-items: center;
             justify-content: space-between;
 
-            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+            height: 6vh;
+            overflow: clip;
         }
 
         .deckEyebrow {
@@ -1563,16 +1564,20 @@
             display: grid;
             grid-auto-flow: column;
             grid-template-columns: repeat(4, 0.75fr) 1fr;
+
+            height: 75vh;
+            overflow: clip;
         }
 
         .deckInfo {
-          height: 100%;
+
+          overflow: clip;
             flex: 1;
 
             display: grid;
             grid-auto-flow: column;
   grid-template-columns: repeat(1, 1fr);
-  grid-template-rows: repeat(12, 1fr);
+  grid-template-rows: repeat(1, 1fr);
             gap: 0px;
 
             padding: 10px 4px;
@@ -1609,7 +1614,7 @@
         ====================================================== */
 
         .deckCard {
-            position: relative;
+            position: absolute;
             
             height: 32px;
             aspect-ratio: 0.72;
@@ -5948,11 +5953,18 @@ function renderCollection() {
 /* =========================================================
    DECK INFO
 ========================================================= */
+const CARD_COLORS = {
+  hearts: "red",
+  diamonds: "yellow",
+  clubs: "blue",
+  spades: "black"
+}
 function renderDeckInfo() {
   const total =
     gameState.deck.length +
     gameState.hand.length +
     gameState.discardPile.length;
+
   let suitCounts = {
     hearts: 0,
     diamonds: 0,
@@ -5962,86 +5974,59 @@ function renderDeckInfo() {
 
   for(const suit of SUITS){
     document.getElementById("deckInfo"+suit).innerHTML = "";
-
   };
 
-console.log("-------- discards");
   let disCards = [...gameState.discardPile];
   for (const card of disCards){
     card.discarded = true;
     card.handed = false;
-    console.log(card.rank + card.suit);
   }
-console.log("-------- hands");
   let handCards = [...gameState.hand];
   for (const card of handCards){
     card.discarded = false;
     card.handed = true;
-
-    console.log(card.rank + card.suit);
   }
   let cardsInPlay = [...handCards,...gameState.deck,...disCards];
 
   cardsInPlay = sortCardBySuit(cardsInPlay);
 
+  let htmlElements = {
+    hearts: [],
+    diamonds: [],
+    clubs: [],
+    spades: []
+  }
+  let firstEl = true;
+  let deckCardHeight;
   cardsInPlay.forEach((card, index) => {
       const cardEl = document.createElement("div");
 
-      let cardColor;
-      switch(card.suit) {
-        case "hearts":
-          cardColor = "red";
-          break;
-        case "diamonds":
-          cardColor = "yellow";
-          break;
-        case "clubs":
-          cardColor = "blue";
-          break;
-        default:
-          cardColor = "black";
-      }
-      if(card.discarded) cardColor = cardColor + " discarded";
-      if(card.handed) cardColor = cardColor + " handed";
-      cardEl.className = `deckCard card `+ cardColor;
+      let cardColor = CARD_COLORS[card.suit];
+
+      if (card.discarded) cardColor += " discarded";
+      if (card.handed) cardColor += " handed";
+
+      cardEl.className = `deckCard card ${cardColor}`;
 
       suitCounts[card.suit]++;
+      htmlElements[card.suit].push(cardEl);
 
       const badges = [];
-      if (
-        card.enhancement === "steel"
-      ) {
-        badges.push(
-          `<span class="badge steel">STEEL</span>`
-        );
+      if (card.enhancement === "steel") {
+        badges.push(`<span class="badge steel">STEEL</span>`);
+      }
+      if (card.enhancement === "bonus") {
+        badges.push(`<span class="badge bonus">BONUS</span>`);
+      }
+      if (card.enhancement === "mult") {
+        badges.push(`<span class="badge mult">+MULT</span>`);
+      }
+      if (card.enhancement === "glass") {
+        badges.push(`<span class="badge">GLASS</span>`);
       }
       if (
-        card.enhancement === "bonus"
-      ) {
-        badges.push(
-          `<span class="badge bonus">BONUS</span>`
-        );
-      }
-      if (
-        card.enhancement === "mult"
-      ) {
-        badges.push(
-          `<span class="badge mult">+MULT</span>`
-        );
-      }
-      if (
-        card.enhancement === "glass"
-      ) {
-        badges.push(
-          `<span class="badge">GLASS</span>`
-        );
-      }
-      if (
-        card.seal === "red"
-      ) {
-        badges.push(
-          `<span class="badge redseal">RED</span>`
-        );
+        card.seal === "red") {
+        badges.push(`<span class="badge redseal">RED</span>`);
       }
       
       cardEl.innerHTML = `
@@ -6063,12 +6048,27 @@ console.log("-------- hands");
           </div>*/
 
       document.getElementById("deckInfo"+card.suit).appendChild(cardEl);
+      if(firstEl){
+        firstEl = false;
+        deckCardHeight = cardEl.clientHeight;
+      }
   });
 
+  
   for(const suit of SUITS){
     document.getElementById("deck"+suit).textContent = suitCounts[suit];
-    document.getElementById("deckInfo"+suit).style.gridTemplateRows = "repeat("+suitCounts[suit]+", 1fr)";
 
+    const deckInfoVPadding = 2*parseFloat(window.getComputedStyle(document.getElementById("deckInfo"+suit)).getPropertyValue('padding-top'));
+    const deckInfoHeight = document.getElementById("deckInfo"+suit).clientHeight - deckInfoVPadding;
+
+    htmlElements[suit].forEach((card, index) => {
+      const spacing = Math.max(
+        0,
+        ((deckInfoHeight - deckCardHeight)/(suitCounts[suit]-1))
+      );
+
+      card.style.marginTop = `${index * spacing}px`;
+    });
   };
 
   document.getElementById("deckCardCount").textContent = total;
@@ -6307,11 +6307,11 @@ document
     "click",
     () => {
 
-      renderDeckInfo();
-
       openOverlay(
         "deckOverlay"
       );
+
+      renderDeckInfo();
     }
   );
 
