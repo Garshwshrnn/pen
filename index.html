@@ -59,6 +59,9 @@
   
   .hidden {
     display: none !important;
+    opacity: 0;
+    background: rgba(255,255,255,0) !important;
+    transform: translateY(200px);
   }
   
   /* =========================================================
@@ -499,9 +502,31 @@
   
     touch-action: none;
   
+    --flip-x: 0px;
+    --flip-y: 0px;
+    --lift-y: 0px;
+
+    transform:
+      translate3d(
+        var(--flip-x),
+        calc(var(--flip-y) + var(--lift-y)),
+        0
+      );
+
     transition:
-      transform .12s ease,
-      filter .12s ease;
+      filter 0.3s ease,
+      box-shadow 0.3s ease;
+
+    will-change: transform;
+  }
+
+  .card.selected {
+    --lift-y: -18px;
+
+    filter: brightness(0.72);
+
+    box-shadow:
+      10px 13px 0 rgba(0, 0, 0, 0.35);
   }
   
   #hand .card {
@@ -510,12 +535,6 @@
   
   #hand .card:first-child {
     margin-left: 0;
-  }
-  
-  .card.selected {
-    transform: translateY(-18px);
-    filter: brightness(.72);
-    box-shadow: 4px 7px 0 rgba(0,0,0,.35);
   }
   
   .card.red {
@@ -682,6 +701,13 @@
     overflow: auto;
   
     padding: 18px 18px 8dvh 18px;
+
+    transition:
+      display 0.4s,
+      opacity 0.4s,
+      background 0.4s ease-out,
+      transform 0.6s;
+    transition-behavior: allow-discrete;
   }
   
   .overlay h2 {
@@ -2414,44 +2440,25 @@
 
 <script>
 "use strict";
-    
+
 /* =========================================================
    BALATO
-   SINGLE-FILE EVENT-DRIVEN CARD GAME
+   ========================================================= */
 
-   Architecture:
-
-   DOM
-    ↓
-   Controllers
-    ↓
-   Game State
-    ↓
-   Systems
-    ↓
-   Calculation Context
-    ↓
-   Effects
-    ↓
-   State Mutation
-    ↓
-   Renderer
-    ↓
-   DOM
-========================================================= */
-
-/* =========================================================
-   CONSTANTS, blind data, joker definitions
-========================================================= */
-//if(1==1){
 const SUITS = ["hearts", "diamonds", "clubs", "spades"];
 
 const SUIT_SYMBOLS = {
-  hearts: "♥", diamonds: "♦", clubs: "♣", spades: "♠"
+  hearts: "♥",
+  diamonds: "♦",
+  clubs: "♣",
+  spades: "♠"
 };
 
 const SUIT_ORDER = {
-  hearts: 0, diamonds: 1, clubs: 2, spades: 3
+  hearts: 0,
+  diamonds: 1,
+  clubs: 2,
+  spades: 3
 };
 
 const RANKS = [
@@ -2460,19 +2467,17 @@ const RANKS = [
 ];
 
 const RANK_VALUES = {
-  "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8,
-  "9": 9, "10": 10, "J": 10, "Q": 10, "K": 10, "A": 11
+  "2": 2, "3": 3, "4": 4, "5": 5, "6": 6,
+  "7": 7, "8": 8, "9": 9, "10": 10,
+  "J": 10, "Q": 10, "K": 10, "A": 11
 };
 
 const RANK_ORDER = {
-  "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8,
-  "9": 9, "10": 10, "J": 11, "Q": 12, "K": 13, "A": 14
+  "2": 2, "3": 3, "4": 4, "5": 5, "6": 6,
+  "7": 7, "8": 8, "9": 9, "10": 10,
+  "J": 11, "Q": 12, "K": 13, "A": 14
 };
 
-
-/* =========================================================
-   BLIND DATA 
-========================================================= */
 const BLINDS = [
   {
     name: "SMALL BLIND",
@@ -2480,14 +2485,12 @@ const BLINDS = [
     reward: 3,
     description: ""
   },
-
   {
     name: "BIG BLIND",
     multiplier: 1.5,
     reward: 4,
     description: ""
   },
-
   {
     name: "THE BOSS",
     multiplier: 2,
@@ -2497,29 +2500,23 @@ const BLINDS = [
 ];
 
 const BASE_CHIP = [
-  100, 
-  300,800,2000,
-  5000, 11000,20000,
-  35000,50000, 110000,
-  560000,7200000,300000000, 
-  47000000000,29000000000000, 77000000000000000, 
+  100,
+  300, 800, 2000,
+  5000, 11000, 20000,
+  35000, 50000, 110000,
+  560000, 7200000, 300000000,
+  47000000000, 29000000000000, 77000000000000000,
   860000000000000000000
-]
-  //with ante as the index
-  //Untracked Endless Mode not included
-
-/* =========================================================
-   JOKER DEFINITIONS
-========================================================= */
+];
 
 const JOKER_DEFINITIONS = {
   joker: {
+    nr: 1,
     name: "Joker",
     icon: "🃏",
     rarity: "common",
     price: 2,
     description: "this is the most common joker",
-
     calculate(context) {
       if (context.type === "joker_main") {
         return {
@@ -2527,98 +2524,370 @@ const JOKER_DEFINITIONS = {
           message: "Joker +4 Mult"
         };
       }
-
       return null;
     }
   },
-
-
   greedy: {
-    name: "Greedy",
+    nr: 2,
+    name: "Greedy Joker",
     icon: "💰",
     rarity: "common",
     price: 5,
-    description: "this is the bithc",
-
+    description: "played cards with Diamond suit give +3 Mult when scored",
     calculate(context) {
       if (
         context.type === "individual" &&
         context.otherCard &&
-        ["diamonds", "hearts"].includes(context.otherCard.suit)
+        context.otherCard.suit === "diamonds"
       ) {
         return {
-          chips: 3,
-          message: "Greedy +3 Chips"
+          mult: 3,
+          message: "Greedy +3 Mult"
         };
       }
-
       return null;
     }
   },
-
-  scholar: {
-    name: "Scholar",
-    icon: "📚",
+  lusty: {
+    nr: 3,
+    name: "Lusty Joker",
+    icon: "♥",
     rarity: "common",
-    price: 4,
-    description: "this joker went to mbb",
-
+    price: 5,
+    description: "played cards with Heart suit give +3 Mult when scored",
     calculate(context) {
-
       if (
-        context.type === "joker_main" &&
-        context.scoringName === "High Card"
+        context.type === "individual" &&
+        context.otherCard &&
+        context.otherCard.suit === "hearts"
+      ) {
+        return {
+          mult: 3,
+          message: "Lusty +3 Mult"
+        };
+      }
+      return null;
+    }
+  },
+  wrathful: {
+    nr: 4,
+    name: "Wrathful Joker",
+    icon: "♠",
+    rarity: "common",
+    price: 5,
+    description: "played cards with Spade suit give +3 Mult when scored",
+    calculate(context) {
+      if (
+        context.type === "individual" &&
+        context.otherCard &&
+        context.otherCard.suit === "spades"
+      ) {
+        return {
+          mult: 3,
+          message: "Wrathful +3 Mult"
+        };
+      }
+      return null;
+    }
+  },
+  gluttonous: {
+    nr: 5,
+    name: "Gluttonous Joker",
+    icon: "♣",
+    rarity: "common",
+    price: 5,
+    description: "played cards with Club suit give +3 Mult when scored",
+    calculate(context) {
+      if (
+        context.type === "individual" &&
+        context.otherCard &&
+        context.otherCard.suit === "clubs"
+      ) {
+        return {
+          mult: 3,
+          message: "Gluttonous +3 Mult"
+        };
+      }
+      return null;
+    }
+  },
+  jolly: {
+    nr: 6,
+    name: "Jolly Joker",
+    icon: "🎉",
+    rarity: "common",
+    price: 3,
+    description: "+8 Mult if played hand contains a Pair",
+    calculate(context) {
+      if (
+        context.type === "scoring" &&
+        context.scoringHand &&
+        context.scoringHand.filter(c => c.rank === context.scoringHand[0].rank).length >= 2
       ) {
         return {
           mult: 8,
-          message: "Scholar +8 Mult"
+          message: "Jolly +8 Mult"
         };
       }
-
       return null;
     }
   },
-
-  luckyCat: {
-    name: "Lucky Cat",
-    icon: "🐱",
-    rarity: "uncommon",
-    price: 6,
-    description: "gains X0.25 Mult per successful lucky card trigger",
+  zany: {
+    nr: 7,
+    name: "Zany Joker",
+    icon: "🤪",
+    rarity: "common",
+    price: 4,
+    description: "+12 Mult if played hand contains a Three of a Kind",
     calculate(context) {
-      //idk lol
+      if (
+        context.type === "scoring" &&
+        context.scoringHand &&
+        context.scoringHand.length >= 3 &&
+        new Set(context.scoringHand.map(c => c.rank)).size === 1
+      ) {
+        return {
+          mult: 12,
+          message: "Zany +12 Mult"
+        };
+      }
       return null;
     }
   },
-
-  onyxAgate: {
-    name: "Onyx Agate",
-    icon: "🪨",
+  mad: {
+    nr: 8,
+    name: "Mad Joker",
+    icon: "😡",
+    rarity: "common",
+    price: 4,
+    description: "+10 Mult if played hand contains a Two Pair",
+    calculate(context) {
+      if (
+        context.type === "scoring" &&
+        context.scoringHand &&
+        context.scoringHand.length >= 4 &&
+        new Set(context.scoringHand.map(c => c.rank)).size === 3
+      ) {
+        return {
+          mult: 10,
+          message: "Mad +10 Mult"
+        };
+      }
+      return null;
+    }
+  },
+  crazy: {
+    nr: 9,
+    name: "Crazy Joker",
+    icon: "🤡",
+    rarity: "common",
+    price: 4,
+    description: "+12 Mult if played hand contains a Straight",
+    calculate(context) {
+      if (
+        context.type === "scoring" &&
+        context.scoringHand &&
+        isStraight(context.scoringHand)
+      ) {
+        return {
+          mult: 12,
+          message: "Crazy +12 Mult"
+        };
+      }
+      return null;
+    }
+  },
+  droll: {
+    nr: 10,
+    name: "Droll Joker",
+    icon: "🤭",
+    rarity: "common",
+    price: 4,
+    description: "+10 Mult if played hand contains a Flush",
+    calculate(context) {
+      if (
+        context.type === "scoring" &&
+        context.scoringHand &&
+        isFlush(context.scoringHand)
+      ) {
+        return {
+          mult: 10,
+          message: "Droll +10 Mult"
+        };
+      }
+      return null;
+    }
+  },
+  sly: {
+    nr: 11,
+    name: "Sly Joker",
+    icon: "🦊",
+    rarity: "common",
+    price: 3,
+    description: "+50 Chips if played hand contains a Pair",
+    calculate(context) {
+      if (
+        context.type === "scoring" &&
+        context.scoringHand &&
+        context.scoringHand.length >= 2 &&
+        new Set(context.scoringHand.map(c => c.rank)).size === 1
+      ) {
+        return {
+          chips: 50,
+          message: "Sly +50 Chips"
+        };
+      }
+      return null;
+    }
+  },
+  wily: {
+    nr: 12,
+    name: "Wily Joker",
+    icon: "🦉",
+    rarity: "common",
+    price: 4,
+    description: "+100 Chips if played hand contains a Three of a Kind",
+    calculate(context) {
+      if (
+        context.type === "scoring" &&
+        context.scoringHand &&
+        context.scoringHand.length >= 3 &&
+        new Set(context.scoringHand.map(c => c.rank)).size === 1
+      ) {
+        return {
+          chips: 100,
+          message: "Wily +100 Chips"
+        };
+      }
+      return null;
+    }
+  },
+  clever: {
+    nr: 13,
+    name: "Clever Joker",
+    icon: "🧠",
+    rarity: "rare",
+    price: 4,
+    description: "+80 Chips if played hand contains a Two Pair",
+    calculate(context) {
+      if (
+        context.type === "scoring" &&
+        context.scoringHand &&
+        context.scoringHand.length >= 4 &&
+        new Set(context.scoringHand.map(c => c.rank)).size === 2
+      ) {
+        return {
+          chips: 80,
+          message: "Clever +80 Chips"
+        };
+      }
+      return null;
+    }
+  },
+  devious: {
+    nr: 14,
+    name: "Devious Joker",
+    icon: "😈",
+    rarity: "rare",
+    price: 4,
+    description: "+100 Chips if played hand contains a Straight",
+    calculate(context) {
+      if (
+        context.type === "scoring" &&
+        isStraight(context.scoringHand)
+      ) {
+        return {
+          chips: 100,
+          message: "Devious +100 Chips"
+        };
+      }
+      return null;
+    }
+  },
+  crafty: {
+    nr: 15,
+    name: "Crafty Joker",
+    icon: "📐",
+    rarity: "rare",
+    price: 4,
+    description: "+80 Chips if played hand contains a Flush",
+    calculate(context) {
+      if (
+        context.type === "scoring" &&
+        isFlush(context.scoringHand)
+      ) {
+        return {
+          chips: 80,
+          message: "Crafty +80 Chips"
+        };
+      }
+      return null;
+    }
+  },
+  half: {
+    nr: 16,
+    name: "Half Joker",
+    icon: "✂️",
+    rarity: "common",
+    price: 5,
+    description: "+20 Mult if played hand contains 3 or fewer cards",
+    calculate(context) {
+      if (
+        context.type === "scoring" &&
+        context.scoringHand &&
+        context.scoringHand.length <= 3
+      ) {
+        return {
+          mult: 20,
+          message: "Half +20 Mult"
+        };
+      }
+      return null;
+    }
+  },
+  stencil: {
+    nr: 17,
+    name: "Joker Stencil",
+    icon: "🖍️",
+    rarity: "uncommon",
+    price: 8,
+    description: "X1 Mult for each empty Joker slot. Joker Stencil included",
+    calculate(context) {
+      if (!context.engine) return null;
+      const target =
+        context.engine.getJokerToLeftOf(this.id);
+      if (!target) return null;
+      return context.engine.delegateToJoker(target, context);
+    }
+  },
+  fingers: {
+    nr: 18,
+    name: "Fingers",
+    icon: "✋",
     rarity: "uncommon",
     price: 7,
-    description: "Played cards with Club suit give +7 Mult when scored",
+    description: "All Flushes and Straights can be made with 4 cards",
     calculate(context) {
-        if (
-            context.type === "individual" &&
-            context.otherCard &&
-            ["clubs"].includes(context.otherCard.suit)
-        ) {
-            return {
-                mult: 7,
-                message: "Onyx Agate +7 Mult"
-            };
-        }
-        return null;
+      if (
+        context.type === "scoring" &&
+        context.scoringHand &&
+        (isFlush(context.scoringHand) || isStraight(context.scoringHand))
+      ) {
+        return {
+          chips: 0,
+          message: "Fingers - allows 4-card flush & straight"
+        };
+      }
+      return null;
     }
   },
-
   mime: {
+    nr: 19,
     name: "Mime",
     icon: "🤡",
     rarity: "uncommon",
     price: 5,
-    description: "this is the the is this",
-
+    description: "retrigger all held card abilities",
     calculate(context) {
       if (context.type === "held_trigger") {
         return {
@@ -2626,217 +2895,1641 @@ const JOKER_DEFINITIONS = {
           message: "Mime retriggers held card"
         };
       }
-
       return null;
     }
   },
-
-  steelBaron: {
-    name: "Baron",
-    icon: "👑",
-    rarity: "rare",
-    price: 8,
-    description: "your highness",
-
+  blue: {
+    nr: 53,
+    name: "Blue Joker",
+    icon: "🔵",
+    rarity: "common",
+    price: 5,
+    description: "+2 Chips for each remaining card in deck",
+    calculate(context) {
+      return {
+        chips: 2 * context.engine.getRemainingDeckCount(),
+        message: "Blue +2 Chips per remaining card"
+      };
+    }
+  },
+  sixth: {
+    nr: 54,
+    name: "Sixth Sense",
+    icon: "🔮",
+    rarity: "uncommon",
+    price: 6,
+    description: "If first hand of round is a single 6, destroy it and create a Spectral card",
     calculate(context) {
       if (
-        context.type === "held_card" &&
-        context.otherCard &&
-        context.otherCard.rank === "K"
+        context.type === "first_hand" &&
+        context.hand.length === 1 &&
+        context.hand[0].rank === "6"
       ) {
         return {
-          xmult: 1.5,
-          message: "Baron ×1.5"
+          destroy: true,
+          message: "Sixth Sense destroys 6 and creates Spectral"
         };
       }
-
       return null;
     }
   },
-
+  constellation: {
+    nr: 55,
+    name: "Constellation",
+    icon: "✨",
+    rarity: "uncommon",
+    price: 6,
+    description: "Gain X0.1 Mult every time a Planet card is used",
+    calculate(context) {
+      if (
+        context.type === "planet_used"
+      ) {
+        return {
+          mult: 0.1,
+          message: "Constellation +0.1 Mult"
+        };
+      }
+      return null;
+    }
+  },
+  hiker: {
+    nr: 56,
+    name: "Hiker",
+    icon: "🥾",
+    rarity: "uncommon",
+    price: 5,
+    description: "Every played card permanently gains +5 Chips when scored",
+    calculate(context) {
+      if (
+        context.type === "scoring"
+      ) {
+        return {
+          chips: 5,
+          message: "Hiker +5 Chips"
+        };
+      }
+      return null;
+    }
+  },
+  faceless: {
+    nr: 57,
+    name: "Faceless Joker",
+    icon: "👻",
+    rarity: "common",
+    price: 4,
+    description: "Earn $5 if 3 or more face cards are discarded at the same time",
+    calculate(context) {
+      if (
+        context.type === "discard" &&
+        context.discardCount >= 3
+      ) {
+        return {
+          money: 5,
+          message: "Faceless +$5"
+        };
+      }
+      return null;
+    }
+  },
+  green: {
+    nr: 58,
+    name: "Green Joker",
+    icon: "🟢",
+    rarity: "common",
+    price: 4,
+    description: "+1 Mult per hand played -1 Mult per discard",
+    calculate(context) {
+      return {
+        mult: 1 - context.engine.getDiscardsCount(),
+        message: "Green +1 Mult per hand, -1 per discard"
+      };
+    }
+  },
+  super: {
+    nr: 59,
+    name: "Superposition",
+    icon: "🃏⚡",
+    rarity: "common",
+    price: 4,
+    description: "Create a Tarot card if poker hand contains an Ace and a Straight",
+    calculate(context) {
+      if (
+        context.type === "scoring" &&
+        isAce(context.scoringHand) &&
+        isStraight(context.scoringHand)
+      ) {
+        return {
+          createTarot: true,
+          message: "Superposition creates a Tarot card"
+        };
+      }
+      return null;
+    }
+  },
+  toDo: {
+    nr: 60,
+    name: "To Do List",
+    icon: "📝",
+    rarity: "common",
+    price: 4,
+    description: "Earn $4 if poker hand is a Poker Hand, then change hand at end of round",
+    calculate(context) {
+      if (
+        context.type === "scoring" &&
+        context.isPokerHand
+      ) {
+        return {
+          money: 4,
+          changeHand: true,
+          message: "To Do List earns $4 and changes hand"
+        };
+      }
+      return null;
+    }
+  },
+  cavendish: {
+    nr: 61,
+    name: "Cavendish",
+    icon: "🍇",
+    rarity: "uncommon",
+    price: 4,
+    description: "X3 Mult, 1 in 1000 chance to destroy this card at round end",
+    calculate(context) {
+      if (
+        context.type === "round_end"
+      ) {
+        return {
+          mult: 3,
+          destroyChance: 0.001,
+          message: "Cavendish +3 Mult, chance to destroy"
+        };
+      }
+      return null;
+    }
+  },
+  cardShark: {
+    nr: 62,
+    name: "Card Sharp",
+    icon: "🃏🔪",
+    rarity: "uncommon",
+    price: 6,
+    description: "X3 Mult if played poker hand has already been played this round",
+    calculate(context) {
+      if (
+        context.type === "scoring" &&
+        context.engine.hasPlayedThisRound(context.scoringHand)
+      ) {
+        return {
+          mult: 3,
+          message: "Card Sharp +3 Mult"
+        };
+      }
+      return null;
+    }
+  },
+  redCard: {
+    nr: 63,
+    name: "Red Card",
+    icon: "🟥",
+    rarity: "common",
+    price: 5,
+    description: "Gains +3 Mult when any Booster Pack is skipped",
+    calculate(context) {
+      if (
+        context.type === "booster_skip"
+      ) {
+        return {
+          mult: 3,
+          message: "Red Card +3 Mult"
+        };
+      }
+      return null;
+    }
+  },
+  madness: {
+    nr: 64,
+    name: "Madness",
+    icon: "🤪",
+    rarity: "uncommon",
+    price: 7,
+    description: "When Small or Big Blind is selected, gain X0.5 Mult and destroy a random Joker",
+    calculate(context) {
+      if (
+        context.type === "blind_select"
+      ) {
+        return {
+          mult: 0.5,
+          destroyJoker: true,
+          message: "Madness +0.5 Mult and destroys a Joker"
+        };
+      }
+      return null;
+    }
+  },
+  square: {
+    nr: 65,
+    name: "Square Joker",
+    icon: "🟥",
+    rarity: "common",
+    price: 4,
+    description: "Gains +4 Chips if hand has exactly 4 cards",
+    calculate(context) {
+      if (
+        context.type === "scoring" &&
+        context.scoringHand &&
+        context.scoringHand.length === 4
+      ) {
+        return {
+          chips: 4,
+          message: "Square +4 Chips"
+        };
+      }
+      return null;
+    }
+  },
+  séance: {
+    nr: 66,
+    name: "Séance",
+    icon: "🔮",
+    rarity: "uncommon",
+    price: 6,
+    description: "If poker hand is a Straight Flush, create a Spectral card",
+    calculate(context) {
+      if (
+        context.type === "scoring" &&
+        isStraightFlush(context.scoringHand)
+      ) {
+        return {
+          createSpectral: true,
+          message: "Séance creates Spectral card"
+        };
+      }
+      return null;
+    }
+  },
+  riffRaff: {
+    nr: 67,
+    name: "Riff-Raff",
+    icon: "🎭",
+    rarity: "common",
+    price: 6,
+    description: "Create 2 Jokers when Blind is selected",
+    calculate(context) {
+      if (
+        context.type === "blind_select"
+      ) {
+        return {
+          createJokers: 2,
+          message: "Riff-Raff creates 2 Jokers"
+        };
+      }
+      return null;
+    }
+  },
+  vampire: {
+    nr: 68,
+    name: "Vampire",
+    icon: "🧛‍♂️",
+    rarity: "uncommon",
+    price: 7,
+    description: "Gain X0.1 Mult per scoring Enhanced card, remove its enhancement",
+    calculate(context) {
+      if (
+        context.type === "scoring" &&
+        context.scoringHand.some(c => c.enhancement)
+      ) {
+        const count = context.scoringHand.filter(c => c.enhancement).length;
+        return {
+          mult: 0.1 * count,
+          removeEnhancement: true,
+          message: "Vampire +0.1 Mult per Enhanced card"
+        };
+      }
+      return null;
+    }
+  },
+  shortcut: {
+    nr: 69,
+    name: "Shortcut",
+    icon: "⏩",
+    rarity: "uncommon",
+    price: 7,
+    description: "Allow Straights with gaps of 1 rank",
+    calculate(context) {
+      if (
+        context.type === "scoring" &&
+        isStraightWithGaps(context.scoringHand, 1)
+      ) {
+        return {
+          mult: 2,
+          message: "Shortcut +2 Mult"
+        };
+      }
+      return null;
+    }
+  },
+  hologram: {
+    nr: 70,
+    name: "Hologram",
+    icon: "🌈",
+    rarity: "uncommon",
+    price: 7,
+    description: "Gain X0.25 Mult every time a playing card is added to deck",
+    calculate(context) {
+      if (
+        context.type === "card_added" &&
+        context.cardType === "playing"
+      ) {
+        return {
+          mult: 0.25,
+          message: "Hologram +0.25 Mult"
+        };
+      }
+      return null;
+    }
+  },
+  vagabond: {
+    nr: 71,
+    name: "Vagabond",
+    icon: "🧳",
+    rarity: "rare",
+    price: 8,
+    description: "Create a Tarot card if hand played with $4 or less",
+    calculate(context) {
+      if (
+        context.type === "hand_played" &&
+        context.handValue <= 4
+      ) {
+        return {
+          createTarot: true,
+          message: "Vagabond creates a Tarot card"
+        };
+      }
+      return null;
+    }
+  },
+  baron: {
+    nr: 72,
+    name: "Baron",
+    icon: "🤴",
+    rarity: "rare",
+    price: 8,
+    description: "Each King in hand gives X1.5 Mult",
+    calculate(context) {
+      if (
+        context.type === "scoring" &&
+        context.handCards.some(c => c.rank === "K")
+      ) {
+        return {
+          mult: 1.5,
+          message: "Baron +1.5 Mult per King"
+        };
+      }
+      return null;
+    }
+  },
+  cloud9: {
+    nr: 73,
+    name: "Cloud 9",
+    icon: "☁️",
+    rarity: "uncommon",
+    price: 7,
+    description: "Earn $1 for each 9 in deck at round end",
+    calculate(context) {
+      const ninesCount = context.engine.countCardsByRank("9");
+      return {
+        money: ninesCount,
+        message: `Cloud 9 +$${ninesCount}`
+      };
+    }
+  },
+  rocket: {
+    nr: 74,
+    name: "Rocket",
+    icon: "🚀",
+    rarity: "uncommon",
+    price: 6,
+    description: "Earn $1 at end of round; increases when Boss Blind is defeated",
+    calculate(context) {
+      return {
+        money: 1,
+        message: "Rocket +$1"
+      };
+    }
+  },
+  obelisk: {
+    nr: 75,
+    name: "Obelisk",
+    icon: "🗿",
+    rarity: "rare",
+    price: 8,
+    description: "Gain X0.2 Mult per consecutive hand without most scored hand",
+    calculate(context) {
+      if (
+        context.type === "consecutive_no_score" &&
+        context.count >= 2
+      ) {
+        return {
+          mult: 0.2 * context.count,
+          message: "Obelisk +0.2 Mult per consecutive hand"
+        };
+      }
+      return null;
+    }
+  },
+  midas: {
+    nr: 76,
+    name: "Midas Mask",
+    icon: "🎭",
+    rarity: "uncommon",
+    price: 7,
+    description: "All played face cards become Gold cards when scored",
+    calculate(context) {
+      if (
+        context.type === "scoring" &&
+        context.scoringHand.some(c => c.faceCard)
+      ) {
+        return {
+          makeGold: true,
+          message: "Midas Mask turns face cards to Gold"
+        };
+      }
+      return null;
+    }
+  },
+  luchador: {
+    nr: 77,
+    name: "Luchador",
+    icon: "🤼‍♂️",
+    rarity: "uncommon",
+    price: 5,
+    description: "Sell this card to disable the current Boss Blind",
+    calculate(context) {
+      if (
+        context.type === "sell" &&
+        context.card === this
+      ) {
+        return {
+          disableBoss: true,
+          message: "Luchador disables Boss Blind"
+        };
+      }
+      return null;
+    }
+  },
+  photograph: {
+    nr: 78,
+    name: "Photograph",
+    icon: "📸",
+    rarity: "common",
+    price: 5,
+    description: "First played face card gives X2 Mult when scored",
+    calculate(context) {
+      if (
+        context.type === "scoring" &&
+        context.scoringHand &&
+        context.scoringHand.some(c => c.faceCard) &&
+        context.firstFacePlayed
+      ) {
+        return {
+          mult: 2,
+          message: "Photograph +2 Mult"
+        };
+      }
+      return null;
+    }
+  },
+  gift: {
+    nr: 79,
+    name: "Gift Card",
+    icon: "🎁",
+    rarity: "uncommon",
+    price: 6,
+    description: "Add $1 of sell value to each Joker and consumable at end of round",
+    calculate(context) {
+      return {
+        moneyPerJoker: 1,
+        moneyPerConsumable: 1,
+        message: "Gift +$1 per Joker and consumable"
+      };
+    }
+  },
+  turtle: {
+    nr: 80,
+    name: "Turtle Bean",
+    icon: "🐢",
+    rarity: "uncommon",
+    price: 6,
+    description: "+5 hand size, reduces by 1 each round",
+    calculate(context) {
+      return {
+        handSizeBoost: 5,
+        message: "Turtle Bean +5 Hand Size"
+      };
+    }
+  },
+  erosion: {
+    nr: 81,
+    name: "Erosion",
+    icon: "🌪️",
+    rarity: "uncommon",
+    price: 6,
+    description: "+4 Mult for each card below initial deck size",
+    calculate(context) {
+      return {
+        mult: 4,
+        message: "Erosion +4 Mult"
+      };
+    }
+  },
+  parking: {
+    nr: 82,
+    name: "Reserved Parking",
+    icon: "🅿️",
+    rarity: "common",
+    price: 6,
+    description: "Each face card in hand has a 50% chance to give $1",
+    calculate(context) {
+      const faceCount = context.engine.countFaceCardsInHand();
+      const total = faceCount * 0.5;
+      return {
+        money: total,
+        message: `Reserved Parking +$${total}`
+      };
+    }
+  },
+  rebate: {
+    nr: 83,
+    name: "Mail-In Rebate",
+    icon: "📮",
+    rarity: "common",
+    price: 4,
+    description: "Earn $5 for each discarded [rank], rank changes each round",
+    calculate(context) {
+      if (
+        context.type === "discard" &&
+        context.rank
+      ) {
+        return {
+          money: 5,
+          message: "Mail-In Rebate +$5"
+        };
+      }
+      return null;
+    }
+  },
+  moon: {
+    nr: 84,
+    name: "To the Moon",
+    icon: "🌕",
+    rarity: "uncommon",
+    price: 5,
+    description: "Earn an extra $1 interest for every $5 at end of round",
+    calculate(context) {
+      const amount = Math.floor(context.engine.getTotalMoney() / 5);
+      return {
+        money: amount,
+        message: `Moon +$${amount}`
+      };
+    }
+  },
+  hallucination: {
+    nr: 85,
+    name: "Hallucination",
+    icon: "🤯",
+    rarity: "common",
+    price: 4,
+    description: "1 in 2 chance to create a Tarot card when opening booster pack",
+    calculate(context) {
+      if (
+        context.type === "booster_open"
+      ) {
+        return {
+          createTarot: Math.random() < 0.5,
+          message: "Hallucination creates Tarot"
+        };
+      }
+      return null;
+    }
+  },
+  fortune: {
+    nr: 86,
+    name: "Fortune Teller",
+    icon: "🔮",
+    rarity: "common",
+    price: 6,
+    description: "+1 Mult per Tarot card used this run",
+    calculate(context) {
+      return {
+        mult: 1,
+        message: "Fortune +1 Mult"
+      };
+    }
+  },
+  juggler: {
+    nr: 87,
+    name: "Juggler",
+    icon: "🤹‍♂️",
+    rarity: "common",
+    price: 4,
+    description: "+1 hand size",
+    calculate(context) {
+      return {
+        handSize: 1,
+        message: "Juggler +1 Hand Size"
+      };
+    }
+  },
+  drunkard: {
+    nr: 88,
+    name: "Drunkard",
+    icon: "🍻",
+    rarity: "common",
+    price: 4,
+    description: "+1 discard each round",
+    calculate(context) {
+      return {
+        discardIncrease: 1,
+        message: "Drunkard +1 Discard"
+      };
+    }
+  },
+  stone: {
+    nr: 89,
+    name: "Stone Joker",
+    icon: "🪨",
+    rarity: "uncommon",
+    price: 6,
+    description: "+25 Chips for each Stone card in full deck",
+    calculate(context) {
+      const count = context.engine.countCardsBySuit("stones");
+      return {
+        chips: 25 * count,
+        message: "Stone + Chips"
+      };
+    }
+  },
+  golden: {
+    nr: 90,
+    name: "Golden Joker",
+    icon: "🏆",
+    rarity: "common",
+    price: 6,
+    description: "Earn $4 at end of round",
+    calculate(context) {
+      return {
+        money: 4,
+        message: "Golden +$4"
+      };
+    }
+  },
+  luckycat: {
+    nr: 91,
+    name: "Lucky Cat",
+    icon: "🐱",
+    rarity: "uncommon",
+    price: 6,
+    description: "X0.25 Mult every time a Lucky card triggers",
+    calculate(context) {
+      const triggers = context.engine.countLuckyCardsTriggers();
+      return {
+        mult: 0.25 * triggers,
+        message: "Lucky Cat + Mult"
+      };
+    }
+  },
+  basebal: {
+    nr: 92,
+    name: "Baseball Card",
+    icon: "⚾",
+    rarity: "rare",
+    price: 8,
+    description: "Uncommon Jokers each give X1.5 Mult",
+    calculate(context) {
+      return {
+        mult: 1.5,
+        message: "Baseball +1.5 Mult"
+      };
+    }
+  },
+  bull: {
+    nr: 93,
+    name: "Bull",
+    icon: "🐂",
+    rarity: "uncommon",
+    price: 6,
+    description: "+2 Chips for each $1 you have",
+    calculate(context) {
+      const totalMoney = context.engine.getTotalMoney();
+      return {
+        chips: 2 * totalMoney,
+        message: "Bull + Chips"
+      };
+    }
+  },
+  diet: {
+    nr: 94,
+    name: "Diet Cola",
+    icon: "🥤",
+    rarity: "uncommon",
+    price: 6,
+    description: "Sell this card to create a free Double Tag",
+    calculate(context) {
+      return {
+        freeDoubleTag: true,
+        message: "Diet Cola creates Double Tag"
+      };
+    }
+  },
+  trading: {
+    nr: 95,
+    name: "Trading Card",
+    icon: "🎴",
+    rarity: "uncommon",
+    price: 6,
+    description: "If first discard has only 1 card, destroy it and earn $3",
+    calculate(context) {
+      if (
+        context.type === "discard" &&
+        context.discardCount === 1
+      ) {
+        return {
+          money: 3,
+          destroy: true,
+          message: "Trading Card destroys discard and earns $3"
+        };
+      }
+      return null;
+    }
+  },
+  flash: {
+    nr: 96,
+    name: "Flash Card",
+    icon: "⚡",
+    rarity: "uncommon",
+    price: 5,
+    description: "Gain +2 Mult per reroll in shop",
+    calculate(context) {
+      if (
+        context.type === "shop_reroll"
+      ) {
+        return {
+          mult: 2,
+          message: "Flash +2 Mult per reroll"
+        };
+      }
+      return null;
+    }
+  },
+  popcorn: {
+    nr: 97,
+    name: "Popcorn",
+    icon: "🍿",
+    rarity: "common",
+    price: 5,
+    description: "+20 Mult, -4 Mult per round",
+    calculate(context) {
+      return {
+        mult: 20 - (context.engine.getRoundsPlayed() * 4),
+        message: "Popcorn +20 Mult, -4 per round"
+      };
+    }
+  },
+  spareTrousers: {
+    nr: 98,
+    name: "Spare Trousers",
+    icon: "🩳",
+    rarity: "uncommon",
+    price: 6,
+    description: "Gains +2 Mult if hand has Two Pair",
+    calculate(context) {
+      if (
+        context.type === "scoring" &&
+        hasTwoPair(context.scoringHand)
+      ) {
+        return {
+          mult: 2,
+          message: "Spare Trousers +2 Mult"
+        };
+      }
+      return null;
+    }
+  },
+  ancient: {
+    nr: 99,
+    name: "Ancient Joker",
+    icon: "🗿",
+    rarity: "rare",
+    price: 8,
+    description: "Each played card with suit gives X1.5 Mult",
+    calculate(context) {
+      if (
+        context.type === "scoring" &&
+        context.scoringHand
+      ) {
+        const suitCounts = {};
+        context.scoringHand.forEach(c => {
+          suitCounts[c.suit] = (suitCounts[c.suit] || 0) + 1;
+        });
+        let totalMult = 1;
+        for (const suit in suitCounts) {
+          totalMult *= 1.5;
+        }
+        return {
+          mult: totalMult,
+          message: "Ancient +X1.5 Mult per suit"
+        };
+      }
+      return null;
+    }
+  },
+  ramen: {
+    nr: 100,
+    name: "Ramen",
+    icon: "🍜",
+    rarity: "uncommon",
+    price: 6,
+    description: "X2 Mult, loses X0.01 Mult per discarded card",
+    calculate(context) {
+      const totalDiscards = context.engine.getDiscardsCount();
+      return {
+        mult: 2,
+        loseMult: 0.01 * totalDiscards,
+        message: "Ramen +X2 Mult, -X0.01 per discard"
+      };
+    }
+  },
+  walkie: {
+    nr: 101,
+    name: "Walkie Talkie",
+    icon: "📞",
+    rarity: "common",
+    price: 4,
+    description: "Each played 10 or 4 gives +10 Chips and +4 Mult",
+    calculate(context) {
+      if (
+        context.type === "scoring" &&
+        (context.scoringHand.some(c => c.rank === "10") ||
+          context.scoringHand.some(c => c.rank === "4"))
+      ) {
+        return {
+          chips: 10,
+          mult: 4,
+          message: "Walkie Talkie +10 Chips and +4 Mult"
+        };
+      }
+      return null;
+    }
+  },
+  seltzer: {
+    nr: 102,
+    name: "Seltzer",
+    icon: "🥤",
+    rarity: "uncommon",
+    price: 6,
+    description: "Retrigger all cards played for next 10 hands",
+    calculate(context) {
+      return {
+        retriggerNextHands: 10,
+        message: "Seltzer retriggers all cards for next 10 hands"
+      };
+    }
+  },
+  castle: {
+    nr: 103,
+    name: "Castle",
+    icon: "🏰",
+    rarity: "uncommon",
+    price: 6,
+    description: "Gains +3 Chips per discarded suit, suit changes every round",
+    calculate(context) {
+      return {
+        chipsPerSuitDiscard: 3,
+        changeSuitEachRound: true,
+        message: "Castle gains +3 Chips per suit discard"
+      };
+    }
+  },
+  smiley: {
+    nr: 104,
+    name: "Smiley Face",
+    icon: "😊",
+    rarity: "common",
+    price: 4,
+    description: "Played face cards give +5 Mult",
+    calculate(context) {
+      if (
+        context.type === "scoring" &&
+        context.scoringHand &&
+        context.scoringHand.some(c => c.faceCard)
+      ) {
+        return {
+          mult: 5,
+          message: "Smiley Face +5 Mult"
+        };
+      }
+      return null;
+    }
+  },
+  campfire: {
+    nr: 105,
+    name: "Campfire",
+    icon: "🔥",
+    rarity: "rare",
+    price: 9,
+    description: "Gain X0.25 Mult for each card sold, resets when Boss Blind is defeated",
+    calculate(context) {
+      if (context.type === "card_sold") {
+        return {
+          mult: 0.25,
+          resetOnBossDefeat: true,
+          message: "Campfire +0.25 Mult per card sold"
+        };
+      }
+      return null;
+    }
+  },
+  goldenTicket: {
+    nr: 106,
+    name: "Golden Ticket",
+    icon: "🎟️",
+    rarity: "common",
+    price: 5,
+    description: "Gold cards earn $4 when scored",
+    calculate(context) {
+      if (
+        context.type === "scoring" &&
+        context.scoringHand &&
+        context.scoringHand.some(c => c.suit === "gold")
+      ) {
+        return {
+          money: 4,
+          message: "Golden Ticket +$4"
+        };
+      }
+      return null;
+    }
+  },
+  mrBones: {
+    nr: 107,
+    name: "Mr. Bones",
+    icon: "💀",
+    rarity: "uncommon",
+    price: 5,
+    description: "Prevents death if chips are at least 25% of target, self destructs",
+    calculate(context) {
+      if (
+        context.type === "death_prevent"
+      ) {
+        return {
+          preventDeath: true,
+          message: "Mr. Bones prevents death"
+        };
+      }
+      return null;
+    }
+  },
+  acrobat: {
+    nr: 108,
+    name: "Acrobat",
+    icon: "🤸‍♂️",
+    rarity: "uncommon",
+    price: 6,
+    description: "X3 Mult on final hand of round",
+    calculate(context) {
+      if (
+        context.type === "final_hand"
+      ) {
+        return {
+          mult: 3,
+          message: "Acrobat +3 Mult on final hand"
+        };
+      }
+      return null;
+    }
+  },
+  sockAndBuskin: {
+    nr: 109,
+    name: "Sock and Buskin",
+    icon: "🧦🎭",
+    rarity: "uncommon",
+    price: 6,
+    description: "Retrigger all played face cards",
+    calculate(context) {
+      if (
+        context.type === "scoring" &&
+        context.scoringHand &&
+        context.scoringHand.some(c => c.faceCard)
+      ) {
+        return {
+          retriggerAllFaceCards: true,
+          message: "Sock and Buskin retriggers face cards"
+        };
+      }
+      return null;
+    }
+  },
+  swashbuckler: {
+    nr: 110,
+    name: "Swashbuckler",
+    icon: "🗡️",
+    rarity: "common",
+    price: 4,
+    description: "Adds the sell value of all other owned Jokers to Mult",
+    calculate(context) {
+      const totalSellValue = context.engine.getOwnedJokersSellValue();
+      return {
+        mult: totalSellValue,
+        message: "Swashbuckler adds other Jokers' sell value"
+      };
+    }
+  },
+  troubadour: {
+    nr: 111,
+    name: "Troubadour",
+    icon: "🎶",
+    rarity: "uncommon",
+    price: 6,
+    description: "+2 hand size, -1 hand per round",
+    calculate(context) {
+      return {
+        handSize: 2,
+        handSizeReductionPerRound: 1,
+        message: "Troubadour +2 Hand Size, -1 per round"
+      };
+    }
+  },
+  certificate: {
+    nr: 112,
+    name: "Certificate",
+    icon: "📜",
+    rarity: "uncommon",
+    price: 6,
+    description: "When round begins, add a random playing card with a random seal",
+    calculate(context) {
+      return {
+        addRandomCardOnStart: true,
+        message: "Certificate adds random card at start"
+      };
+    }
+  },
+  smeared: {
+    nr: 113,
+    name: "Smeared Joker",
+    icon: "🧈",
+    rarity: "uncommon",
+    price: 7,
+    description: "Hearts and Diamonds count as same suit, Spades and Clubs as same suit",
+    calculate(context) {
+      return {
+        treatHeartsDiamondsAsSame: true,
+        treatSpadesClubsAsSame: true,
+        message: "Smeared Joker treats suits as same"
+      };
+    }
+  },
+  throwback: {
+    nr: 114,
+    name: "Throwback",
+    icon: "⏮️",
+    rarity: "uncommon",
+    price: 6,
+    description: "X0.25 Mult for each Blind skipped",
+    calculate(context) {
+      if (
+        context.type === "blind_skip"
+      ) {
+        return {
+          mult: 0.25,
+          message: "Throwback +0.25 Mult per skipped Blind"
+        };
+      }
+      return null;
+    }
+  },
+  hangingChad: {
+    nr: 115,
+    name: "Hanging Chad",
+    icon: "🪧",
+    rarity: "common",
+    price: 4,
+    description: "Retrigger first played card used in scoring 2 additional times",
+    calculate(context) {
+      if (
+        context.type === "scoring" &&
+        context.firstPlayedCard
+      ) {
+        return {
+          retriggerCount: 2,
+          message: "Hanging Chad retriggers first played card twice"
+        };
+      }
+      return null;
+    }
+  },
+  roughGem: {
+    nr: 116,
+    name: "Rough Gem",
+    icon: "💎",
+    rarity: "uncommon",
+    price: 7,
+    description: "Played cards with Diamond suit earn $1 when scored",
+    calculate(context) {
+      if (
+        context.type === "scoring" &&
+        context.scoringHand.some(c => c.suit === "diamonds")
+      ) {
+        return {
+          money: 1,
+          message: "Rough Gem +$1"
+        };
+      }
+      return null;
+    }
+  },
+  bloodstone: {
+    nr: 117,
+    name: "Bloodstone",
+    icon: "🩸",
+    rarity: "uncommon",
+    price: 7,
+    description: "1 in 2 chance for hearts to give X1.5 Mult when scored",
+    calculate(context) {
+      if (
+        context.type === "scoring" &&
+        context.scoringHand.some(c => c.suit === "hearts")
+      ) {
+        return {
+          mult: 1.5,
+          chance: 0.5,
+          message: "Bloodstone +X1.5 Mult on Hearts"
+        };
+      }
+      return null;
+    }
+  },
+  arrowhead: {
+    nr: 118,
+    name: "Arrowhead",
+    icon: "🏹",
+    rarity: "uncommon",
+    price: 7,
+    description: "Played cards with Spade suit give +50 Chips when scored",
+    calculate(context) {
+      if (
+        context.type === "scoring" &&
+        context.scoringHand.some(c => c.suit === "spades")
+      ) {
+        return {
+          chips: 50,
+          message: "Arrowhead +50 Chips"
+        };
+      }
+      return null;
+    }
+  },
+  onyxAgate: {
+    nr: 119,
+    name: "Onyx Agate",
+    icon: "🪨",
+    rarity: "uncommon",
+    price: 7,
+    description: "Played cards with Club suit give +7 Mult when scored",
+    calculate(context) {
+      if (
+        context.type === "scoring" &&
+        context.scoringHand.some(c => c.suit === "clubs")
+      ) {
+        return {
+          mult: 7,
+          message: "Onyx Agate +7 Mult"
+        };
+      }
+      return null;
+    }
+  },
+  glass: {
+    nr: 120,
+    name: "Glass Joker",
+    icon: "🧊",
+    rarity: "uncommon",
+    price: 6,
+    description: "X0.75 Mult for every Glass Card destroyed",
+    calculate(context) {
+      if (
+        context.type === "card_destroyed" &&
+        context.card.enhancement === "glass"
+      ) {
+        return {
+          mult: 0.75,
+          message: "Glass Joker +0.75 Mult"
+        };
+      }
+      return null;
+    }
+  },
+  showman: {
+    nr: 121,
+    name: "Showman",
+    icon: "🎩",
+    rarity: "uncommon",
+    price: 5,
+    description: "Joker, Tarot, Planet, Spectral cards may appear multiple times",
+    calculate(context) {
+      return {
+        multipleAppearances: true,
+        message: "Showman allows multiple appearances"
+      };
+    }
+  },
+  flowerPot: {
+    nr: 122,
+    name: "Flower Pot",
+    icon: "🌸",
+    rarity: "uncommon",
+    price: 6,
+    description: "X3 Mult if poker hand contains a Diamond, Club, Heart, and Spade",
+    calculate(context) {
+      if (
+        context.type === "scoring" &&
+        containsAllSuits(context.scoringHand)
+      ) {
+        return {
+          mult: 3,
+          message: "Flower Pot +3 Mult"
+        };
+      }
+      return null;
+    }
+  },
   blueprint: {
+    nr: 123,
     name: "Blueprint",
     icon: "📐",
     rarity: "rare",
     price: 10,
-    description: "this is the architect",
-
+    description: "Copies ability of Joker to the right",
     calculate(context) {
-      if (!context.engine) {
-        return null;
-      }
-
-      const target = context.engine.getJokerToLeftOf(this.id);
-
-      if (!target) {
-        return null;
-      }
-
-      return context.engine.delegateToJoker(
-        target,
-        context
-      );
+      const target =
+        context.engine.getJokerToLeftOf(this.id);
+      if (!target) return null;
+      return context.engine.delegateToJoker(target, context);
     }
   },
-
-
-  brainstorm: {
+  wee: {
+    nr: 124,
+    name: "Wee Joker",
+    icon: "🧸",
+    rarity: "rare",
+    price: 8,
+    description: "Gains +8 Chips when each played 2 is scored",
+    calculate(context) {
+      if (
+        context.type === "scoring" &&
+        context.scoringHand &&
+        context.scoringHand.some(c => c.rank === "2")
+      ) {
+        return {
+          chips: 8,
+          message: "Wee Joker +8 Chips"
+        };
+      }
+      return null;
+    }
+  },
+  merryAndy: {
+    nr: 125,
+    name: "Merry Andy",
+    icon: "🎅",
+    rarity: "uncommon",
+    price: 7,
+    description: "+3 discards each round, -1 hand size",
+    calculate(context) {
+      return {
+        discards: 3,
+        handSizeReduction: 1,
+        message: "Merry Andy +3 Discards, -1 Hand Size"
+      };
+    }
+  },
+  oops: {
+    nr: 126,
+    name: "Oops! All 6s",
+    icon: "🚫6",
+    rarity: "uncommon",
+    price: 4,
+    description: "Doubles all probabilities for 6s",
+    calculate(context) {
+      if (
+        context.type === "probability_boost"
+      ) {
+        return {
+          doubleProbabilities: true,
+          message: "Oops! Doubles probabilities for 6s"
+        };
+      }
+      return null;
+    }
+  },
+  idol: {
+    nr: 127,
+    name: "The Idol",
+    icon: "🧙‍♂️",
+    rarity: "uncommon",
+    price: 6,
+    description: "Each played [rank] of [suit] gives X2 Mult",
+    calculate(context) {
+      if (
+        context.type === "scoring" &&
+        context.scoringHand
+      ) {
+        const rankSuits = {};
+        context.scoringHand.forEach(c => {
+          if (!rankSuits[c.rank]) rankSuits[c.rank] = [];
+          rankSuits[c.rank].push(c.suit);
+        });
+        let totalMult = 1;
+        for (const rank in rankSuits) {
+          totalMult *= 2;
+        }
+        return {
+          mult: totalMult,
+          message: "The Idol +X2 Mult per rank/suit"
+        };
+      }
+      return null;
+    }
+  },
+  seeingDouble: {
+    nr: 128,
+    name: "Seeing Double",
+    icon: "🔁",
+    rarity: "uncommon",
+    price: 6,
+    description: "X2 Mult if hand has a Club card and another suit card",
+    calculate(context) {
+      const suits = context.scoringHand.map(c => c.suit);
+      if (
+        suits.includes("clubs") &&
+        suits.some(s => s !== "clubs")
+      ) {
+        return {
+          mult: 2,
+          message: "Seeing Double +2 Mult"
+        };
+      }
+      return null;
+    }
+  },
+  matador: {
+    nr: 129,
+    name: "Matador",
+    icon: "🃏",
+    rarity: "uncommon",
+    price: 7,
+    description: "Earn $8 if hand triggers Boss Blind ability",
+    calculate(context) {
+      if (
+        context.type === "boss_trigger"
+      ) {
+        return {
+          money: 8,
+          message: "Matador +$8"
+        };
+      }
+      return null;
+    }
+  },
+  "hitTheRoad": {
+    nr: 130,
+    name: "Hit the Road",
+    icon: "🛣️",
+    rarity: "rare",
+    price: 8,
+    description: "X0.5 Mult per Jack discarded this round",
+    calculate(context) {
+      const jacksDiscarded = context.engine.getJacksDiscarded();
+      return {
+        mult: 0.5 * jacksDiscarded,
+        message: "Hit the Road +0.5 Mult per Jack discarded"
+      };
+    }
+  },
+  "duo": {
+    nr: 131,
+    name: "The Duo",
+    icon: "🎴",
+    rarity: "rare",
+    price: 8,
+    description: "X2 Mult if hand contains a Pair",
+    calculate(context) {
+      if (
+        context.type === "scoring" &&
+        hasPair(context.scoringHand)
+      ) {
+        return {
+          mult: 2,
+          message: "Duo +2 Mult"
+        };
+      }
+      return null;
+    }
+  },
+  "trio": {
+    nr: 132,
+    name: "The Trio",
+    icon: "🎴",
+    rarity: "rare",
+    price: 8,
+    description: "X3 Mult if hand contains a Three of a Kind",
+    calculate(context) {
+      if (
+        context.type === "scoring" &&
+        isThreeOfAKind(context.scoringHand)
+      ) {
+        return {
+          mult: 3,
+          message: "Trio +3 Mult"
+        };
+      }
+      return null;
+    }
+  },
+  "family": {
+    nr: 133,
+    name: "The Family",
+    icon: "🎴",
+    rarity: "rare",
+    price: 8,
+    description: "X4 Mult if hand contains a Four of a Kind",
+    calculate(context) {
+      if (
+        context.type === "scoring" &&
+        isFourOfAKind(context.scoringHand)
+      ) {
+        return {
+          mult: 4,
+          message: "Family +4 Mult"
+        };
+      }
+      return null;
+    }
+  },
+  "order": {
+    nr: 134,
+    name: "The Order",
+    icon: "🎴",
+    rarity: "rare",
+    price: 8,
+    description: "X3 Mult if hand contains a Straight",
+    calculate(context) {
+      if (
+        context.type === "scoring" &&
+        isStraight(context.scoringHand)
+      ) {
+        return {
+          mult: 3,
+          message: "Order +3 Mult"
+        };
+      }
+      return null;
+    }
+  },
+  "tribe": {
+    nr: 135,
+    name: "The Tribe",
+    icon: "🎴",
+    rarity: "rare",
+    price: 8,
+    description: "X2 Mult if hand contains a Flush",
+    calculate(context) {
+      if (
+        context.type === "scoring" &&
+        isFlush(context.scoringHand)
+      ) {
+        return {
+          mult: 2,
+          message: "Tribe +2 Mult"
+        };
+      }
+      return null;
+    }
+  },
+  "stuntman": {
+    nr: 136,
+    name: "Stuntman",
+    icon: "🎪",
+    rarity: "rare",
+    price: 7,
+    description: "+250 Chips, -2 hand size",
+    calculate(context) {
+      return {
+        chips: 250,
+        handSize: -2,
+        message: "Stuntman +250 Chips, -2 Hand Size"
+      };
+    }
+  },
+  "invisible": {
+    nr: 137,
+    name: "Invisible Joker",
+    icon: "👻",
+    rarity: "rare",
+    price: 8,
+    description: "After 2 rounds, sell to duplicate a random Joker",
+    calculate(context) {
+      if (
+        context.type === "round_end" &&
+        context.engine.getRoundsPlayed() >= 2
+      ) {
+        return {
+          duplicateJoker: true,
+          message: "Invisible Joker duplicates a Joker"
+        };
+      }
+      return null;
+    }
+  },
+  "brainstorm": {
+    nr: 138,
     name: "Brainstorm",
     icon: "🧠",
     rarity: "rare",
     price: 10,
-    description: "this is the green needle",
-
+    description: "Copies the ability of the leftmost Joker",
     calculate(context) {
-
-      if (!context.engine) {
-        return null;
-      }
-
-      const target = context.engine.getLeftmostJoker();
-
-      if (!target || target.id === this.id) {
-        return null;
-      }
-
-      return context.engine.delegateToJoker(
-        target,
-        context
-      );
+      const target =
+        context.engine.getJokerToLeftOf(this.id);
+      if (!target) return null;
+      return context.engine.delegateToJoker(target, context);
     }
   }
-
-
 };
 
-//}//end of thing
-
-/* =========================================================
-   GAME STATE, utilities
-========================================================= */
-//if(1==1){
 const gameState = {
-
-  /* -------------------------
-     persistent run state
-  ------------------------- */
-
   money: 4,
-
   ante: 1,
-
   roundNumber: 1,
 
   jokers: [],
-
   consumables: [],
-
   deckModifiers: {},
-
   collection: {},
-
-  /* -------------------------
-     shop
-  ------------------------- */
 
   numOfShopCards: 2,
 
   rarities: {
-    //Joker
-      common: 20 * 0.70,
-      uncommon: 20 * 0.25,
-      rare: 20 * 0.5,
+    common: 20 * 0.70,
+    uncommon: 20 * 0.25,
+    rare: 20 * 0.5,
     Tarot: 4,
     Planet: 4,
     PlayingCard: 0
   },
 
   discount_percent: 1,
-
   appearanceRateModifier: 1,
 
-
-  /* -------------------------
-     card areas
-  ------------------------- */
-
   deck: [],
-
   hand: [],
-
   discardPile: [],
-
   playedCards: [],
-
-
-  /* -------------------------
-     selection
-  ------------------------- */
 
   selectedCards: [],
 
-
-  /* -------------------------
-     round state
-  ------------------------- */
-
   handsRemaining: 4,
-
   discardsRemaining: 3,
-
   roundScore: 0,
-
   targetScore: 300,
 
   blindIndex: 0,
-
   blind: null,
 
-
-  /* -------------------------
-     display/calculation
-  ------------------------- */
-
   chips: 0,
-
   mult: 1,
-
   score: 0,
 
   currentHandName: "High Card",
-
   currentHandLevel: 1,
-
-
-  /* -------------------------
-     settings
-  ------------------------- */
 
   showScoreNumbers: true,
 
   gameStarted: false,
-
   inShop: false,
-
   runLost: false,
 
-
-  /* -------------------------
-     IDs
-  ------------------------- */
+  jokerLimit: 15,
+  sortOrder: "rank",
 
   nextCardId: 1,
-
   nextJokerId: 1
 };
 
-
 /* =========================================================
-   UTILITY
-========================================================= */
+   UTILITIES
+   ========================================================= */
 
 function formatNumber(number) {
-  
   if (!Number.isFinite(number)) {
     return "∞";
   }
@@ -2848,28 +4541,27 @@ function formatNumber(number) {
   return Math.floor(number).toLocaleString();
 }
 
-
 function random(array) {
+  if (!array.length) {
+    return undefined;
+  }
 
   return array[
     Math.floor(Math.random() * array.length)
   ];
 }
 
-
 function clamp(value, min, max) {
-
   return Math.max(min, Math.min(max, value));
 }
 
-
 function shuffle(array) {
-
   const result = [...array];
 
   for (let i = result.length - 1; i > 0; i--) {
-
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = Math.floor(
+      Math.random() * (i + 1)
+    );
 
     [result[i], result[j]] =
       [result[j], result[i]];
@@ -2878,88 +4570,55 @@ function shuffle(array) {
   return result;
 }
 
-
 function deepCopy(object) {
-
   return JSON.parse(JSON.stringify(object));
 }
-//}//end of thing
 
 /* =========================================================
-   CARD FACTORIES, card area system, deck system
-========================================================= */
-//if(1==1){
+   CARDS / DECK
+   ========================================================= */
+
 function createCard(
   suit,
   rank,
   options = {}
 ) {
-
   return {
-
     id: gameState.nextCardId++,
-
     suit,
-
     rank,
-
     value: RANK_VALUES[rank],
-
     selected: false,
 
     enhancement: options.enhancement || null,
-
     edition: options.edition || null,
-
     seal: options.seal || null,
 
     debuffed: false,
-
     faceDown: false,
 
     permanentModifiers: {},
-
     temporaryModifiers: {},
-
     status: {},
-
     metadata: {}
   };
 }
 
-
 function createStandardDeck() {
-
   const deck = [];
 
   for (const suit of SUITS) {
-
     for (const rank of RANKS) {
-
       deck.push(
         createCard(suit, rank)
       );
     }
   }
-  deck.push(createCard(SUITS[0], RANKS[0]));
-  deck.push(createCard(SUITS[0], RANKS[0]));
-  deck.push(createCard(SUITS[0], RANKS[0]));
-  deck.push(createCard(SUITS[0], RANKS[0]));
-  deck.push(createCard(SUITS[0], RANKS[0]));
-  deck.push(createCard(SUITS[0], RANKS[0]));
-  deck.push(createCard(SUITS[0], RANKS[0]));
-  deck.push(createCard(SUITS[0], RANKS[0]));
 
   return shuffle(deck);
 }
 
-
-/* =========================================================
-   CARD AREA SYSTEM
-========================================================= */
-
 function moveCard(card, from, to) {
-
   const index = from.indexOf(card);
 
   if (index !== -1) {
@@ -2971,17 +4630,13 @@ function moveCard(card, from, to) {
   }
 }
 
-
 function moveCards(cards, from, to) {
-
   for (const card of cards) {
     moveCard(card, from, to);
   }
 }
 
-
 function clearSelection() {
-
   for (const card of gameState.hand) {
     card.selected = false;
   }
@@ -2989,38 +4644,31 @@ function clearSelection() {
   gameState.selectedCards = [];
 }
 
-
 function getSelectedCards() {
-
   return gameState.hand.filter(
     card => card.selected
   );
 }
 
-
-/* =========================================================
-   DECK SYSTEM
-========================================================= */
-
 function drawCards(amount) {
-
   let drawn = 0;
 
+  cardsEnteringHand = [];
+
   while (drawn < amount) {
-
-    if (gameState.deck.length === 0) {//if deck is empty
-
+    if (gameState.deck.length === 0) {
       if (gameState.discardPile.length === 0) {
         break;
       }
 
-      gameState.deck = shuffle(
-        gameState.discardPile.splice(0)
-      );
+      gameState.deck =
+        shuffle(
+          gameState.discardPile.splice(0)
+        );
     }
 
-    //take card from deck to hand
-    const card = gameState.deck.pop();
+    const card =
+      gameState.deck.pop();
 
     if (!card) {
       break;
@@ -3030,37 +4678,34 @@ function drawCards(amount) {
 
     gameState.hand.push(card);
 
+    cardsEnteringHand.push(card);
+
     drawn++;
   }
 
-  sortHandBy(gameState.sortOrder);
+  sortCardsByCurrentOrder(gameState.hand);
 
   return drawn;
 }
 
-
 function reshuffleDiscard() {
-
-  if (!gameState.deck.length &&
-      gameState.discardPile.length) {
-
+  if (
+    !gameState.deck.length &&
+    gameState.discardPile.length
+  ) {
     gameState.deck =
-      shuffle(gameState.discardPile.splice(0));
+      shuffle(
+        gameState.discardPile.splice(0)
+      );
   }
 }
 
-
-//}//end of thing
-
 /* =========================================================
-   POKER EVALUATOR, effect application
-========================================================= */
-//if(1==1){
+   POKER EVALUATOR
+   ========================================================= */
 
 function evaluatePokerHand(cards) {
-
   if (!cards.length) {
-
     return {
       name: "High Card",
       level: 1,
@@ -3071,20 +4716,15 @@ function evaluatePokerHand(cards) {
     };
   }
 
-
   const rankGroups = {};
-
   const suitGroups = {};
 
-
   for (const card of cards) {
-
     if (!rankGroups[card.rank]) {
       rankGroups[card.rank] = [];
     }
 
     rankGroups[card.rank].push(card);
-
 
     if (!suitGroups[card.suit]) {
       suitGroups[card.suit] = [];
@@ -3093,91 +4733,98 @@ function evaluatePokerHand(cards) {
     suitGroups[card.suit].push(card);
   }
 
-
-  const groups = Object.values(rankGroups)
-    .sort(
+  const groups =
+    Object.values(rankGroups).sort(
       (a, b) =>
         b.length - a.length ||
         RANK_ORDER[b[0].rank] -
         RANK_ORDER[a[0].rank]
     );
 
-
   const flushSuit =
-    Object.keys(suitGroups)
-      .find(
-        suit => suitGroups[suit].length >= 5
-      );
-
+    Object.keys(suitGroups).find(
+      suit =>
+        suitGroups[suit].length >= 5
+    );
 
   let uniqueRanks =
     [...new Set(
-      cards.map(card => RANK_ORDER[card.rank])
+      cards.map(
+        card => RANK_ORDER[card.rank]
+      )
     )].sort((a, b) => b - a);
-
 
   if (uniqueRanks.includes(14)) {
     uniqueRanks.push(1);
   }
 
-
   let straightHigh = null;
 
-
-  for (let i = 0; i <= uniqueRanks.length - 5; i++) {
-
-    const sequence = uniqueRanks.slice(i, i + 5);
+  for (
+    let i = 0;
+    i <= uniqueRanks.length - 5;
+    i++
+  ) {
+    const sequence =
+      uniqueRanks.slice(i, i + 5);
 
     if (
-      sequence[0] - sequence[4] === 4
+      sequence[0] -
+      sequence[4] === 4
     ) {
       straightHigh = sequence[0];
       break;
     }
   }
 
-
-  /* Royal Flush */
-
-  if (
-    flushSuit &&
-    uniqueRanks.includes(14) &&
-    uniqueRanks.includes(13) &&
-    uniqueRanks.includes(12) &&
-    uniqueRanks.includes(11) &&
-    uniqueRanks.includes(10)
-  ) {
-
-    const scoringCards =
-      cards.filter(
-        card =>
-          card.suit === flushSuit &&
-          ["10", "J", "Q", "K", "A"]
-            .includes(card.rank)
-      );
-
-    return {
-      name: "Royal Flush",
-      level: 10,
-      scoringCards,
-      nonScoringCards:
-        cards.filter(c => !scoringCards.includes(c)),
-      baseChips: 100,
-      baseMult: 8
-    };
-  }
-
-
-  /* Straight Flush */
-
+  /* Royal Flush: ranks must all belong to the flush suit. */
   if (flushSuit) {
-
     const flushRanks =
       [...new Set(
-        suitGroups[flushSuit]
-          .map(card => RANK_ORDER[card.rank])
-      )]
-      .sort((a, b) => b - a);
+        suitGroups[flushSuit].map(
+          card => RANK_ORDER[card.rank]
+        )
+      )];
+
+    const royalRanks =
+      [10, 11, 12, 13, 14];
+
+    if (
+      royalRanks.every(
+        rank => flushRanks.includes(rank)
+      )
+    ) {
+      const scoringCards =
+        cards.filter(
+          card =>
+            card.suit === flushSuit &&
+            royalRanks.includes(
+              RANK_ORDER[card.rank]
+            )
+        );
+
+      return {
+        name: "Royal Flush",
+        level: 10,
+        scoringCards,
+        nonScoringCards:
+          cards.filter(
+            c => !scoringCards.includes(c)
+          ),
+        baseChips: 100,
+        baseMult: 8
+      };
+    }
+  }
+
+  /* Straight Flush */
+  if (flushSuit) {
+    const flushRanks =
+      [...new Set(
+        suitGroups[flushSuit].map(
+          card => RANK_ORDER[card.rank]
+        )
+      )].sort((a, b) => b - a);
 
     if (flushRanks.includes(14)) {
       flushRanks.push(1);
@@ -3190,7 +4837,6 @@ function evaluatePokerHand(cards) {
       i <= flushRanks.length - 5;
       i++
     ) {
-
       if (
         flushRanks[i] -
         flushRanks[i + 4] === 4
@@ -3201,18 +4847,24 @@ function evaluatePokerHand(cards) {
     }
 
     if (high !== null) {
-
       const needed =
         high === 5
           ? [5, 4, 3, 2, 1]
-          : [high, high - 1, high - 2, high - 3, high - 4];
+          : [
+              high,
+              high - 1,
+              high - 2,
+              high - 3,
+              high - 4
+            ];
 
       const scoringCards =
-        cards.filter(card =>
-          card.suit === flushSuit &&
-          needed.includes(
-            RANK_ORDER[card.rank]
-          )
+        cards.filter(
+          card =>
+            card.suit === flushSuit &&
+            needed.includes(
+              RANK_ORDER[card.rank]
+            )
         );
 
       return {
@@ -3220,21 +4872,22 @@ function evaluatePokerHand(cards) {
         level: 9,
         scoringCards,
         nonScoringCards:
-          cards.filter(c => !scoringCards.includes(c)),
+          cards.filter(
+            c => !scoringCards.includes(c)
+          ),
         baseChips: 100,
         baseMult: 8
       };
     }
   }
 
-
   /* Four of a Kind */
-
   const four =
-    groups.find(group => group.length >= 4);
+    groups.find(
+      group => group.length >= 4
+    );
 
   if (four) {
-
     const scoringCards = [...four];
 
     return {
@@ -3242,17 +4895,19 @@ function evaluatePokerHand(cards) {
       level: 8,
       scoringCards,
       nonScoringCards:
-        cards.filter(c => !scoringCards.includes(c)),
+        cards.filter(
+          c => !scoringCards.includes(c)
+        ),
       baseChips: 60,
       baseMult: 7
     };
   }
 
-
   /* Full House */
-
   const triple =
-    groups.find(group => group.length >= 3);
+    groups.find(
+      group => group.length >= 3
+    );
 
   const pair =
     groups.find(
@@ -3262,7 +4917,6 @@ function evaluatePokerHand(cards) {
     );
 
   if (triple && pair) {
-
     const scoringCards = [
       ...triple,
       ...pair
@@ -3273,17 +4927,16 @@ function evaluatePokerHand(cards) {
       level: 7,
       scoringCards,
       nonScoringCards:
-        cards.filter(c => !scoringCards.includes(c)),
+        cards.filter(
+          c => !scoringCards.includes(c)
+        ),
       baseChips: 40,
       baseMult: 4
     };
   }
 
-
   /* Flush */
-
   if (flushSuit) {
-
     const scoringCards =
       suitGroups[flushSuit].slice(0, 5);
 
@@ -3292,17 +4945,16 @@ function evaluatePokerHand(cards) {
       level: 6,
       scoringCards,
       nonScoringCards:
-        cards.filter(c => !scoringCards.includes(c)),
+        cards.filter(
+          c => !scoringCards.includes(c)
+        ),
       baseChips: 35,
       baseMult: 4
     };
   }
 
-
   /* Straight */
-
   if (straightHigh !== null) {
-
     const needed =
       straightHigh === 5
         ? [5, 4, 3, 2, 1]
@@ -3317,12 +4969,12 @@ function evaluatePokerHand(cards) {
     const scoringCards = [];
 
     for (const rankValue of needed) {
-
-      const card = cards.find(
-        c =>
-          RANK_ORDER[c.rank] ===
-          rankValue
-      );
+      const card =
+        cards.find(
+          c =>
+            RANK_ORDER[c.rank] ===
+            rankValue
+        );
 
       if (card) {
         scoringCards.push(card);
@@ -3334,36 +4986,36 @@ function evaluatePokerHand(cards) {
       level: 5,
       scoringCards,
       nonScoringCards:
-        cards.filter(c => !scoringCards.includes(c)),
+        cards.filter(
+          c => !scoringCards.includes(c)
+        ),
       baseChips: 30,
       baseMult: 4
     };
   }
 
-
   /* Three of a Kind */
-
   if (triple) {
-
     return {
       name: "Three of a Kind",
       level: 4,
       scoringCards: [...triple],
       nonScoringCards:
-        cards.filter(c => !triple.includes(c)),
+        cards.filter(
+          c => !triple.includes(c)
+        ),
       baseChips: 30,
       baseMult: 3
     };
   }
 
-
   /* Two Pair */
-
   const pairs =
-    groups.filter(group => group.length >= 2);
+    groups.filter(
+      group => group.length >= 2
+    );
 
   if (pairs.length >= 2) {
-
     const selectedPairs =
       pairs.slice(0, 2).flat();
 
@@ -3380,14 +5032,13 @@ function evaluatePokerHand(cards) {
     };
   }
 
-
   /* Pair */
-
   const pairGroup =
-    groups.find(group => group.length >= 2);
+    groups.find(
+      group => group.length >= 2
+    );
 
   if (pairGroup) {
-
     return {
       name: "Pair",
       level: 2,
@@ -3401,96 +5052,71 @@ function evaluatePokerHand(cards) {
     };
   }
 
-
   /* High Card */
-
   const highest =
-    [...cards]
-      .sort(
-        (a, b) =>
-          RANK_ORDER[b.rank] -
-          RANK_ORDER[a.rank]
-      )[0];
+    [...cards].sort(
+      (a, b) =>
+        RANK_ORDER[b.rank] -
+        RANK_ORDER[a.rank]
+    )[0];
 
   return {
     name: "High Card",
     level: 1,
-    scoringCards: highest ? [highest] : [],
+    scoringCards:
+      highest ? [highest] : [],
     nonScoringCards:
       cards.filter(c => c !== highest),
-    baseChips: highest
-      ? highest.value
-      : 0,
+    baseChips:
+      highest ? highest.value : 0,
     baseMult: 1
   };
 }
 
 /* =========================================================
-   EFFECT APPLICATION
-========================================================= */
+   EFFECTS
+   ========================================================= */
 
 function applyEffect(calculation, effect) {
-
   if (!effect) {
     return;
   }
 
-
   if (effect.chips) {
-
-    calculation.chips +=
-      effect.chips;
+    calculation.chips += effect.chips;
   }
-
 
   if (effect.mult) {
-
-    calculation.mult +=
-      effect.mult;
+    calculation.mult += effect.mult;
   }
-
 
   if (effect.xmult) {
-
-    calculation.mult *=
-      effect.xmult;
+    calculation.mult *= effect.xmult;
   }
-
 
   if (effect.xchips) {
-
-    calculation.chips *=
-      effect.xchips;
+    calculation.chips *= effect.xchips;
   }
-
 
   if (effect.money) {
-
-    gameState.money +=
-      effect.money;
+    gameState.money += effect.money;
   }
 
-
   if (effect.message) {
-
     calculation.trace.push(
       effect.message
     );
   }
 }
 
-//}//end of thing
-
 /* =========================================================
-   JOKER, card effect, held card, scoring ENGINE
-========================================================= */
-//if(1==1){
+   JOKER ENGINE
+   ========================================================= */
 
-function createJoker(type, ed, sv) {
-
+function createJoker(type, ed = "none", sv = 0) {
   const definition =
     JOKER_DEFINITIONS[type];
-    
+
   if (!definition) {
     return null;
   }
@@ -3501,36 +5127,30 @@ function createJoker(type, ed, sv) {
     type,
     name: definition.name,
     icon: definition.icon,
-
     rarity: definition.rarity,
     description: definition.description,
-
     edition: ed,
     sell_value: sv
   };
 }
 
-
 const JokerEngine = {
-
   getDefinition(joker) {
-
     return JOKER_DEFINITIONS[
       joker.type
     ];
   },
 
-
   calculateJoker(joker, context) {
-
     const definition =
       this.getDefinition(joker);
 
-    if (!definition ||
-        typeof definition.calculate !== "function") {
+    if (
+      !definition ||
+      typeof definition.calculate !== "function"
+    ) {
       return null;
     }
-
 
     return definition.calculate.call(
       {
@@ -3545,32 +5165,24 @@ const JokerEngine = {
     );
   },
 
-
   getJokerToLeftOf(id) {
-
     const index =
       gameState.jokers.findIndex(
         joker => joker.id === id
       );
 
-    if (
-      index <= 0
-    ) {
+    if (index <= 0) {
       return null;
     }
 
     return gameState.jokers[index - 1];
   },
 
-
   getLeftmostJoker() {
-
     return gameState.jokers[0] || null;
   },
 
-
   delegateToJoker(target, context) {
-
     if (!target) {
       return null;
     }
@@ -3584,13 +5196,8 @@ const JokerEngine = {
     );
   },
 
-
   runPhase(context, calculation) {
-
-    for (
-      const joker of gameState.jokers
-    ) {
-
+    for (const joker of gameState.jokers) {
       const result =
         this.calculateJoker(
           joker,
@@ -3605,121 +5212,67 @@ const JokerEngine = {
   }
 };
 
-
 /* =========================================================
-    CARD EFFECT ENGINE
-========================================================= */
+   CARD EFFECTS
+   ========================================================= */
 
 function getCardBaseChips(card) {
-
   let chips = card.value;
-
 
   if (card.enhancement === "bonus") {
     chips += 30;
   }
 
-
-  if (
-    card.enhancement === "mult"
-  ) {
-    // Mult is handled separately.
-  }
-
-
   return chips;
 }
 
-
 function getCardEffect(card) {
-
   const effect = {
     chips: getCardBaseChips(card)
   };
 
-
-  if (
-    card.enhancement === "mult"
-  ) {
+  if (card.enhancement === "mult") {
     effect.mult = 4;
   }
 
-
-  if (
-    card.enhancement === "glass"
-  ) {
+  if (card.enhancement === "glass") {
     effect.xmult = 2;
   }
-
 
   return effect;
 }
 
-
 /* =========================================================
-   HELD CARD ENGINE
-========================================================= */
+   HELD CARDS
+   ========================================================= */
 
 function runHeldCardEffects(calculation) {
-
-  /*
-    This implements the important abstraction:
-
-    HELD CARD
-       ↓
-    effects
-       ↓
-    retriggers
-       ↓
-    effects again
-
-    Mime adds another held-card execution.
-  */
-
-
   const heldCards =
     gameState.hand.filter(
       card => !card.selected
     );
 
-
   for (const card of heldCards) {
-
     let repetitions = 1;
-
-
-    /* --------------------------------
-       normal held trigger
-    -------------------------------- */
 
     for (
       let trigger = 0;
       trigger < repetitions;
       trigger++
     ) {
-
       const context = {
-
         type: "held_card",
-
         otherCard: card,
-
         fullHand: gameState.hand,
-
         scoringHand:
           calculation.scoringHand,
-
         scoringName:
           calculation.scoringName
       };
 
-
-      /* Steel */
-
       if (
         card.enhancement === "steel"
       ) {
-
         applyEffect(
           calculation,
           {
@@ -3730,30 +5283,15 @@ function runHeldCardEffects(calculation) {
         );
       }
 
-
-      /* Baron + other held effects */
-
       JokerEngine.runPhase(
         context,
         calculation
       );
     }
 
-
-    /*
-      Mime is itself a trigger.
-
-      Ask each Joker if it creates
-      another held-card execution.
-    */
-
     let extraTriggers = 0;
 
-
-    for (
-      const joker of gameState.jokers
-    ) {
-
+    for (const joker of gameState.jokers) {
       const result =
         JokerEngine.calculateJoker(
           joker,
@@ -3763,48 +5301,34 @@ function runHeldCardEffects(calculation) {
           }
         );
 
-
-      if (result &&
-          result.repetitions) {
-
+      if (
+        result &&
+        result.repetitions
+      ) {
         extraTriggers +=
           result.repetitions;
       }
     }
-
-
-    /*
-      Execute additional triggers.
-    */
 
     for (
       let repeat = 0;
       repeat < extraTriggers;
       repeat++
     ) {
-
       const context = {
-
         type: "held_card",
-
         otherCard: card,
-
         fullHand: gameState.hand,
-
         scoringHand:
           calculation.scoringHand,
-
         scoringName:
           calculation.scoringName,
-
         repetition: true
       };
-
 
       if (
         card.enhancement === "steel"
       ) {
-
         applyEffect(
           calculation,
           {
@@ -3815,7 +5339,6 @@ function runHeldCardEffects(calculation) {
         );
       }
 
-
       JokerEngine.runPhase(
         context,
         calculation
@@ -3824,154 +5347,87 @@ function runHeldCardEffects(calculation) {
   }
 }
 
-
 /* =========================================================
    SCORING ENGINE
-========================================================= */
+   ========================================================= */
 
 function scoreHand(fullHand, pokerResult) {
-
   const calculation = {
-
-    chips:
-      pokerResult.baseChips,
-
-    mult:
-      pokerResult.baseMult,
-
+    chips: pokerResult.baseChips,
+    mult: pokerResult.baseMult,
     fullHand,
-
     scoringHand:
       pokerResult.scoringCards,
-
     scoringName:
       pokerResult.name,
-
     trace: []
   };
-
-
-  /* =======================================================
-     BEFORE
-  ======================================================= */
 
   JokerEngine.runPhase(
     {
       type: "before",
-
       fullHand,
-
       scoringHand:
         pokerResult.scoringCards,
-
       scoringName:
         pokerResult.name
     },
-
     calculation
   );
-
-
-  /* =======================================================
-     INITIAL SCORING
-  ======================================================= */
 
   JokerEngine.runPhase(
     {
       type: "initial_scoring_step",
-
       fullHand,
-
       scoringHand:
         pokerResult.scoringCards,
-
       scoringName:
         pokerResult.name
     },
-
     calculation
   );
-
-
-  /* =======================================================
-     CARD SCORING LOOP
-  ======================================================= */
 
   for (
     const card of pokerResult.scoringCards
   ) {
-
-
-    /* ------------------------------------
-       MAIN SCORING
-    ------------------------------------ */
-
     applyEffect(
       calculation,
       getCardEffect(card)
     );
 
-
-    /* ------------------------------------
-       INDIVIDUAL
-    ------------------------------------ */
-
-    const individualContext = {
-
-      type: "individual",
-
-      otherCard: card,
-
-      fullHand,
-
-      scoringHand:
-        pokerResult.scoringCards,
-
-      scoringName:
-        pokerResult.name
-    };
-
-
     JokerEngine.runPhase(
-      individualContext,
+      {
+        type: "individual",
+        otherCard: card,
+        fullHand,
+        scoringHand:
+          pokerResult.scoringCards,
+        scoringName:
+          pokerResult.name
+      },
       calculation
     );
 
-
-    /* ------------------------------------
-       RED SEAL / CARD RETRIGGER
-    ------------------------------------ */
-
     let repetitions = 0;
-
 
     if (card.seal === "red") {
       repetitions++;
     }
 
-
-    for (
-      const joker of gameState.jokers
-    ) {
-
+    for (const joker of gameState.jokers) {
       const result =
         JokerEngine.calculateJoker(
           joker,
           {
             type: "repetition",
-
             otherCard: card,
-
             fullHand,
-
             scoringHand:
               pokerResult.scoringCards,
-
             scoringName:
               pokerResult.name
           }
         );
-
 
       if (
         result &&
@@ -3982,104 +5438,62 @@ function scoreHand(fullHand, pokerResult) {
       }
     }
 
-
-    /*
-      Repeat the card event.
-
-      A retrigger means executing the
-      card effect again, not multiplying
-      the numerical result.
-    */
-
     for (
       let repetition = 0;
       repetition < repetitions;
       repetition++
     ) {
-
       applyEffect(
         calculation,
         getCardEffect(card)
       );
 
-
       JokerEngine.runPhase(
         {
           type: "individual",
-
           otherCard: card,
-
           repetition: true,
-
           fullHand,
-
           scoringHand:
             pokerResult.scoringCards,
-
           scoringName:
             pokerResult.name
         },
-
         calculation
       );
     }
   }
 
-
-  /* =======================================================
-     PRE-JOKER
-  ======================================================= */
-
   JokerEngine.runPhase(
     {
       type: "pre_joker",
-
       fullHand,
-
       scoringHand:
         pokerResult.scoringCards,
-
       scoringName:
         pokerResult.name
     },
-
     calculation
   );
-
-
-  /* =======================================================
-     JOKER MAIN
-  ======================================================= */
 
   JokerEngine.runPhase(
     {
       type: "joker_main",
-
       fullHand,
-
       scoringHand:
         pokerResult.scoringCards,
-
       scoringName:
         pokerResult.name
     },
-
     calculation
   );
-
-
-  /* =======================================================
-     OTHER JOKER
-  ======================================================= */
 
   for (
     const joker of gameState.jokers
   ) {
-
     for (
       const otherJoker of gameState.jokers
     ) {
-
       if (
         joker.id === otherJoker.id
       ) {
@@ -4091,19 +5505,14 @@ function scoreHand(fullHand, pokerResult) {
           joker,
           {
             type: "other_joker",
-
             otherJoker,
-
             fullHand,
-
             scoringHand:
               pokerResult.scoringCards,
-
             scoringName:
               pokerResult.name
           }
         );
-
 
       applyEffect(
         calculation,
@@ -4112,78 +5521,47 @@ function scoreHand(fullHand, pokerResult) {
     }
   }
 
-
-  /* =======================================================
-     HELD CARDS
-  ======================================================= */
-
   runHeldCardEffects(
     calculation
   );
 
-
-  /* =======================================================
-     POST-JOKER
-  ======================================================= */
-
   JokerEngine.runPhase(
     {
       type: "post_joker",
-
       fullHand,
-
       scoringHand:
         pokerResult.scoringCards,
-
       scoringName:
         pokerResult.name
     },
-
     calculation
   );
-
-
-  /* =======================================================
-     FINAL SCORING
-  ======================================================= */
 
   JokerEngine.runPhase(
     {
       type: "final_scoring_step",
-
       fullHand,
-
       scoringHand:
         pokerResult.scoringCards,
-
       scoringName:
         pokerResult.name,
-
-      chips:
-        calculation.chips,
-
-      mult:
-        calculation.mult
+      chips: calculation.chips,
+      mult: calculation.mult
     },
-
     calculation
   );
 
-
-  /*
-    Clamp invalid values.
-  */
-
   calculation.chips =
-    Math.max(0, calculation.chips);
+    Math.max(
+      0,
+      calculation.chips
+    );
 
   calculation.mult =
-    Math.max(1, calculation.mult);
-
-
-  /*
-    Final mathematical operation.
-  */
+    Math.max(
+      1,
+      calculation.mult
+    );
 
   const finalScore =
     Math.floor(
@@ -4191,37 +5569,31 @@ function scoreHand(fullHand, pokerResult) {
       calculation.mult
     );
 
-
   return {
-
     ...calculation,
-
     finalScore
   };
 }
 
-
-
-//}//end of thing
-
-
 /* =========================================================
-   PLAY CONTROLLER, card destruction, discard controller, sorting, selection
-========================================================= */
-//if(1==1){
-function playSelectedHand() {
+   PLAY / DISCARD
+   ========================================================= */
 
-  if (gameState.inShop ||
-      gameState.runLost) {
+function playSelectedHand() {
+  if (
+    gameState.inShop ||
+    gameState.runLost
+  ) {
     return;
   }
-
 
   const selected =
     getSelectedCards();
 
   if (!selected.length) {
-    showToast("Select at least one card.");
+    showToast(
+      "Select at least one card."
+    );
     return;
   }
 
@@ -4231,10 +5603,8 @@ function playSelectedHand() {
     return;
   }
 
-
   const pokerResult =
     evaluatePokerHand(selected);
-
 
   gameState.currentHandName =
     pokerResult.name;
@@ -4242,22 +5612,14 @@ function playSelectedHand() {
   gameState.currentHandLevel =
     pokerResult.level;
 
-
-  /*
-    The selected cards are now
-    temporarily considered played.
-  */
-
   gameState.playedCards =
     [...selected];
-
 
   const result =
     scoreHand(
       selected,
       pokerResult
     );
-
 
   gameState.chips =
     result.chips;
@@ -4271,32 +5633,17 @@ function playSelectedHand() {
   gameState.roundScore +=
     result.finalScore;
 
-
   gameState.handsRemaining--;
-
-
-  /*
-    Destruction is processed after
-    scoring has completed.
-  */
 
   processDestruction(
     selected
   );
 
-
-  /*
-    Move played cards.
-
-    Cards marked for destruction
-    disappear instead.
-  */
-
   const survivors =
     selected.filter(
-      card => !card.status.destroy
+      card =>
+        !card.status.destroy
     );
-
 
   moveCards(
     survivors,
@@ -4304,97 +5651,57 @@ function playSelectedHand() {
     gameState.discardPile
   );
 
-
-  for (
-    const card of selected
-  ) {
-
-    if (
-      card.status.destroy
-    ) {
-
-      removeCardEverywhere(
-        card
-      );
+  for (const card of selected) {
+    if (card.status.destroy) {
+      removeCardEverywhere(card);
     }
   }
 
-
   clearSelection();
-
 
   drawCards(
     selected.length
   );
 
-
   showScorePopup(
     result.finalScore
   );
-
-
-  renderGame();
-
-
-  /*
-    Check blind after the
-    scoring transaction.
-  */
 
   if (
     gameState.roundScore >=
     gameState.targetScore
   ) {
-
     defeatBlind();
-    shuffle(gameState.deck);
-
+    gameState.deck =
+      shuffle(gameState.deck);
+    saveRun();
     return;
   }
-
 
   if (
     gameState.handsRemaining <= 0
   ) {
-
     loseRun();
-
+    saveRun();
     return;
   }
 
+  saveRun();
   renderGame();
 }
 
-
-
-/* =========================================================
-   CARD DESTRUCTION
-========================================================= */
-
 function processDestruction(cards) {
-
-  for (
-    const card of cards
-  ) {
-
-    /*
-      Glass-style cards have a chance
-      to destroy themselves after scoring.
-    */
-
+  for (const card of cards) {
     if (
       card.enhancement === "glass" &&
       Math.random() < 0.25
     ) {
-
       card.status.destroy = true;
     }
   }
 }
 
-
 function removeCardEverywhere(card) {
-
   const areas = [
     gameState.deck,
     gameState.hand,
@@ -4402,11 +5709,7 @@ function removeCardEverywhere(card) {
     gameState.playedCards
   ];
 
-
-  for (
-    const area of areas
-  ) {
-
+  for (const area of areas) {
     const index =
       area.indexOf(card);
 
@@ -4415,11 +5718,8 @@ function removeCardEverywhere(card) {
     }
   }
 }
-
-
-/* =========================================================
-   DISCARD CONTROLLER
-========================================================= */
+let cardsLeavingHand = [];
+let cardsEnteringHand = [];
 
 function discardSelectedCards() {
 
@@ -4430,47 +5730,32 @@ function discardSelectedCards() {
     return;
   }
 
-
   const selected =
     getSelectedCards();
 
-
   if (!selected.length) {
-
     showToast(
       "Select cards to discard."
     );
-
     return;
   }
-
 
   if (
     gameState.discardsRemaining <= 0
   ) {
-
     showToast(
       "No discards remaining."
     );
-
     return;
   }
 
+  // Remember exactly which cards
+  // are leaving the hand.
+  cardsLeavingHand = [...selected];
 
-  /*
-    Discard event.
-
-    This is deliberately separate from
-    scoring.
-  */
-
-  for (
-    const card of selected
-  ) {
-
+  for (const card of selected) {
     card.selected = false;
   }
-
 
   moveCards(
     selected,
@@ -4478,32 +5763,28 @@ function discardSelectedCards() {
     gameState.discardPile
   );
 
-
   gameState.discardsRemaining--;
-
 
   drawCards(
     selected.length
   );
 
-
   clearSelection();
 
+  saveRun();
 
   renderGame();
 }
 
-
 /* =========================================================
    SORTING
-========================================================= */
+   ========================================================= */
 
 function sortHandByRank() {
   gameState.sortOrder = "rank";
-
   sortCardsByRank(gameState.hand);
-
-  renderHand();
+  saveRun();
+  renderGame();
 }
 
 function sortCardsByRank(set) {
@@ -4516,51 +5797,63 @@ function sortCardsByRank(set) {
   return set;
 }
 
-
 function sortHandBySuit() {
   gameState.sortOrder = "suit";
-
-  sortCardBySuit(gameState.hand)
-
-  renderHand();
+  sortCardsBySuit(gameState.hand);
+  saveRun();
+  renderGame();
 }
 
-function sortCardBySuit(set) {
+function sortCardsBySuit(set) {
   set.sort(
     (a, b) =>
       SUIT_ORDER[a.suit] -
-      SUIT_ORDER[b.suit] ||
+        SUIT_ORDER[b.suit] ||
       RANK_ORDER[a.rank] -
-      RANK_ORDER[b.rank]
+        RANK_ORDER[b.rank]
   );
 
   return set;
 }
 
-function sortHandBy(pick) {
-  if(pick === "suit") sortHandBySuit()
-  else if(pick === "rank") sortHandByRank()
-  else throw new error("could not sort")
+function sortCardsByCurrentOrder(set) {
+  if (gameState.sortOrder === "suit") {
+    return sortCardsBySuit(set);
+  }
 
+  return sortCardsByRank(set);
 }
 
+function sortHandBy(pick) {
+  if (pick === "suit") {
+    sortHandBySuit();
+  } else if (pick === "rank") {
+    sortHandByRank();
+  } else {
+    throw new Error(
+      "could not sort"
+    );
+  }
+}
 
 /* =========================================================
    SELECTION
-========================================================= */
+   ========================================================= */
 
 function selectCard(cardId) {
-
   const card =
     gameState.hand.find(
       c => c.id === cardId
     );
 
-
   if (!card) {
     return;
   }
-  if (!card.selected && getSelectedCards().length >= 5) {
+
+  if (
+    !card.selected &&
+    getSelectedCards().length >= 5
+  ) {
     showToast(
       "Select at most 5 cards."
     );
@@ -4568,17 +5861,16 @@ function selectCard(cardId) {
     return;
   }
 
-
   card.selected =
     !card.selected;
-
 
   gameState.selectedCards =
     getSelectedCards();
 
-
   const pokerResult =
-    evaluatePokerHand(gameState.selectedCards);
+    evaluatePokerHand(
+      gameState.selectedCards
+    );
 
   gameState.currentHandName =
     pokerResult.name;
@@ -4592,63 +5884,99 @@ function selectCard(cardId) {
   gameState.mult =
     pokerResult.baseMult;
 
-  renderDashboard();
+  saveRun();
 
+  renderDashboard();
   renderHand();
 
   return card.selected;
 }
 
 function selectJoker(jokerId) {
-console.log(jokerId);
-  for (const joker of gameState.jokers){
-    console.log("this is in jokers "+joker.id);
-  };
-
   const card =
     gameState.jokers.find(
       c => c.id === jokerId
     );
 
-  console.log("selected card "+card.id);
-  console.log(JSON.stringify(card, null, 2));
-
   if (!card) {
     return;
   }
+
   showToast(
     card.description
   );
 }
-//}//end of thing
 
 /* =========================================================
-   ROUND / BLIND ENGINE, blind completion, run loss
-========================================================= */
-//if(1==1){
-
+   BLIND / ROUND ENGINE
+   ========================================================= */
 
 function getCurrentBlind() {
   return BLINDS[
-    ((gameState.blindIndex % BLINDS.length))
-    // + BLINDS.length) % BLINDS.length
+    (
+      gameState.blindIndex %
+      BLINDS.length +
+      BLINDS.length
+    ) % BLINDS.length
   ];
 }
 
+function hasBaseChipForAnte(ante) {
+  return Number.isFinite(
+    BASE_CHIP[ante]
+  );
+}
 
-function calculateBlindTargetScore(ante, blindIndex) {
+function calculateBlindTargetScore(
+  ante,
+  blindIndex
+) {
+  const blind =
+    BLINDS[blindIndex];
 
-  const blind = BLINDS[blindIndex];
-
-  if (!blind) {
+  if (
+    !blind ||
+    !hasBaseChipForAnte(ante)
+  ) {
     return 0;
   }
 
-  return blind.multiplier * BASE_CHIP[ante];
+  return (
+    blind.multiplier *
+    BASE_CHIP[ante]
+  );
 }
 
+function endRunForAnteLimit() {
+  gameState.runLost = true;
+  gameState.inShop = false;
+
+  showLoseOverlay(
+    "RUN COMPLETE",
+    "The current run has reached the maximum available ante."
+  );
+
+  const loseButton =
+    document.getElementById(
+      "loseRunBtn"
+    );
+
+  if (loseButton) {
+    loseButton.textContent =
+      "NEW RUN";
+  }
+
+  saveRun();
+}
 
 function calculateTargetScore() {
+  if (
+    !hasBaseChipForAnte(
+      gameState.ante
+    )
+  ) {
+    return 0;
+  }
 
   return calculateBlindTargetScore(
     gameState.ante,
@@ -4656,154 +5984,135 @@ function calculateTargetScore() {
   );
 }
 
-
 function initializeBlind() {
+  if (
+    !hasBaseChipForAnte(
+      gameState.ante
+    )
+  ) {
+    endRunForAnteLimit();
+    return false;
+  }
 
   const blind =
     getCurrentBlind();
 
-
   gameState.blind =
     deepCopy(blind);
-
 
   gameState.targetScore =
     calculateTargetScore();
 
-
   gameState.roundScore = 0;
-
   gameState.handsRemaining = 4;
-
   gameState.discardsRemaining = 3;
-
   gameState.chips = 0;
-
   gameState.mult = 1;
-
   gameState.score = 0;
-
   gameState.playedCards = [];
-
-
-  /*
-    Deal a fresh hand.
-  */
-
   gameState.hand = [];
 
   drawCards(8);
 
-
+  saveRun();
   renderGame();
+
+  return true;
 }
 
-
 function startGame() {
-
   gameState.gameStarted = true;
-
   gameState.inShop = false;
-
   gameState.runLost = false;
 
   gameState.money = 40;
-
   gameState.ante = 0;
-
   gameState.roundNumber = 1;
-
   gameState.blindIndex = -1;
 
   gameState.jokers = [];
   gameState.jokerLimit = 15;
-
   gameState.consumables = [];
 
-  gameState.discardPile = [];
+  gameState.deckModifiers = {};
+  gameState.collection = {};
 
+  gameState.hand = [];
+  gameState.discardPile = [];
   gameState.playedCards = [];
+  gameState.selectedCards = [];
 
   gameState.nextCardId = 1;
-
   gameState.nextJokerId = 1;
 
-  gameState.sortOrder = "rank";//default
-
+  gameState.sortOrder = "rank";
 
   gameState.deck =
     createStandardDeck();
 
-
   /*
-    Give the player a basic Joker
-    so the system is visible immediately.
-  */
-  if(1==1){
-  gameState.jokers.push(
-    createJoker("joker", "none", 2)
-  );
-  gameState.jokers.push(
-    createJoker("joker", "none", 2)
-  );
-  gameState.jokers.push(
-    createJoker("joker", "none", 2)
-  );
-  gameState.jokers.push(
-    createJoker("joker", "none", 2)
-  );
-  }
-  if(1==1){
-  gameState.jokers.push(
-    createJoker("joker", "none", 2)
-  );
-  gameState.jokers.push(
-    createJoker("joker", "none", 2)
-  );
-  gameState.jokers.push(
-    createJoker("joker", "none", 2)
-  );
-  gameState.jokers.push(
-    createJoker("joker", "none", 2)
-  );
-  }
+   DEBUG JOKERS
+   */
 
+  gameState.jokers.push(
+    createJoker(
+      "greedy",
+      "none",
+      2
+    )
+  );
+  gameState.deck.push(createCard(SUITS[1], RANKS[0]));
+  gameState.deck.push(createCard(SUITS[1], RANKS[0]));
+  gameState.deck.push(createCard(SUITS[1], RANKS[0]));
+
+
+  currentShopItems = [];
+
+  saveRun();
 
   showRoundOverlay(
     "READY",
     "Begin the first blind."
   );
-  //initializeBlind();
 
   renderGame();
 
+  const loadButton =
+    document.getElementById("load");
 
-  document
-    .getElementById("load")
-    .classList.add("hidden");
+  if (loadButton) {
+    loadButton.classList.add(
+      "hidden"
+    );
+  }
 }
 
-
 function nextRound() {
+  const nextBlindIndex =
+    gameState.blindIndex + 1;
 
-  gameState.blindIndex++;
-
-  /*
-    Three blinds = one ante.
-  */
+  const nextAnte =
+    nextBlindIndex % 3 === 0
+      ? gameState.ante + 1
+      : gameState.ante;
 
   if (
-    gameState.blindIndex % 3 === 0
+    !hasBaseChipForAnte(nextAnte)
   ) {
-
-    gameState.ante++;
-
+    endRunForAnteLimit();
+    return;
   }
-  gameState.roundNumber = gameState.blindIndex % 3 +1;
 
+  gameState.blindIndex =
+    nextBlindIndex;
+
+  gameState.ante =
+    nextAnte;
+
+  gameState.roundNumber =
+    gameState.blindIndex % 3 + 1;
 
   gameState.inShop = false;
-
 
   closeOverlay(
     "roundOverlay"
@@ -4813,174 +6122,246 @@ function nextRound() {
     "shopOverlay"
   );
 
-
   initializeBlind();
 }
 
 
 /* =========================================================
-   BLIND COMPLETION
-========================================================= */
+   BLIND COMPLETION / LOSS
+   ========================================================= */
 
 function defeatBlind() {
-
   const reward =
     gameState.blind.reward;
 
-  //return used cards to deck
   moveCards(
     [...gameState.discardPile],
     gameState.discardPile,
     gameState.deck
-  )
+  );
+
   moveCards(
     [...gameState.hand],
     gameState.hand,
     gameState.deck
-  )
+  );
+
+  gameState.deck =
+    shuffle(gameState.deck);
 
   gameState.money += reward;
-
-
   gameState.inShop = true;
-
 
   showRoundCongratsOverlay(
     "BLIND DEFEATED",
     `You scored ${formatNumber(gameState.roundScore)} / ${formatNumber(gameState.targetScore)}.<br><br>Reward: $${reward}`
   );
 
-
   openShop();
+  saveRun();
 }
 
-
-/* =========================================================
-   RUN LOSS
-========================================================= */
-
 function loseRun() {
-
   gameState.runLost = true;
-
 
   showLoseOverlay(
     "YOU HAVE BEEN DEFEATED",
     `Final score: ${formatNumber(gameState.roundScore)}`
   );
 
+  const button =
+    document.getElementById(
+      "loseRunBtn"
+    );
 
-  document
-    .getElementById("loseRunBtn")
-    .textContent = "NEW RUN";
+  if (button) {
+    button.textContent = "NEW RUN";
+  }
+
+  saveRun();
 }
-
-//}//end of thing
 
 /* =========================================================
    SHOP
-========================================================= */
-//if(1==1){
+   ========================================================= */
 
-  const possible = [
+const possible = [];
 
-    /*{
-      type: "enhancement",
-      enhancement: "steel",
-      name: "Steel Card",
-      description:
-        "A random card becomes Steel.",
-      price: 5
-    },
+for (
+  const [key, j] of Object.entries(
+    JOKER_DEFINITIONS
+  )
+) {
+  possible.push({
+    type: "joker",
+    jokerType: key,
+    name: j.name,
+    description: j.description,
+    price: j.price,
+    rarity: j.rarity
+  });
+}
 
-    {
-      type: "enhancement",
-      enhancement: "mult",
-      name: "Mult Card",
-      description:
-        "A random card gets +4 Mult.",
-      price: 5
-    },
+function getAvailableShopItems(
+  excludedItems = []
+) {
+  return possible.filter(
+    item =>
+      itemCanBePurchased(item) &&
+      !excludedItems.some(
+        entry =>
+          entry.jokerType ===
+          item.jokerType
+      )
+  );
+}
 
-    {
-      type: "enhancement",
-      enhancement: "bonus",
-      name: "Bonus Card",
-      description:
-        "A random card gets +30 Chips.",
-      price: 5
-    },
+function selectShopRarity(
+  candidates
+) {
+  const availableRarities =
+    [...new Set(
+      candidates
+        .map(item => item.rarity)
+        .filter(Boolean)
+    )];
 
-    {
-      type: "enhancement",
-      enhancement: "glass",
-      name: "Glass Card",
-      description:
-        "A random card gets ×2 Mult, but may break.",
-      price: 7
-    }*/
-  ];
+  const weightedRarities =
+    availableRarities
+      .map(rarity => ({
+        rarity,
+        weight:
+          Number(
+            gameState.rarities[rarity]
+          ) || 0
+      }))
+      .filter(
+        entry => entry.weight > 0
+      );
 
-  for (const [key, j] of Object.entries(JOKER_DEFINITIONS)) {
-    possible.push({
-      type: "joker",
-      jokerType: key,
-      name: j.name,
-      description: j.description,
-      price: j.price,
-      rarity: j.rarity
-    })
-  };
+  if (!weightedRarities.length) {
+    return null;
+  }
 
+  const totalWeight =
+    weightedRarities.reduce(
+      (sum, entry) =>
+        sum + entry.weight,
+      0
+    );
+
+  const roll =
+    Math.random() * totalWeight;
+
+  let cumulative = 0;
+
+  for (
+    const entry of weightedRarities
+  ) {
+    cumulative += entry.weight;
+
+    if (roll < cumulative) {
+      return entry.rarity;
+    }
+  }
+
+  return weightedRarities[
+    weightedRarities.length - 1
+  ].rarity;
+}
 
 function generateShopItems() {
-  let output = [];
-  let allowed = false;
+  const output = [];
 
-  for(let i = 0; i<gameState.numOfShopCards; i++){
+  for (
+    let i = 0;
+    i < gameState.numOfShopCards;
+    i++
+  ) {
+    const available =
+      getAvailableShopItems(
+        output.map(
+          entry => entry.item
+        )
+      );
 
-    let possibleItem;
-    let j=-1;
-    let shopArray = shuffle([...possible]);
-    let rarity = Math.random();
-      if(rarity<0.7) rarity = "common"
-      else if (rarity<0.95) rarity = "uncommon"
-      else rarity = "rare";
-      console.log("looking for "+rarity+"...");
+    if (!available.length) {
+      break;
+    }
 
-    while(!itemCanBePurchased(possibleItem) || possibleItem.rarity != rarity || output.some(entry => entry.item === possibleItem)){ 
-      j++;
-      possibleItem = shopArray[j];}
-console.log(rarity + ": " + possibleItem.name);
-    
-    let edition = getRandomEdition("joker");
+    const rarity =
+      selectShopRarity(
+        available
+      );
 
-    possibleItem.edition = edition;
-    const buyPrice = (possibleItem.price + edition.price) * gameState.discount_percent;
+    let candidates =
+      rarity
+        ? available.filter(
+            item =>
+              item.rarity === rarity
+          )
+        : [];
 
-    output[i] = {
-      item: possibleItem, 
+    /*
+     If the selected rarity has no valid
+     candidate, fall back to any valid item.
+     This guarantees the shop cannot loop forever.
+     */
+    if (!candidates.length) {
+      candidates = available;
+    }
+
+    const source =
+      random(candidates);
+
+    if (!source) {
+      break;
+    }
+
+    const item =
+      deepCopy(source);
+
+    const edition =
+      getRandomEdition("joker");
+
+    item.edition = edition;
+
+    const buyPrice =
+      (
+        item.price +
+        edition.price
+      ) *
+      gameState.discount_percent;
+
+    output.push({
+      item,
       type: "joker",
-      buy_price: buyPrice, 
-      sell_value: Math.floor(buyPrice / 2) 
-    };
-  };
+      buy_price: buyPrice,
+      sell_value:
+        Math.floor(
+          buyPrice / 2
+        )
+    });
+  }
 
   return output;
 }
 
 let currentShopItems = [];
 
-function itemCanBePurchased(item){
-  //only rlly just isJokerUniqueNotOwnedYet(item) soo idk if im making this better in the future
-  if(!item) return false;
-
-  let isUnique = true;
-  for (const joker of gameState.jokers) {
-    if(joker.name == item.name) isUnique = false;
+function itemCanBePurchased(item) {
+  if (!item) {
+    return false;
   }
-  if(!isUnique) return false;
-  return true;
+
+  if (item.type !== "joker") {
+    return true;
+  }
+
+  return !gameState.jokers.some(
+    joker =>
+      joker.type === item.jokerType
+  );
 }
 
 const BASE_EDITION_JOKER_RATES = {
@@ -4989,85 +6370,162 @@ const BASE_EDITION_JOKER_RATES = {
   holo: 0.014,
   foil: 0.02
 };
+
 const BASE_EDITION_PLAYINGCARD_RATES = {
   poly: 0.012,
   holo: 0.028,
   foil: 0.04
 };
 
-function getRandomEdition(itemType){
-  const rand = Math.random();
-  let ed; let p = 0;
-  let polyModifier = 1;
+function getRandomEdition(itemType) {
+  const rand =
+    Math.random();
 
-  switch(itemType) {
-    case "joker":
-      if(gameState.appearanceRateModifier != 1){
-        polyModifier = (((7-3)/(4-2) * gameState.appearanceRateModifier) - 1)
-      };
+  let ed = "none";
+  let p = 0;
 
-      if (0<=rand
-      <BASE_EDITION_JOKER_RATES.negative){
+  switch (itemType) {
+    case "joker": {
+      let polyModifier = 1;
+
+      if (
+        gameState.appearanceRateModifier !== 1
+      ) {
+        polyModifier =
+          (
+            (
+              (7 - 3) /
+              (4 - 2)
+            ) *
+            gameState.appearanceRateModifier
+          ) - 1;
+      }
+
+      const negativeRate =
+        BASE_EDITION_JOKER_RATES.negative;
+
+      const polyRate =
+        BASE_EDITION_JOKER_RATES.poly *
+        polyModifier;
+
+      const holoRate =
+        BASE_EDITION_JOKER_RATES.holo *
+        gameState.appearanceRateModifier;
+
+      const foilRate =
+        BASE_EDITION_JOKER_RATES.foil *
+        gameState.appearanceRateModifier;
+
+      const negativeThreshold =
+        negativeRate;
+
+      const polyThreshold =
+        negativeThreshold +
+        polyRate;
+
+      const holoThreshold =
+        polyThreshold +
+        holoRate;
+
+      const foilThreshold =
+        holoThreshold +
+        foilRate;
+
+      if (rand < negativeThreshold) {
         ed = "negative";
-        p = 5;}
-      else if (0<=rand-(BASE_EDITION_JOKER_RATES.negative)
-      <(BASE_EDITION_JOKER_RATES.poly*(polyModifier)) ) {
+        p = 5;
+      } else if (
+        rand < polyThreshold
+      ) {
         ed = "poly";
-        p = 5;}
-      else if (0<=rand-(BASE_EDITION_JOKER_RATES.negative+BASE_EDITION_JOKER_RATES.poly*(polyModifier)) 
-      <(BASE_EDITION_JOKER_RATES.holo*(gameState.appearanceRateModifier)) ) {
+        p = 5;
+      } else if (
+        rand < holoThreshold
+      ) {
         ed = "holo";
-        p = 3;}
-      else if (0<=rand-(BASE_EDITION_JOKER_RATES.negative+BASE_EDITION_JOKER_RATES.poly*(polyModifier)+BASE_EDITION_JOKER_RATES.holo*(gameState.appearanceRateModifier)) 
-      <(BASE_EDITION_JOKER_RATES.foil*(gameState.appearanceRateModifier)) ) {
+        p = 3;
+      } else if (
+        rand < foilThreshold
+      ) {
         ed = "foil";
-        p = 2;}
-      else ed = "none";
+        p = 2;
+      }
 
       break;
-    case "playingCard": 
+    }
 
-      if (0<=rand
-      <(BASE_EDITION_PLAYINGCARD_RATES.poly*(gameState.appearanceRateModifier)) ) {
+    case "playingCard": {
+      const modifier =
+        gameState.appearanceRateModifier;
+
+      const polyRate =
+        BASE_EDITION_PLAYINGCARD_RATES.poly *
+        modifier;
+
+      const holoRate =
+        BASE_EDITION_PLAYINGCARD_RATES.holo *
+        modifier;
+
+      const foilRate =
+        BASE_EDITION_PLAYINGCARD_RATES.foil *
+        modifier;
+
+      const polyThreshold =
+        polyRate;
+
+      const holoThreshold =
+        polyThreshold +
+        holoRate;
+
+      const foilThreshold =
+        holoThreshold +
+        foilRate;
+
+      if (rand < polyThreshold) {
         ed = "poly";
-        p = 5;}
-      else if (0<=rand-(BASE_EDITION_PLAYINGCARD_RATES.poly*(gameState.appearanceRateModifier)) 
-      <(BASE_EDITION_PLAYINGCARD_RATES.holo*(gameState.appearanceRateModifier)) ) {
+        p = 5;
+      } else if (
+        rand < holoThreshold
+      ) {
         ed = "holo";
-        p = 3;}
-      else if (0<=rand-((BASE_EDITION_PLAYINGCARD_RATES.poly+BASE_EDITION_PLAYINGCARD_RATES.holo)*(gameState.appearanceRateModifier)) 
-      <(BASE_EDITION_PLAYINGCARD_RATES.foil*(gameState.appearanceRateModifier)) ) {
+        p = 3;
+      } else if (
+        rand < foilThreshold
+      ) {
         ed = "foil";
-        p = 2;}
-      else ed = "none";
+        p = 2;
+      }
 
-      break
+      break;
+    }
+
     default:
-      throw new Error("getRandomEdition(itemType); itemType not recognized");
+      throw new Error(
+        "getRandomEdition(itemType); itemType not recognized"
+      );
   }
+
   return {
     name: ed,
     price: p
-  }
+  };
 }
 
 function openShop() {
-
   currentShopItems =
     generateShopItems();
 
   renderDashboard();
   renderShop();
 
-
   document
     .getElementById("shopOverlay")
-    .classList.remove("hidden");
+    .classList.remove(
+      "hidden"
+    );
 }
 
-
 function renderShop() {
-
   const container =
     document.getElementById(
       "shopGrid"
@@ -5078,15 +6536,15 @@ function renderShop() {
   document.getElementById(
     "shopMoney"
   ).textContent = "";
-    //`Money: $${gameState.money}`;
 
   currentShopItems.forEach(
-    (e, index) => {
-
+    (entry, index) => {
       const element =
-        document.createElement("div");
-      
-      const item = e.item;
+        document.createElement(
+          "div"
+        );
+
+      const item = entry.item;
 
       element.className =
         "shopItem";
@@ -5095,15 +6553,15 @@ function renderShop() {
         <h3>${item.name}</h3>
         <p>${item.description}</p>
         <div class="shopPrice">
-          $${e.buy_price}
+          $${entry.buy_price}
         </div>
       `;
 
       element.addEventListener(
         "click",
-        () => purchaseShopItem(index)
+        () =>
+          purchaseShopItem(index)
       );
-
 
       container.appendChild(
         element
@@ -5112,191 +6570,166 @@ function renderShop() {
   );
 }
 
-
 function purchaseShopItem(index) {
-
-  const item =
+  const entry =
     currentShopItems[index];
 
-
-  if (!item) {
+  if (!entry) {
     return;
   }
-
 
   if (
     gameState.money <
-    item.buy_price
+    entry.buy_price
   ) {
-
     showToast(
       "Not enough money."
     );
-
     return;
   }
 
-
   if (
-    item.type === "joker" &&
-    gameState.jokers.length >= gameState.jokerLimit
+    entry.type === "joker" &&
+    gameState.jokers.length >=
+      gameState.jokerLimit
   ) {
-
     showToast(
       "Joker slots are full."
     );
-
     return;
   }
 
-
   gameState.money -=
-    item.buy_price;
-
+    entry.buy_price;
 
   if (
-    item.type === "joker"
+    entry.type === "joker"
   ) {
-
-    gameState.jokers.push(
+    const joker =
       createJoker(
-        item.item.jokerType, item.item.edition.name, item.sell_value
-      )
-    );
-  }
-
-
-  if (
-    item.type === "enhancement"
-  ) {
-
-    const card =
-      random(
-        gameState.deck
-          .concat(gameState.hand)
+        entry.item.jokerType,
+        entry.item.edition.name,
+        entry.sell_value
       );
 
-
-    if (card) {
-      card.enhancement =
-        item.enhancement;
+    if (joker) {
+      gameState.jokers.push(
+        joker
+      );
     }
   }
 
+  if (
+    entry.type === "enhancement"
+  ) {
+    const card =
+      random(
+        gameState.deck.concat(
+          gameState.hand
+        )
+      );
+
+    if (card) {
+      card.enhancement =
+        entry.item.enhancement;
+    }
+  }
 
   currentShopItems.splice(
     index,
     1
   );
 
-
+  saveRun();
   renderShop();
-
   renderGame();
 
-
   showToast(
-    `${item.item.name} purchased!`
+    `${entry.item.name} purchased!`
   );
 }
 
-
 function rerollShop() {
-
   const cost = 5;
-
 
   if (
     gameState.money <
     cost
   ) {
-
     showToast(
       "Not enough money."
     );
-
     return;
   }
 
-
   gameState.money -= cost;
-
 
   currentShopItems =
     generateShopItems();
 
-
+  saveRun();
   renderShop();
-
   renderGame();
 }
 
-
 function leaveShop() {
-
   closeOverlay(
     "shopOverlay"
   );
-
 
   showRoundOverlay(
     "READY",
     "Leave the shop to begin the next blind."
   );
 
+  document.getElementById(
+    "nextRoundBtn"
+  ).textContent =
+    "SELECT BLIND";
 
-  document
-    .getElementById(
-      "nextRoundBtn"
-    )
-    .textContent = "SELECT BLIND";
+  saveRun();
 }
-
-
-//}//end of thing
 
 /* =========================================================
    RENDERING
-========================================================= */
-//if(1==1){
-
+   ========================================================= */
 
 function createCardElement(card) {
-
   const element =
     document.createElement("div");
 
   let cardColor;
-  switch(card.suit) {
+
+  switch (card.suit) {
     case "hearts":
       cardColor = "red";
       break;
+
     case "diamonds":
       cardColor = "yellow";
       break;
+
     case "clubs":
       cardColor = "blue";
       break;
+
     default:
       cardColor = "black";
   }
-  element.className = "card " + cardColor;
 
+  element.className =
+    "card " + cardColor;
 
   element.dataset.id =
     card.id;
 
-
   if (card.selected) {
-
     element.classList.add(
       "selected"
     );
   }
 
-
   const badges = [];
-
 
   if (
     card.enhancement === "steel"
@@ -5306,7 +6739,6 @@ function createCardElement(card) {
     );
   }
 
-
   if (
     card.enhancement === "bonus"
   ) {
@@ -5314,7 +6746,6 @@ function createCardElement(card) {
       `<span class="badge bonus">BONUS</span>`
     );
   }
-
 
   if (
     card.enhancement === "mult"
@@ -5324,7 +6755,6 @@ function createCardElement(card) {
     );
   }
 
-
   if (
     card.enhancement === "glass"
   ) {
@@ -5332,7 +6762,6 @@ function createCardElement(card) {
       `<span class="badge">GLASS</span>`
     );
   }
-
 
   if (
     card.seal === "red"
@@ -5342,9 +6771,7 @@ function createCardElement(card) {
     );
   }
 
-
   element.innerHTML = `
-
     <div class="cardTop">
       <span class="cardRank">${card.rank}</span>
       <span class="cardSuit">
@@ -5361,22 +6788,28 @@ function createCardElement(card) {
     </div>
   `;
 
-
   element.addEventListener(
     "pointerdown",
     event => {
-
       event.preventDefault();
+
       gameState.draggable = true;
-      gameState.selectState = selectCard(card.id);
+
+      gameState.selectState =
+        selectCard(card.id);
     }
   );
+
   element.addEventListener(
     "pointermove",
     event => {
-      
       event.preventDefault();
-      if(gameState.draggable && card.selected != gameState.selectState){
+
+      if (
+        gameState.draggable &&
+        card.selected !==
+          gameState.selectState
+      ) {
         selectCard(card.id);
       }
     }
@@ -5388,52 +6821,118 @@ function createCardElement(card) {
 document.addEventListener(
   "pointerup",
   event => {
-    
     event.preventDefault();
-    
     gameState.draggable = false;
-    
-  });
+  }
+);
 
 function renderHand() {
 
-  const handElement =
-    document.getElementById(
-      "hand"
+  const hand =
+    document.getElementById("hand");
+
+  const handIds = new Set(
+    gameState.hand.map(card =>
+      String(card.id)
+    )
+  );
+
+
+  // ==========================================
+  // CREATE / FIND HAND CARDS
+  // ==========================================
+
+  const handElements = [];
+
+  for (const card of gameState.hand) {
+
+    let cardElement =
+      document.querySelector(
+        `.card[data-id="${card.id}"]`
+      );
+
+    if (!cardElement) {
+
+      cardElement =
+        createCardElement(card);
+
+      cardElement.dataset.id =
+        card.id;
+
+      // Mark this as a newly drawn card
+      cardElement.dataset.newCard =
+        "true";
+    }
+
+    cardElement.classList.toggle(
+      "selected",
+      card.selected === true
     );
 
+    handElements.push(cardElement);
+  }
 
-  handElement.innerHTML = "";
 
+  // ==========================================
+  // PUT HAND CARDS IN CORRECT ORDER
+  // ==========================================
 
   for (
-    const card of gameState.hand
+    let i = 0;
+    i < handElements.length;
+    i++
   ) {
 
-    handElement.appendChild(
-      createCardElement(card)
-    );
+    const cardElement =
+      handElements[i];
+
+    const current =
+      hand.children[i];
+
+    if (current !== cardElement) {
+
+      hand.insertBefore(
+        cardElement,
+        current || null
+      );
+
+    }
   }
+
+
+  // ==========================================
+  // REMOVE CARDS THAT LEFT THE HAND
+  // ==========================================
+
+  [...hand.querySelectorAll(".card")]
+    .forEach(cardElement => {
+
+      if (
+        !handIds.has(
+          String(cardElement.dataset.id)
+        )
+      ) {
+        cardElement.remove();
+      }
+
+    });
 }
 
-
 function renderJokers() {
-
   const container =
     document.getElementById(
       "jokers"
     );
 
-
   container.innerHTML = "";
-
 
   for (
     const joker of gameState.jokers
   ) {
-
     const element =
-      document.createElement("div");
+      document.createElement(
+        "div"
+      );
 
     element.className =
       "jokerCard";
@@ -5442,7 +6941,6 @@ function renderJokers() {
       joker.id;
 
     element.innerHTML = `
-
       <div class="jokerIcon">
         ${joker.icon}
       </div>
@@ -5450,10 +6948,13 @@ function renderJokers() {
       <div class="jokerName">
         ${joker.name}
       </div>
-
     `;
 
-    element.addEventListener("click", () => selectJoker(joker.id));
+    element.addEventListener(
+      "click",
+      () =>
+        selectJoker(joker.id)
+    );
 
     container.appendChild(
       element
@@ -5461,33 +6962,27 @@ function renderJokers() {
   }
 }
 
-
 function renderConsumables() {
-
   const container =
     document.getElementById(
       "consumables"
     );
 
-
   container.innerHTML = "";
-
 
   for (
     const item of gameState.consumables
   ) {
-
     const element =
-      document.createElement("div");
-
+      document.createElement(
+        "div"
+      );
 
     element.className =
       "consumableCard";
 
-
     element.textContent =
       item.name;
-
 
     container.appendChild(
       element
@@ -5495,33 +6990,33 @@ function renderConsumables() {
   }
 }
 
-
 function renderDashboard() {
-
   const blind =
     gameState.blind ||
     getCurrentBlind() || {
       name: "BALATO"
     };
 
-
   document.getElementById(
     "blindTitle"
   ).textContent =
     blind.name || "";
 
-
   document.getElementById(
     "blindReq"
-  ).textContent =`${blind.reward ? 
-    formatNumber(
-      gameState.targetScore
-    ) : "BALATO"}`;
+  ).textContent =
+    blind.reward
+      ? formatNumber(
+          gameState.targetScore
+        )
+      : "BALATO";
 
   document.getElementById(
     "blindReward"
-  ).textContent = `${blind.reward ? 
-    "$"+blind.reward : "BALATO"}`;
+  ).textContent =
+    blind.reward
+      ? "$" + blind.reward
+      : "BALATO";
 
   document.getElementById(
     "roundScore"
@@ -5530,59 +7025,54 @@ function renderDashboard() {
       gameState.roundScore
     );
 
-
   document.getElementById(
     "handTypeName"
   ).textContent =
     gameState.currentHandName
       .toUpperCase();
 
-
   document.getElementById(
     "handLevel"
   ).textContent =
     `lvl. ${gameState.currentHandLevel}`;
 
-
   document.getElementById(
     "chips"
   ).textContent =
     gameState.showScoreNumbers
-      ? formatNumber(gameState.chips)
+      ? formatNumber(
+          gameState.chips
+        )
       : "???";
-
 
   document.getElementById(
     "mult"
   ).textContent =
     gameState.showScoreNumbers
-      ? formatNumber(gameState.mult)
+      ? formatNumber(
+          gameState.mult
+        )
       : "???";
-
 
   document.getElementById(
     "hands"
   ).textContent =
     gameState.handsRemaining;
 
-
   document.getElementById(
     "discards"
   ).textContent =
     gameState.discardsRemaining;
-
 
   document.getElementById(
     "coin"
   ).textContent =
     gameState.money;
 
-
   document.getElementById(
     "ante"
   ).textContent =
     gameState.ante;
-
 
   document.getElementById(
     "round"
@@ -5590,15 +7080,12 @@ function renderDashboard() {
     gameState.roundNumber;
 }
 
-
 function renderButtons() {
-
   document.getElementById(
     "playHand"
   ).disabled =
     gameState.inShop ||
     gameState.handsRemaining <= 0;
-
 
   document.getElementById(
     "discardHand"
@@ -5606,12 +7093,10 @@ function renderButtons() {
     gameState.inShop ||
     gameState.discardsRemaining <= 0;
 
-
   document.getElementById(
     "sortRank"
   ).disabled =
     gameState.inShop;
-
 
   document.getElementById(
     "sortSuit"
@@ -5619,94 +7104,475 @@ function renderButtons() {
     gameState.inShop;
 }
 
-
 function renderCenter() {
 
   const center =
-    document.getElementById(
-      "center"
-    );
-
+    document.getElementById("center");
 
   const oldMessage =
     document.getElementById(
       "centerMessage"
     );
 
+  const playedIds =
+    new Set(
+      gameState.playedCards.map(
+        card => String(card.id)
+      )
+    );
 
-  center.innerHTML = "";
+
+  // ==========================================
+  // REMOVE CARDS THAT ARE NO LONGER PLAYED
+  // ==========================================
+
+  center
+    .querySelectorAll(".card[data-id]")
+    .forEach(cardElement => {
+
+      const id =
+        String(cardElement.dataset.id);
+
+      if (!playedIds.has(id)) {
+        cardElement.remove();
+      }
+
+    });
 
 
-  if (
-    gameState.playedCards.length
+  // ==========================================
+  // ADD / REUSE PLAYED CARDS
+  // ==========================================
+
+  const centerElements = [];
+
+  for (
+    const card of gameState.playedCards
   ) {
 
-    for (
-      const card of gameState.playedCards
-    ) {
-
-      center.appendChild(
-        createCardElement(card)
+    let cardElement =
+      document.querySelector(
+        `.card[data-id="${card.id}"]`
       );
+
+    if (!cardElement) {
+
+      cardElement =
+        createCardElement(card);
+
+      cardElement.dataset.id =
+        card.id;
+    }
+
+    cardElement.classList.remove(
+      "selected"
+    );
+
+    centerElements.push(
+      cardElement
+    );
+  }
+
+
+  // ==========================================
+  // PUT CARDS IN CENTER ORDER
+  // ==========================================
+
+  for (
+    let i = 0;
+    i < centerElements.length;
+    i++
+  ) {
+
+    const cardElement =
+      centerElements[i];
+
+    const current =
+      center.querySelectorAll(
+        ".card"
+      )[i];
+
+    if (current !== cardElement) {
+
+      center.insertBefore(
+        cardElement,
+        current || null
+      );
+
     }
   }
 
 
+  // ==========================================
+  // CENTER MESSAGE
+  // ==========================================
+
   if (
-    oldMessage &&
-    !gameState.playedCards.length
+    gameState.playedCards.length === 0
   ) {
 
-    center.appendChild(
-      oldMessage
-    );
+    if (
+      oldMessage &&
+      !center.contains(oldMessage)
+    ) {
+      center.appendChild(
+        oldMessage
+      );
+    }
+
+  } else {
+
+    if (oldMessage) {
+      oldMessage.remove();
+    }
+
   }
 }
 
-
 function renderGame() {
 
-  renderDashboard();
+  // ==========================================
+  // FIRST
+  // Capture every card's current position
+  // ==========================================
 
-  renderJokers();
+  const previousPositions = new Map();
 
-  renderConsumables();
+  document
+    .querySelectorAll(".card[data-id]")
+    .forEach(cardElement => {
 
-  renderCenter();
+      const rect =
+        cardElement.getBoundingClientRect();
+
+      previousPositions.set(
+        String(cardElement.dataset.id),
+        {
+          left: rect.left,
+          top: rect.top
+        }
+      );
+    });
+
+
+  // ==========================================
+  // RENDER
+  // ==========================================
 
   renderHand();
-
+  renderCenter();
+  renderDashboard();
+  renderJokers();
+  renderConsumables();
   renderButtons();
+
+
+  // ==========================================
+  // PLAY FLIP
+  // ==========================================
+
+  requestAnimationFrame(() => {
+
+    animateCardsFLIP(
+      previousPositions
+    );
+
+  });
 }
 
-//}//end of thing
+
+  /*animation*/
+function animateCardsFLIP(previousPositions) {
+
+  const cards =
+    document.querySelectorAll(
+      ".card[data-id]"
+    );
+
+
+  // ==========================================
+  // CARDS CURRENTLY IN THE DOM
+  // ==========================================
+
+  cards.forEach(cardElement => {
+
+    const id =
+      String(cardElement.dataset.id);
+
+    const current =
+      cardElement.getBoundingClientRect();
+
+    const previous =
+      previousPositions.get(id);
+
+    const card =
+      findCardById(id);
+
+
+    // ========================================
+    // NEW CARD
+    // bottom-right → hand
+    // ========================================
+
+    const isNewCard =
+      cardsEnteringHand.some(
+        card =>
+          String(card.id) === id
+      );
+
+
+    if (
+      isNewCard &&
+      !previous
+    ) {
+
+      const startX =
+        window.innerWidth -
+        current.left -
+        current.width;
+
+      const startY =
+        window.innerHeight -
+        current.top -
+        current.height;
+
+      cardElement.animate(
+        [
+          {
+            transform:
+              `translate3d(
+                ${startX}px,
+                ${startY}px,
+                0
+              )`
+          },
+          {
+            transform:
+              "translate3d(0, 0, 0)"
+          }
+        ],
+        {
+          duration: 500,
+          easing:
+            "cubic-bezier(.2, .8, .2, 1)"
+        }
+      );
+
+      return;
+    }
+
+
+    // ========================================
+    // EXISTING CARD
+    // sorting / hand → center
+    // ========================================
+
+    if (!previous) {
+      return;
+    }
+
+    const deltaX =
+      previous.left -
+      current.left;
+
+    const deltaY =
+      previous.top -
+      current.top;
+
+
+    if (
+      Math.abs(deltaX) < 1 &&
+      Math.abs(deltaY) < 1
+    ) {
+      return;
+    }
+
+
+    const isSelected =
+      cardElement.classList.contains(
+        "selected"
+      );
+
+    const lift =
+      isSelected
+        ? -18
+        : 0;
+
+
+    cardElement
+      .getAnimations()
+      .forEach(animation => {
+        animation.cancel();
+      });
+
+
+    cardElement.animate(
+      [
+        {
+          transform:
+            `translate3d(
+              ${deltaX}px,
+              ${deltaY}px,
+              0
+            )
+            translateY(${lift}px)`
+        },
+        {
+          transform:
+            `translate3d(0, 0, 0)
+             translateY(${lift}px)`
+        }
+      ],
+      {
+        duration: 500,
+        easing:
+          "cubic-bezier(.2, .8, .2, 1)"
+      }
+    );
+
+  });
+
+
+  // ==========================================
+  // DISCARDED CARDS
+  // hand → bottom-right
+  // ==========================================
+
+  cardsLeavingHand.forEach(card => {
+
+    const id =
+      String(card.id);
+
+    const previous =
+      previousPositions.get(id);
+
+    if (!previous) {
+      return;
+    }
+
+
+    // If the card was somehow also drawn,
+    // don't animate it as discarded.
+    const wasRedrawn =
+      cardsEnteringHand.some(
+        drawnCard =>
+          String(drawnCard.id) === id
+      );
+
+    if (wasRedrawn) {
+      return;
+    }
+
+
+    const ghost =
+      createCardElement(card);
+
+    ghost.dataset.id = id;
+
+    ghost.classList.remove(
+      "selected"
+    );
+
+    ghost.style.position =
+      "fixed";
+
+    ghost.style.left =
+      `${previous.left}px`;
+
+    ghost.style.top =
+      `${previous.top}px`;
+
+    ghost.style.margin = "0";
+
+    ghost.style.zIndex =
+      "9999";
+
+    document.body.appendChild(
+      ghost
+    );
+
+
+    const ghostRect =
+      ghost.getBoundingClientRect();
+
+
+    const endX =
+      window.innerWidth -
+      ghostRect.left /*-
+      ghostRect.width*/;
+
+    const endY =
+      window.innerHeight -
+      ghostRect.top /*-
+      ghostRect.height*/;
+
+
+    ghost.animate(
+      [
+        {
+          transform:
+            "translate3d(0, 0, 0)"
+        },
+        {
+          transform:
+            `translate3d(
+              ${endX}px,
+              ${endY}px,
+              0
+            )`
+        }
+      ],
+      {
+        duration: 500,
+        easing:
+          "cubic-bezier(.2, .8, .2, 1)"
+      }
+    ).finished.then(() => {
+      ghost.remove();
+    });
+
+  });
+
+
+  // Clear animation state
+  cardsLeavingHand = [];
+  cardsEnteringHand = [];
+}
+
+function findCardById(id) {
+
+  const allCards = [
+    ...gameState.hand,
+    ...gameState.playedCards,
+    ...gameState.discardPile,
+    ...gameState.deck
+  ];
+
+  return allCards.find(
+    card =>
+      String(card.id) === String(id)
+  );
+}
 
 /* =========================================================
-   SCORE POPUP, toast, overlays, run info, collection, deck info
-========================================================= */
-//if(1==1){
-
+   SCORE POPUP / TOAST / OVERLAYS
+   ========================================================= */
 
 function showScorePopup(score) {
-
   const popup =
     document.createElement(
       "div"
     );
 
-
   popup.className =
     "scorePopup";
-
 
   popup.textContent =
     `+${formatNumber(score)}`;
 
-
   document
     .getElementById("base")
     .appendChild(popup);
-
 
   setTimeout(
     () => popup.remove(),
@@ -5714,176 +7580,158 @@ function showScorePopup(score) {
   );
 }
 
-
-/* =========================================================
-   TOAST
-========================================================= */
-
 let toastTimer = null;
 
-
 function showToast(message) {
-
   const toast =
     document.getElementById(
       "toast"
     );
 
-
   toast.textContent =
     message;
-
 
   toast.classList.add(
     "show"
   );
 
-
   clearTimeout(
     toastTimer
   );
 
-
   toastTimer =
     setTimeout(
-      () => {
+      () =>
         toast.classList.remove(
           "show"
-        );
-      },
+        ),
       1500
     );
 }
 
-
-/* =========================================================
-   OVERLAYS
-========================================================= */
-
 function closeOverlay(id) {
-
   document
     .getElementById(id)
     .classList.add("hidden");
 }
 
-
 function openOverlay(id) {
-
   document
     .getElementById(id)
-    .classList.remove("hidden");
+    .classList.remove(
+      "hidden"
+    );
 }
-
-
-function calculateBlindTargetScore(ante, blindIndex) {
-
-  const blind =
-    BLINDS[blindIndex];
-
-  if (!blind) {
-    return 0;
-  }
-
-  /*
-    Same calculation used by the actual
-    blind, but allows the overlay to
-    preview all three blinds.
-  */
-
-  return blind.multiplier *
-    BASE_CHIP[ante];
-}
-
 
 function renderRoundOverlayBlinds() {
+  let currentBeatenBlindIndex =
+    (
+      gameState.blindIndex %
+      3 +
+      3
+    ) % 3;
 
-/*
-0 = small
-1 = big
-2 = boss
-*/
-  let currentBeatenBlindIndex = gameState.blindIndex % 3;
-  let ante = gameState.ante;
+  let ante =
+    gameState.ante;
 
-  if(currentBeatenBlindIndex===2){
-    currentBeatenBlindIndex=-1;
+  /*if (
+    gameState.blindIndex === -1
+  ) {
+    ante++;
+  }*/
+
+  if (
+    currentBeatenBlindIndex === 2
+  ) {
+    currentBeatenBlindIndex = -1;
     ante++;
   }
-  if(gameState.blindIndex===-1){
-    ante++;
-  }
 
-  /*
-    Render all three blinds.
-  */
+  const anteAvailable =
+    hasBaseChipForAnte(ante);
 
   for (
     let index = 0;
     index < 3;
     index++
   ) {
-
     const blind =
       BLINDS[index];
 
     const element =
-      document.getElementById(`roundBlind${index}`);
+      document.getElementById(
+        `roundBlind${index}`
+      );
 
     const scoreElement =
-      document.getElementById(`roundBlind${index}Score`);
+      document.getElementById(
+        `roundBlind${index}Score`
+      );
 
     const rewardElement =
-      document.getElementById(`roundBlind${index}Reward`);
+      document.getElementById(
+        `roundBlind${index}Reward`
+      );
 
     const statusElement =
-      document.getElementById(`roundBlind${index}Status`);
+      document.getElementById(
+        `roundBlind${index}Status`
+      );
 
-    /*
-      Reset classes.
-    */
     element.classList.remove(
       "current",
       "completed",
       "locked"
     );
 
-
-    /*
-      Required score.
-    */
     scoreElement.textContent =
-      formatNumber( calculateBlindTargetScore(ante, index));
+      anteAvailable
+        ? formatNumber(
+            calculateBlindTargetScore(
+              ante,
+              index
+            )
+          )
+        : "END";
 
-    /*
-      Reward.
-    */
-    rewardElement.textContent = `$${blind.reward}`;
+    rewardElement.textContent =
+      `$${blind.reward}`;
 
-    /*
-      Current / completed state.
-    */
-    if (index <= currentBeatenBlindIndex) {
-      element.classList.add("completed");
-      statusElement.textContent = "CLEARED";
+    if (!anteAvailable) {
+      element.classList.add(
+        "locked"
+      );
 
-    } else if (index === currentBeatenBlindIndex+1) {
-      element.classList.add("current");
-      statusElement.textContent = "UPCOMING";
+      statusElement.textContent =
+        "RUN COMPLETE";
+    } else if (
+      index <= currentBeatenBlindIndex
+    ) {
+      element.classList.add(
+        "completed"
+      );
 
+      statusElement.textContent =
+        "CLEARED";
+    } else if (
+      index ===
+      currentBeatenBlindIndex + 1
+    ) {
+      element.classList.add(
+        "current"
+      );
+
+      statusElement.textContent =
+        "UPCOMING";
     } else {
-      element.classList.add("locked");
-      statusElement.textContent = "LOCKED";
+      element.classList.add(
+        "locked"
+      );
+
+      statusElement.textContent =
+        "LOCKED";
     }
   }
-
-
-  /*
-    Boss information.
-
-    This is intentionally ready for
-    future Boss Blind definitions.
-  */
 
   const boss =
     BLINDS[2];
@@ -5893,26 +7741,11 @@ function renderRoundOverlayBlinds() {
   ).textContent =
     boss.name;
 
-
-  /*
-    Do not remove this empty/reserved
-    description area when Boss data
-    is implemented later.
-  */
-
   document.getElementById(
     "roundBossDescription"
   ).textContent =
     boss.description ||
     "Boss Blind description coming soon.";
-
-
-  /*
-    Voucher placeholder.
-
-    Later you can populate these from
-    run/shop/voucher state.
-  */
 
   document.getElementById(
     "roundVoucherName"
@@ -5923,11 +7756,6 @@ function renderRoundOverlayBlinds() {
     "roundVoucherDescription"
   ).textContent =
     "Voucher description coming soon.";
-
-
-  /*
-    Skip Blind placeholder.
-  */
 
   document.getElementById(
     "roundSkipName"
@@ -5944,7 +7772,6 @@ function showLoseOverlay(
   title,
   text
 ) {
-
   document.getElementById(
     "loseOverlayTitle"
   ).innerHTML =
@@ -5964,7 +7791,6 @@ function showRoundOverlay(
   title,
   text
 ) {
-
   document.getElementById(
     "roundOverlayText"
   ).innerHTML =
@@ -5981,16 +7807,15 @@ function showRoundCongratsOverlay(
   title,
   text
 ) {
-
   document.getElementById(
     "roundCongratsOverlayTitle"
-  ).textContent = title;
-
+  ).textContent =
+    title;
 
   document.getElementById(
     "roundCongratsOverlayText"
-  ).innerHTML = text;
-
+  ).innerHTML =
+    text;
 
   openOverlay(
     "roundCongratsOverlay"
@@ -5998,19 +7823,16 @@ function showRoundCongratsOverlay(
 }
 
 /* =========================================================
-   RUN INFO
-========================================================= */
+   RUN INFO / COLLECTION / DECK INFO
+   ========================================================= */
 
 function renderRunInfo() {
-
   const container =
     document.getElementById(
       "runInfoContent"
     );
 
-
   container.innerHTML = `
-
     <p>Ante: ${gameState.ante}</p>
     <p>Round: ${gameState.roundNumber}</p>
     <p>Money: $${gameState.money}</p>
@@ -6022,30 +7844,23 @@ function renderRunInfo() {
       ${
         gameState.jokers
           .map(j => j.name)
-          .join(" → ") || "None"
+          .join(" → ") ||
+        "None"
       }
     </p>
   `;
 }
 
-
-/* =========================================================
-   COLLECTION
-========================================================= */
-
 function renderCollection() {
-
   const container =
     document.getElementById(
       "collectionContent"
     );
 
-
   const all =
     Object.values(
       JOKER_DEFINITIONS
     );
-
 
   container.innerHTML =
     all.map(
@@ -6070,206 +7885,333 @@ function renderCollection() {
     ).join("");
 }
 
-
-/* =========================================================
-   DECK INFO
-========================================================= */
 const CARD_COLORS = {
   hearts: "red",
   diamonds: "yellow",
   clubs: "blue",
   spades: "black"
-}
+};
+
 function renderDeckInfo() {
-  console.log("rendering deck info");
   const total =
     gameState.deck.length +
     gameState.hand.length +
     gameState.discardPile.length;
 
-  let suitCounts = {
+  const suitCounts = {
     hearts: 0,
     diamonds: 0,
     clubs: 0,
     spades: 0
-  }
-  let rankCounts = {
-    "2": 0,
-    "3": 0,
-    "4": 0,
-    "5": 0,
-    "6": 0,
-    "7": 0,
-    "8": 0,
-    "9": 0,
-    "10": 0,
-    "J": 0,
-    "Q": 0,
-    "K": 0,
-    "A": 0
   };
 
-  for(const suit of SUITS){
-    document.getElementById("deckInfo"+suit).innerHTML = "";
-  };
+  const rankCounts = {};
 
-  let disCards = [...gameState.discardPile];
-  for (const card of disCards){
-    card.discarded = true;
-    card.handed = false;
+  for (const rank of RANKS) {
+    rankCounts[rank] = 0;
   }
-  let handCards = [...gameState.hand];
-  for (const card of handCards){
-    card.discarded = false;
-    card.handed = true;
+
+  for (const suit of SUITS) {
+    document.getElementById(
+      "deckInfo" + suit
+    ).innerHTML = "";
   }
-  let cardsInPlay = [...handCards,...gameState.deck,...disCards];
 
-  cardsInPlay = sortCardBySuit(cardsInPlay);
+  const discardedCards =
+    new Set(
+      gameState.discardPile
+    );
 
-  let htmlElements = {
+  const handCards =
+    new Set(
+      gameState.hand
+    );
+
+  const cardsInPlay =
+    sortCardsBySuit([
+      ...gameState.hand,
+      ...gameState.deck,
+      ...gameState.discardPile
+    ]);
+
+  const htmlElements = {
     hearts: [],
     diamonds: [],
     clubs: [],
     spades: []
-  }
+  };
+
   let firstEl = true;
-  let deckCardHeight;
-  cardsInPlay.forEach((card, index) => {
-      const cardEl = document.createElement("div");
+  let deckCardHeight = 0;
 
-      let cardColor = CARD_COLORS[card.suit];
+  cardsInPlay.forEach(
+    (card, index) => {
+      const cardEl =
+        document.createElement(
+          "div"
+        );
 
-      if(document.getElementById("deckFilterRemaining").disabled){
-        if (card.discarded) cardColor += " discarded";
-        if (card.handed) cardColor += " handed";
+      let cardColor =
+        CARD_COLORS[
+          card.suit
+        ];
+
+      if (
+        document.getElementById(
+          "deckFilterRemaining"
+        ).disabled
+      ) {
+        if (
+          discardedCards.has(card)
+        ) {
+          cardColor +=
+            " discarded";
+        }
+
+        if (
+          handCards.has(card)
+        ) {
+          cardColor +=
+            " handed";
+        }
       }
 
-      cardEl.className = `deckCard ${cardColor}`;
+      cardEl.className =
+        `deckCard ${cardColor}`;
 
       suitCounts[card.suit]++;
       rankCounts[card.rank]++;
-      htmlElements[card.suit].push(cardEl);
+      htmlElements[
+        card.suit
+      ].push(cardEl);
 
-      const badges = [];
-      if (card.enhancement === "steel") {
-        badges.push(`<span class="badge steel">STEEL</span>`);
-      }
-      if (card.enhancement === "bonus") {
-        badges.push(`<span class="badge bonus">BONUS</span>`);
-      }
-      if (card.enhancement === "mult") {
-        badges.push(`<span class="badge mult">+MULT</span>`);
-      }
-      if (card.enhancement === "glass") {
-        badges.push(`<span class="badge">GLASS</span>`);
-      }
-      if (
-        card.seal === "red") {
-        badges.push(`<span class="badge redseal">RED</span>`);
-      }
-      
       cardEl.innerHTML = `
-          <span class="deckRank">${card.rank}</span>
-          <div class="deckCardOrganizer">
-            <span class="deckSuit">${SUIT_SYMBOLS[card.suit]}</span>
-            <small>#${String(index + 1).padStart(2, "0")}</small>
-          </div>
+        <span class="deckRank">${card.rank}</span>
+        <div class="deckCardOrganizer">
+          <span class="deckSuit">
+            ${SUIT_SYMBOLS[card.suit]}
+          </span>
+          <small>
+            #${String(index + 1).padStart(2, "0")}
+          </small>
+        </div>
       `;
 
-      cardEl.addEventListener("pointerover", (event) => {
-        cardEl.classList.add("hover_effect");
-      });
-      cardEl.addEventListener("pointerout", (event) => {
-        cardEl.classList.remove("hover_effect")
-      });
-          /*<div class="cardBadges">
-            ${badges.join("")}
-          </div>*/
-
-      document.getElementById("deckInfo"+card.suit).appendChild(cardEl);
-      if(firstEl){
-        firstEl = false;
-        deckCardHeight = cardEl.clientHeight;
-      }
-  });
-
-  
-  for(const suit of SUITS){
-    document.getElementById("deck"+suit).textContent = suitCounts[suit];
-
-    const deckInfoVPadding = 2*parseFloat(window.getComputedStyle(document.getElementById("deckInfo"+suit)).getPropertyValue('padding-top'));
-    const deckInfoHeight = document.getElementById("deckInfo"+suit).clientHeight - deckInfoVPadding;
-
-    htmlElements[suit].forEach((card, index) => {
-      const spacing = Math.max(
-        0,
-        ((deckInfoHeight - deckCardHeight)/(suitCounts[suit]-1))
+      cardEl.addEventListener(
+        "pointerover",
+        () =>
+          cardEl.classList.add(
+            "hover_effect"
+          )
       );
 
-      card.style.marginTop = `${index * spacing}px`;
-    });
-  };
+      cardEl.addEventListener(
+        "pointerout",
+        () =>
+          cardEl.classList.remove(
+            "hover_effect"
+          )
+      );
 
-  for(const rank of RANKS){
-    document.getElementById("rank"+rank).textContent = rankCounts[rank];
+      document
+        .getElementById(
+          "deckInfo" + card.suit
+        )
+        .appendChild(cardEl);
+
+      if (firstEl) {
+        firstEl = false;
+        deckCardHeight =
+          cardEl.clientHeight;
+      }
+    }
+  );
+
+  for (const suit of SUITS) {
+    document.getElementById(
+      "deck" + suit
+    ).textContent =
+      suitCounts[suit];
+
+    const info =
+      document.getElementById(
+        "deckInfo" + suit
+      );
+
+    const deckInfoVPadding =
+      2 *
+      parseFloat(
+        window
+          .getComputedStyle(info)
+          .getPropertyValue(
+            "padding-top"
+          )
+      );
+
+    const deckInfoHeight =
+      info.clientHeight -
+      deckInfoVPadding;
+
+    htmlElements[
+      suit
+    ].forEach(
+      (card, index) => {
+        const count =
+          suitCounts[suit];
+
+        const spacing =
+          count > 1
+            ? Math.max(
+                0,
+                (
+                  deckInfoHeight -
+                  deckCardHeight
+                ) /
+                  (count - 1)
+              )
+            : 0;
+
+        card.style.marginTop =
+          `${index * spacing}px`;
+      }
+    );
   }
 
-  document.getElementById("deckCardCount").textContent = total;
-}
+  for (const rank of RANKS) {
+    document.getElementById(
+      "rank" + rank
+    ).textContent =
+      rankCounts[rank];
+  }
 
+  document.getElementById(
+    "deckCardCount"
+  ).textContent =
+    total;
+}
 
 function countCardsByEnhancement(
   enhancement
 ) {
-
   return [
     ...gameState.deck,
     ...gameState.hand,
     ...gameState.discardPile
-  ]
-  .filter(
+  ].filter(
     card =>
-      card.enhancement === enhancement
-  )
-  .length;
+      card.enhancement ===
+      enhancement
+  ).length;
 }
 
-
-//}//end of thing
-
 /* =========================================================
-   LOCAL SAVE
-========================================================= */
-//if(1==1){
+   LOCAL SAVE / LOAD
+   ========================================================= */
 
+function getSaveData() {
+  return {
+    version: 2,
+
+    money: gameState.money,
+    ante: gameState.ante,
+    roundNumber:
+      gameState.roundNumber,
+
+    jokers:
+      gameState.jokers,
+    consumables:
+      gameState.consumables,
+
+    deckModifiers:
+      gameState.deckModifiers,
+    collection:
+      gameState.collection,
+
+    numOfShopCards:
+      gameState.numOfShopCards,
+
+    rarities:
+      gameState.rarities,
+
+    discount_percent:
+      gameState.discount_percent,
+
+    appearanceRateModifier:
+      gameState.appearanceRateModifier,
+
+    deck:
+      gameState.deck,
+    hand:
+      gameState.hand,
+    discardPile:
+      gameState.discardPile,
+    playedCards:
+      gameState.playedCards,
+
+    selectedCards:
+      gameState.selectedCards,
+
+    handsRemaining:
+      gameState.handsRemaining,
+    discardsRemaining:
+      gameState.discardsRemaining,
+
+    roundScore:
+      gameState.roundScore,
+    targetScore:
+      gameState.targetScore,
+
+    blindIndex:
+      gameState.blindIndex,
+    blind:
+      gameState.blind,
+
+    chips:
+      gameState.chips,
+    mult:
+      gameState.mult,
+    score:
+      gameState.score,
+
+    currentHandName:
+      gameState.currentHandName,
+    currentHandLevel:
+      gameState.currentHandLevel,
+
+    showScoreNumbers:
+      gameState.showScoreNumbers,
+
+    gameStarted:
+      gameState.gameStarted,
+    inShop:
+      gameState.inShop,
+    runLost:
+      gameState.runLost,
+
+    jokerLimit:
+      gameState.jokerLimit,
+    sortOrder:
+      gameState.sortOrder,
+
+    nextCardId:
+      gameState.nextCardId,
+    nextJokerId:
+      gameState.nextJokerId,
+
+    currentShopItems:
+      currentShopItems
+  };
+}
 
 function saveRun() {
-
   try {
-
     localStorage.setItem(
       "balato_run",
-      JSON.stringify({
-        money: gameState.money,
-        ante: gameState.ante,
-        roundNumber:
-          gameState.roundNumber,
-        jokers:
-          gameState.jokers,
-        deck:
-          gameState.deck,
-        hand:
-          gameState.hand,
-        discardPile:
-          gameState.discardPile,
-        blindIndex:
-          gameState.blindIndex
-      })
+      JSON.stringify(
+        getSaveData()
+      )
     );
-
   } catch (error) {
-
     console.warn(
       "Could not save run.",
       error
@@ -6277,28 +8219,251 @@ function saveRun() {
   }
 }
 
+function restoreIds() {
+  const cardIds = [
+    ...gameState.deck,
+    ...gameState.hand,
+    ...gameState.discardPile,
+    ...gameState.playedCards
+  ]
+    .map(card =>
+      Number(card.id)
+    )
+    .filter(Number.isFinite);
 
-/* =========================================================
-   RESET
-========================================================= */
+  const jokerIds =
+    gameState.jokers
+      .map(joker => {
+        const match =
+          String(joker.id).match(
+            /^joker_(\d+)$/
+          );
+
+        return match
+          ? Number(match[1])
+          : 0;
+      })
+      .filter(Number.isFinite);
+
+  const maxCardId =
+    cardIds.length
+      ? Math.max(...cardIds)
+      : 0;
+
+  const maxJokerId =
+    jokerIds.length
+      ? Math.max(...jokerIds)
+      : 0;
+
+  gameState.nextCardId =
+    Math.max(
+      Number(gameState.nextCardId) || 0,
+      maxCardId + 1
+    );
+
+  gameState.nextJokerId =
+    Math.max(
+      Number(gameState.nextJokerId) || 0,
+      maxJokerId + 1
+    );
+}
+
+function loadRun() {
+  return false; //DEBUG THING
+  try {
+    const raw =
+      localStorage.getItem(
+        "balato_run"
+      );
+
+    if (!raw) {
+      return false;
+    }
+
+    const saved =
+      JSON.parse(raw);
+
+    if (
+      !saved ||
+      typeof saved !== "object"
+    ) {
+      return false;
+    }
+
+    const fields = [
+      "money",
+      "ante",
+      "roundNumber",
+      "jokers",
+      "consumables",
+      "deckModifiers",
+      "collection",
+      "numOfShopCards",
+      "rarities",
+      "discount_percent",
+      "appearanceRateModifier",
+      "deck",
+      "hand",
+      "discardPile",
+      "playedCards",
+      "selectedCards",
+      "handsRemaining",
+      "discardsRemaining",
+      "roundScore",
+      "targetScore",
+      "blindIndex",
+      "blind",
+      "chips",
+      "mult",
+      "score",
+      "currentHandName",
+      "currentHandLevel",
+      "showScoreNumbers",
+      "gameStarted",
+      "inShop",
+      "runLost",
+      "jokerLimit",
+      "sortOrder",
+      "nextCardId",
+      "nextJokerId"
+    ];
+
+    for (const field of fields) {
+      if (
+        Object.prototype.hasOwnProperty.call(
+          saved,
+          field
+        )
+      ) {
+        gameState[field] =
+          deepCopy(
+            saved[field]
+          );
+      }
+    }
+
+    if (
+      !Array.isArray(
+        gameState.jokers
+      )
+    ) {
+      gameState.jokers = [];
+    }
+
+    if (
+      !Array.isArray(
+        gameState.consumables
+      )
+    ) {
+      gameState.consumables = [];
+    }
+
+    if (
+      !Array.isArray(
+        gameState.deck
+      )
+    ) {
+      gameState.deck = [];
+    }
+
+    if (
+      !Array.isArray(
+        gameState.hand
+      )
+    ) {
+      gameState.hand = [];
+    }
+
+    if (
+      !Array.isArray(
+        gameState.discardPile
+      )
+    ) {
+      gameState.discardPile = [];
+    }
+
+    if (
+      !Array.isArray(
+        gameState.playedCards
+      )
+    ) {
+      gameState.playedCards = [];
+    }
+
+    gameState.selectedCards =
+      gameState.hand.filter(
+        card => card.selected
+      );
+
+    currentShopItems =
+      Array.isArray(
+        saved.currentShopItems
+      )
+        ? deepCopy(
+            saved.currentShopItems
+          )
+        : [];
+
+    restoreIds();
+
+    if (
+      gameState.inShop &&
+      !currentShopItems.length
+    ) {
+      currentShopItems =
+        generateShopItems();
+    }
+
+    gameState.gameStarted = true;
+
+    renderGame();
+
+    if (gameState.inShop) {
+      renderShop();
+
+      openOverlay(
+        "shopOverlay"
+      );
+    } else if (gameState.runLost) {
+      showLoseOverlay(
+        "YOU HAVE BEEN DEFEATED",
+        `Final score: ${formatNumber(gameState.roundScore)}`
+      );
+    }
+
+    const loadButton =
+      document.getElementById(
+        "load"
+      );
+
+    if (loadButton) {
+      loadButton.classList.add(
+        "hidden"
+      );
+    }
+
+    return true;
+  } catch (error) {
+    console.warn(
+      "Could not load run.",
+      error
+    );
+
+    return false;
+  }
+}
 
 function resetRun() {
-
   localStorage.removeItem(
     "balato_run"
   );
 
-
   startGame();
 }
 
-//}//end of thing
-
 /* =========================================================
    EVENT CONTROLLERS
-========================================================= */
-//if(1==1){
-
+   ========================================================= */
 
 document
   .getElementById("playBtn")
@@ -6307,23 +8472,23 @@ document
     startGame
   );
 
-
 document
   .getElementById("options")
   .addEventListener(
     "click",
-    () => openOverlay(
-      "optionsOverlay"
-    )
+    () =>
+      openOverlay(
+        "optionsOverlay"
+      )
   );
 
-
 document
-  .getElementById("collectionsBtn")
+  .getElementById(
+    "collectionsBtn"
+  )
   .addEventListener(
     "click",
     () => {
-
       renderCollection();
 
       openOverlay(
@@ -6332,14 +8497,12 @@ document
     }
   );
 
-
 document
   .getElementById("playHand")
   .addEventListener(
     "click",
     playSelectedHand
   );
-
 
 document
   .getElementById("discardHand")
@@ -6348,14 +8511,12 @@ document
     discardSelectedCards
   );
 
-
 document
   .getElementById("sortRank")
   .addEventListener(
     "click",
     sortHandByRank
   );
-
 
 document
   .getElementById("sortSuit")
@@ -6364,14 +8525,12 @@ document
     sortHandBySuit
   );
 
-
 document
   .getElementById("rerollBtn")
   .addEventListener(
     "click",
     rerollShop
   );
-
 
 document
   .getElementById("leaveShopBtn")
@@ -6380,16 +8539,14 @@ document
     leaveShop
   );
 
-
 document
   .getElementById("nextRoundBtn")
   .addEventListener(
     "click",
     () => {
-
       if (gameState.runLost) {
-
         startGame();
+
         closeOverlay(
           "roundOverlay"
         );
@@ -6397,11 +8554,7 @@ document
         return;
       }
 
-
       nextRound();
-      /*console.log("ante: "+gameState.ante);
-      console.log("round: "+gameState.roundNumber);
-      console.log("blindindex: "+gameState.blindIndex);*/
     }
   );
 
@@ -6411,11 +8564,12 @@ document
     "click",
     () => {
       startGame();
+
       closeOverlay(
         "loseOverlay"
       );
-      renderDashboard();
 
+      renderDashboard();
     }
   );
 
@@ -6424,7 +8578,6 @@ document
   .addEventListener(
     "click",
     () => {
-
       renderRunInfo();
 
       openOverlay(
@@ -6432,7 +8585,6 @@ document
       );
     }
   );
-
 
 document
   .getElementById("optionsGameBtn")
@@ -6444,13 +8596,11 @@ document
       )
   );
 
-
 document
   .getElementById("deckButton")
   .addEventListener(
     "click",
     () => {
-
       openOverlay(
         "deckOverlay"
       );
@@ -6459,33 +8609,33 @@ document
     }
   );
 
-
 document
-  .getElementById("toggleNumbersBtn")
+  .getElementById(
+    "toggleNumbersBtn"
+  )
   .addEventListener(
     "click",
     () => {
-
       gameState.showScoreNumbers =
         !gameState.showScoreNumbers;
 
+      saveRun();
       renderGame();
     }
   );
 
-
 document
-  .getElementById("resetRunBtn")
+  .getElementById(
+    "resetRunBtn"
+  )
   .addEventListener(
     "click",
     () => {
-
       if (
         confirm(
           "Reset the current run?"
         )
       ) {
-
         resetRun();
 
         closeOverlay(
@@ -6495,19 +8645,15 @@ document
     }
   );
 
-
 document
   .querySelectorAll(
     ".closeOverlay"
   )
   .forEach(
     button => {
-
       button.addEventListener(
         "click",
         () => {
-
-
           const overlay =
             button.closest(
               ".overlay"
@@ -6523,52 +8669,13 @@ document
     }
   );
 
-/*document.getElementById('closeRoundCongratsOverlay').addEventListener(
-        "click",
-        () => closeOverlay('roundCongratsOverlay')
-      );*/
-
-//}//end of thing
-
 /* =========================================================
-   INITIAL STATE, development debug api, 
-========================================================= */
-//if(1==1){
-renderGame();
+   INITIAL STATE / DEBUG API
+   ========================================================= */
 
-
-/* =========================================================
-   DEVELOPMENT DEBUG API
-========================================================= */
-
-/*
-  Useful from the browser console:
-
-  gameState
-
-  evaluatePokerHand(gameState.hand)
-
-  scoreHand(
-    gameState.hand.slice(0,5),
-    evaluatePokerHand(
-      gameState.hand.slice(0,5)
-    )
-  )
-
-  gameState.jokers.push(
-    createJoker("mime")
-  )
-
-  gameState.jokers.push(
-    createJoker("steelBaron")
-  )
-
-  gameState.hand[0].enhancement = "steel"
-
-  gameState.hand[0].rank = "K"
-
-  renderGame()
-*/
+if (!loadRun()) {
+  renderGame();
+}
 
 window.Balato = {
   state: gameState,
@@ -6579,12 +8686,11 @@ window.Balato = {
   drawCards,
   renderGame,
   nextRound,
-  startGame
+  startGame,
+  saveRun,
+  loadRun
 };
-
-
-//}//end of thing
-
 </script>
+
 
 </html>
